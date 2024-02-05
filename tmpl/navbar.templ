@@ -1,0 +1,51 @@
+package tmpl
+
+import "strings"
+
+func cx(m map[string]bool) string {
+	var res string
+	for k, v := range m {
+		if v {
+			res += k + " "
+		}
+	}
+	return res
+}
+
+func classForNabvarItem(c RenderContext, prefix string) string {
+	classNames := map[string]bool{
+		"hover:text-gray-500": true,
+		"px-4":                true,
+	}
+	if prefix == "/" && c.Echo.Path() == "/" {
+		classNames["font-bold"] = true
+		return cx(classNames)
+	} else if strings.HasPrefix(c.Echo.Path(), prefix) {
+		classNames["font-bold"] = true
+	}
+	return cx(classNames)
+}
+
+templ navbar(c RenderContext) {
+	<header class="bg-white min-w-[200px] w-[15vw] max-w-[300px]">
+		<div class="flex flex-col items-center min-w-[180px] max-w-[280px]">
+			@navbarLogo()
+			<span class="font-bold">Redmage</span>
+		</div>
+		<nav class="pt-4">
+			<ul class="flex flex-col flex-wrap space-y-4">
+				<li><a class={ classForNabvarItem(c, "/") } href="/">Home</a></li>
+				<li><a class={ classForNabvarItem(c, "/about") } href="/about">About</a></li>
+				<li><a class={ classForNabvarItem(c, "/config") } href="/config">Config</a></li>
+				<li><a class={ classForNabvarItem(c, "/browse") } href="/browse">Browse</a></li>
+			</ul>
+		</nav>
+	</header>
+}
+
+templ navbarLogo() {
+	<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+		<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 18.75 7.5-7.5 7.5 7.5"></path>
+		<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 7.5-7.5 7.5 7.5"></path>
+	</svg>
+}

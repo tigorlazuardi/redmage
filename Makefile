@@ -18,3 +18,12 @@ build-dependencies:
 		echo "Templ not found in PATH, installing it to $(shell pwd)/bin/templ"
 		go install github.com/a-h/templ/cmd/templ@latest
 	fi
+	@if [ ! -d "node_modules" ]; then
+		echo "Node modules not found, installing them"
+		npm install
+	fi
+
+build: build-dependencies
+	tailwindcss -i src/styles.css -o public/styles.css
+	templ generate
+	go build -o redmage

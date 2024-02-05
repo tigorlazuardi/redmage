@@ -1,0 +1,10 @@
+package tmpl
+
+templ head(extra ...templ.Component) {
+	<head>
+		<link rel="stylesheet" href="/style.css"/>
+		for _, e := range extra {
+			@e
+		}
+	</head>
+}

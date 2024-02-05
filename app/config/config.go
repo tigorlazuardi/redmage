@@ -4,17 +4,18 @@ import (
 	"time"
 
 	"github.com/inhies/go-bytesize"
+	"github.com/knadh/koanf/v2"
 )
 
 type Config struct {
-	Profiles   []Profile   `yaml:"profiles" koanf:"profiles"`
-	Subreddits []Subreddit `yaml:"subreddits" koanf:"subreddits"`
-	Download   Download    `yaml:"download" koanf:"download"`
+	Profiles   map[string]Profile         `yaml:"profiles" koanf:"profiles"`
+	Subreddits map[string]SubredditConfig `yaml:"subreddits" koanf:"subreddits"`
+	Download   Download                   `yaml:"download" koanf:"download"`
+
+	Koanf *koanf.Koanf `json:"-" yaml:"-" koanf:"-"`
 }
 
 type Profile struct {
-	Name string `yaml:"name" koanf:"name"`
-
 	AspectRatioX         float64 `yaml:"aspect_ratio_x" koanf:"aspect_ratio_x"`
 	AspectRatioY         float64 `yaml:"aspect_ratio_y" koanf:"aspect_ratio_y"`
 	AspectRatioTolerance float64 `yaml:"aspect_ratio_tolerance" koanf:"aspect_ratio_tolerance"`
@@ -29,13 +30,12 @@ type Profile struct {
 	NamingFormat string `yaml:"naming_format" koanf:"naming_format"`
 }
 
-type Subreddit struct {
-	Name        string `yaml:"name" koanf:"name"`
+type SubredditConfig struct {
 	Schedule    string `yaml:"schedule" koanf:"schedule"`
 	LookupCount int    `yaml:"lookup_count" koanf:"lookup_count"`
 }
 
-func (s Subreddit) Count() int {
+func (s SubredditConfig) Count() int {
 	if s.LookupCount == 0 {
 		return 100
 	}

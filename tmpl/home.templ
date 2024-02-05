@@ -1,0 +1,8 @@
+package tmpl
+
+templ Home(c RenderContext, cfg string) {
+	@head()
+	@body(c) {
+		<pre class="font-bold">{ cfg }</pre>
+	}
+}

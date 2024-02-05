@@ -1,0 +1,18 @@
+package tmpl
+
+import "github.com/labstack/echo/v5"
+import "github.com/tigorlazuardi/redmage/app/config"
+
+type RenderContext struct {
+	Echo   echo.Context
+	Config *config.Config
+}
+
+templ body(c RenderContext) {
+	<body class="bg-gradient-to-t from-[#fbc2eb] to-[#a6c1ee] min-h-screen flex">
+		@navbar(c)
+		<main class="flex-1">
+			{ children... }
+		</main>
+	</body>
+}
