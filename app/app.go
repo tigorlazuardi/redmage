@@ -9,15 +9,15 @@ import (
 )
 
 type Redmage struct {
-	App           *pocketbase.PocketBase
-	HTMLTemplates fs.FS
+	App    *pocketbase.PocketBase
+	Public fs.FS
 }
 
-func Start(embeds fs.FS) error {
+func Start(public fs.FS) error {
 	app := pocketbase.New()
 	rm := Redmage{
-		App:           app,
-		HTMLTemplates: embeds,
+		App:    app,
+		Public: public,
 	}
 	return rm.Serve()
 }

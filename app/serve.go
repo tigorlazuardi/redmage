@@ -4,20 +4,20 @@ import (
 	"os"
 	"strings"
 
-	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
-	"github.com/tigorlazuardi/redmage/tmpl"
+	"github.com/tigorlazuardi/redmage/app/routes"
 )
 
 func (rm *Redmage) Serve() error {
 	// serves static files from the provided public dir (if exists)
 	rm.App.OnBeforeServe().Add(func(e *core.ServeEvent) error {
-		e.Router.GET("/", func(c echo.Context) error {
-			return tmpl.Hello("Tigor").Render(c.Request().Context(), c.Response())
-		})
-		e.Router.GET("/*", apis.StaticDirectoryHandler(os.DirFS("./pb_public"), false))
+		r := routes.Routes{}
+		e.Router.GET("/", r.Home)
+		if rm.Public != nil {
+			e.Router.GET("/*", apis.StaticDirectoryHandler(rm.Public, false))
+		}
 		return nil
 	})
 
