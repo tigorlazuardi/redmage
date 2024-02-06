@@ -22,6 +22,10 @@ build-dependencies:
 		echo "Node modules not found, installing them"
 		npm install
 	fi
+	@if [  ! -f "public/htmx-1.9.10.min.js" ]; then
+		echo "Htmx not found, installing it"
+		curl -o public/htmx-1.9.10.min.js https://unpkg.com/htmx.org@1.9.10/dist/htmx.min.js
+	fi
 
 build: build-dependencies
 	tailwindcss -i src/styles.css -o public/styles.css

@@ -25,3 +25,4 @@ pb_data
 *.env
 *_templ.go
 public/style.css
+public/htmx*.js
