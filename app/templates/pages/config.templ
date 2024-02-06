@@ -2,20 +2,64 @@ package pages
 
 import "github.com/tigorlazuardi/redmage/app/templates/components"
 import "github.com/tigorlazuardi/redmage/app/models/render"
+import "strconv"
+import "fmt"
 
 templ Config(c render.Context, cfg string) {
 	@components.Head(c)
 	@components.Body(c) {
 		@components.Prose() {
 			<pre class="font-bold">{ cfg }</pre>
-			<form>
-				<h1>Download</h1>
-				<hr/>
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<label for="directory" class="font-bold">Directory</label>
-					<input name="directory" type="text" class="not-prose border-2 border-gray-300 rounded-xl px-2" value={ c.Config.Download.Directory }/>
-				</div>
-			</form>
+			@configDownloadSection(c)
+			@configProfileSection(c)
 		}
 	}
+}
+
+templ configDownloadSection(c render.Context) {
+	<section class="pb-4">
+		<h1>Download</h1>
+		<hr class="border-black"/>
+		<form hx-post="/htmx/config/update/download">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<label for="directory" class="font-bold">Directory</label>
+				<input name="directory" type="text" class="border-2 border-gray-300 rounded-xl px-2" value={ c.Config.Download.Directory }/>
+				<label for="concurrency" class="font-bold">Concurrency</label>
+				<input name="concurrency" type="number" class="border-2 border-gray-300 rounded-xl px-2" value={ strconv.Itoa(c.Config.Download.Concurrency) }/>
+				<label for="connection_timeout" class="font-bold">First-Byte Connection Timeout</label>
+				<div class="flex gap-4">
+					<input name="connection_timeout" type="number" class="basis-3/4 border-2 border-gray-300 rounded-xl px-2" value={ fmt.Sprintf("%.2f", c.Config.Download.ConnectionTimeout.Seconds()) }/>
+					<span class="font-bold">(in seconds)</span>
+				</div>
+				<label for="download_idle_timeout" class="font-bold">Download Idle Timeout</label>
+				<div class="flex gap-4">
+					<input name="download_idle_timeout" type="number" class="basis-3/4 border-2 border-gray-300 rounded-xl px-2" value={ fmt.Sprintf("%.2f", c.Config.Download.DownloadIdleTimeout.Seconds()) }/>
+					<span class="font-bold">(in seconds)</span>
+				</div>
+				<label for="download_idle_threshold" class="font-bold">Download Idle Speed Threshold</label>
+				<div class="flex gap-4">
+					<input name="download_idle_threshold" type="number" class="basis-3/4 border-2 border-gray-300 rounded-xl px-2" value={ strconv.FormatUint(uint64(c.Config.Download.DownloadIdleThreshold/1024), 10) }/>
+					<span class="font-bold">(in KB/s)</span>
+				</div>
+			</div>
+			<div class="flex justify-center mt-4">
+				<button class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold" type="submit">Save Download Configuration</button>
+			</div>
+		</form>
+	</section>
+}
+
+templ configProfileSection(c render.Context) {
+	<section class="mt-4">
+		<h1>Profiles</h1>
+		<hr class="border-black"/>
+		if len(c.Config.Profiles) == 0 {
+			<p class="text-center">No profile found. Please add a new profile.</p>
+		} else {
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+		}
+		<div class="flex justify-center">
+			<button class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold" type="submit">Add New Profile</button>
+		</div>
+	</section>
 }
