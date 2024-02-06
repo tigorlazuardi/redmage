@@ -5,7 +5,7 @@ import (
 
 	"github.com/labstack/echo/v5"
 	"github.com/tigorlazuardi/redmage/app/config"
-	"github.com/tigorlazuardi/redmage/tmpl"
+	"github.com/tigorlazuardi/redmage/app/tmpl"
 )
 
 func (r *Routes) Config(c echo.Context) error {

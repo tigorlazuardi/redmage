@@ -23,5 +23,5 @@ go.work
 node_modules
 pb_data
 *.env
-tmpl/**/*.go
+app/tmpl/**/*.go
 public/style.css
