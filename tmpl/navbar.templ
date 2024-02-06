@@ -15,7 +15,7 @@ func cx(m map[string]bool) string {
 func classForNabvarItem(c RenderContext, prefix string) string {
 	classNames := map[string]bool{
 		"hover:text-gray-500": true,
-		"px-4":                true,
+		"px-8":                true,
 	}
 	if prefix == "/" && c.Echo.Path() == "/" {
 		classNames["font-bold"] = true

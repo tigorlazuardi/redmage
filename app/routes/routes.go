@@ -1,8 +1,6 @@
 package routes
 
 import (
-	"encoding/json"
-
 	"github.com/labstack/echo/v5"
 	"github.com/tigorlazuardi/redmage/app/config"
 	"github.com/tigorlazuardi/redmage/tmpl"
@@ -10,12 +8,15 @@ import (
 
 type Routes struct{}
 
-func (r *Routes) Home(c echo.Context) error {
-	cfg, _ := json.MarshalIndent(config.Default(), "", "    ")
-	render := tmpl.RenderContext{
-		Echo:   c,
+func (r *Routes) Register(e *echo.Echo) {
+	e.GET("/", r.Home)
+	e.GET("/config", r.Config)
+}
+
+func (r *Routes) renderContext(c echo.Context) tmpl.RenderContext {
+	return tmpl.RenderContext{
+		Echo: c,
+		// TODO: find some way to pass latest config
 		Config: config.Default(),
 	}
-
-	return tmpl.Home(render, string(cfg)).Render(c.Request().Context(), c.Response())
 }

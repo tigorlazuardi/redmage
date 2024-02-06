@@ -2,13 +2,11 @@ package tmpl
 
 import "github.com/tigorlazuardi/redmage/tmpl/components"
 
-templ Home(c RenderContext) {
+templ ConfigPage(c RenderContext, cfg string) {
 	@head()
 	@body(c) {
 		@components.Container() {
-			<div class="prose">
-				<h1>Recently Added</h1>
-			</div>
+			<pre class="font-bold">{ cfg }</pre>
 		}
 	}
 }
