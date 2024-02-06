@@ -4,7 +4,7 @@ import "github.com/tigorlazuardi/redmage/app/templates/components"
 import "github.com/tigorlazuardi/redmage/app/models/render"
 
 templ Config(c render.Context, cfg string) {
-	@components.Head()
+	@components.Head(c)
 	@components.Body(c) {
 		@components.Prose() {
 			<pre class="font-bold">{ cfg }</pre>

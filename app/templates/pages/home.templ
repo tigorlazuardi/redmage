@@ -4,11 +4,11 @@ import "github.com/tigorlazuardi/redmage/app/templates/components"
 import "github.com/tigorlazuardi/redmage/app/models/render"
 
 templ Home(c render.Context) {
-	@components.Head()
+	@components.Head(c)
 	@components.Body(c) {
 		@components.Container() {
 			<div class="prose">
-				<h1>Recently Added</h1>
+				<h1>Recently Added 2</h1>
 			</div>
 		}
 	}

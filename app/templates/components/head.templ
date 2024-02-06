@@ -1,9 +1,14 @@
 package components
 
-templ Head(extra ...templ.Component) {
+import "github.com/tigorlazuardi/redmage/app/models/render"
+
+templ Head(c render.Context, extra ...templ.Component) {
 	<head>
 		<link rel="stylesheet" href="/style.css"/>
 		<link rel="icon" href="/favicon.svg"/>
+		if c.Config.HotReload {
+			<script src="/hot_reload.js"></script>
+		}
 		for _, e := range extra {
 			@e
 		}

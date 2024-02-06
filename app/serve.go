@@ -17,6 +17,10 @@ func (rm *Redmage) Serve() error {
 		r := routes.Routes{
 			Config: config.Default(),
 		}
+		if r.Config.HotReload {
+			r.HotReload = make(chan struct{}, 1<<4)
+			r.HotReload <- struct{}{}
+		}
 		r.Register(e.Router)
 		e.Router.GET("/*", apis.StaticDirectoryHandler(rm.Public, false))
 		return nil

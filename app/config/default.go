@@ -35,7 +35,8 @@ func Default() *Config {
 			DownloadIdleTimeout:   time.Minute,
 			DownloadIdleThreshold: 5 * bytesize.KB,
 		},
-		Koanf: k,
+		HotReload: strings.HasPrefix(os.Args[0], os.TempDir()), // check if command is executed using "go run"
+		Koanf:     k,
 	}
 
 	if err := k.Load(structs.Provider(c, "koanf"), nil); err != nil {
