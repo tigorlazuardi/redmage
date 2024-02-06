@@ -15,7 +15,7 @@ func (r *Routes) Register(e *echo.Echo) {
 	e.GET("/", r.HomePage)
 	e.GET("/config", r.ConfigPage)
 	if r.Config.HotReload {
-		e.GET("/hot_reload", r.HotReloadApi)
+		e.GET("/hot_reload", r.createHotReloadRoute())
 	}
 }
 
