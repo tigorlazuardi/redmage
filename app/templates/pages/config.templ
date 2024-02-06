@@ -8,11 +8,13 @@ templ Config(c render.Context, cfg string) {
 	@components.Body(c) {
 		@components.Prose() {
 			<pre class="font-bold">{ cfg }</pre>
-			<h1>Download</h1>
-			<hr/>
-			<form class="grid grid-cols-2">
-				<label for="directory">Directory</label>
-				<input name="directory" type="text" class="border-2 border-gray-300" value={ c.Config.Download.Directory }/>
+			<form>
+				<h1>Download</h1>
+				<hr/>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<label for="directory" class="font-bold">Directory</label>
+					<input name="directory" type="text" class="not-prose border-2 border-gray-300 rounded-xl px-2" value={ c.Config.Download.Directory }/>
+				</div>
 			</form>
 		}
 	}
