@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/labstack/echo/v5"
-	"github.com/tigorlazuardi/redmage/app/tmpl/pages"
+	"github.com/tigorlazuardi/redmage/app/templates/pages"
 )
 
 func (r *Routes) Home(c echo.Context) error {
