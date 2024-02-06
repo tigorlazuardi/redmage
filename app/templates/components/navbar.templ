@@ -21,7 +21,7 @@ func classForNabvarItem(c render.Context, prefix string) string {
 	if prefix == "/" && c.Echo.Path() == "/" {
 		classNames["font-bold"] = true
 		return cx(classNames)
-	} else if strings.HasPrefix(c.Echo.Path(), prefix) {
+	} else if strings.HasPrefix(c.Echo.Path(), prefix) && prefix != "/" {
 		classNames["font-bold"] = true
 	}
 	return cx(classNames)

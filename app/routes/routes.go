@@ -17,8 +17,7 @@ func (r *Routes) Register(e *echo.Echo) {
 
 func (r *Routes) renderContext(c echo.Context) render.Context {
 	return render.Context{
-		Echo: c,
-		// TODO: find some way to pass latest config
-		Config: config.Default(),
+		Echo:   c,
+		Config: r.Config,
 	}
 }
