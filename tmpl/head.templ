@@ -3,6 +3,7 @@ package tmpl
 templ head(extra ...templ.Component) {
 	<head>
 		<link rel="stylesheet" href="/style.css"/>
+		<link rel="icon" href="/favicon.svg"/>
 		for _, e := range extra {
 			@e
 		}
