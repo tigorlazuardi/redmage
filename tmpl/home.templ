@@ -1,8 +1,9 @@
 package tmpl
 
 import "github.com/tigorlazuardi/redmage/tmpl/components"
+import "github.com/tigorlazuardi/redmage/app/models/render"
 
-templ Home(c RenderContext) {
+templ Home(c render.Context) {
 	@head()
 	@body(c) {
 		@components.Container() {
