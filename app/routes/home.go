@@ -2,11 +2,11 @@ package routes
 
 import (
 	"github.com/labstack/echo/v5"
-	"github.com/tigorlazuardi/redmage/app/tmpl"
+	"github.com/tigorlazuardi/redmage/app/tmpl/pages"
 )
 
 func (r *Routes) Home(c echo.Context) error {
-	return tmpl.
+	return pages.
 		Home(r.renderContext(c)).
 		Render(c.Request().Context(), c.Response())
 }

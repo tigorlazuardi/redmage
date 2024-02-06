@@ -1,10 +1,10 @@
-package tmpl
+package components
 
 import "github.com/tigorlazuardi/redmage/app/models/render"
 
-templ body(c render.Context) {
+templ Body(c render.Context) {
 	<body class="bg-gradient-to-t from-[#fbc2eb] to-[#a6c1ee] min-h-screen flex">
-		@navbar(c)
+		@Navbar(c)
 		<main class="flex-1">
 			{ children... }
 		</main>

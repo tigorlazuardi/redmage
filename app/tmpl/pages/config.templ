@@ -1,4 +1,19 @@
 package pages
 
-templ ConfigPage() {
+import "github.com/tigorlazuardi/redmage/app/tmpl/components"
+import "github.com/tigorlazuardi/redmage/app/models/render"
+
+templ Config(c render.Context, cfg string) {
+	@components.Head()
+	@components.Body(c) {
+		@components.Prose() {
+			<pre class="font-bold">{ cfg }</pre>
+			<h1>Download</h1>
+			<hr/>
+			<form class="grid grid-cols-2">
+				<label for="directory">Directory</label>
+				<input name="directory" type="text" class="border-2 border-gray-300" value={ c.Config.Download.Directory }/>
+			</form>
+		}
+	}
 }

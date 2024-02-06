@@ -1,11 +1,11 @@
-package tmpl
+package pages
 
 import "github.com/tigorlazuardi/redmage/app/tmpl/components"
 import "github.com/tigorlazuardi/redmage/app/models/render"
 
 templ Home(c render.Context) {
-	@head()
-	@body(c) {
+	@components.Head()
+	@components.Body(c) {
 		@components.Container() {
 			<div class="prose">
 				<h1>Recently Added</h1>
