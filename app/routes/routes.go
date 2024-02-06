@@ -6,11 +6,13 @@ import (
 	"github.com/tigorlazuardi/redmage/app/models/render"
 )
 
-type Routes struct{}
+type Routes struct {
+	Config *config.Config
+}
 
 func (r *Routes) Register(e *echo.Echo) {
-	e.GET("/", r.Home)
-	e.GET("/config", r.Config)
+	e.GET("/", r.HomePage)
+	e.GET("/config", r.ConfigPage)
 }
 
 func (r *Routes) renderContext(c echo.Context) render.Context {

@@ -7,13 +7,16 @@ import (
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
+	"github.com/tigorlazuardi/redmage/app/config"
 	"github.com/tigorlazuardi/redmage/app/routes"
 )
 
 func (rm *Redmage) Serve() error {
 	// serves static files from the provided public dir (if exists)
 	rm.App.OnBeforeServe().Add(func(e *core.ServeEvent) error {
-		r := routes.Routes{}
+		r := routes.Routes{
+			Config: config.Default(),
+		}
 		r.Register(e.Router)
 		e.Router.GET("/*", apis.StaticDirectoryHandler(rm.Public, false))
 		return nil

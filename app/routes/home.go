@@ -5,7 +5,7 @@ import (
 	"github.com/tigorlazuardi/redmage/app/templates/pages"
 )
 
-func (r *Routes) Home(c echo.Context) error {
+func (r *Routes) HomePage(c echo.Context) error {
 	return pages.
 		Home(r.renderContext(c)).
 		Render(c.Request().Context(), c.Response())
