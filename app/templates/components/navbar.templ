@@ -33,7 +33,7 @@ templ Navbar(c render.Context) {
 			@navbarLogo()
 			<span class="font-bold">Redmage</span>
 		</div>
-		<nav class="pt-4">
+		<nav class="pt-4" hx-boost="true">
 			<ul class="flex flex-col flex-wrap space-y-4">
 				<li><a class={ classForNabvarItem(c, "/") } href="/">Home</a></li>
 				<li><a class={ classForNabvarItem(c, "/about") } href="/about">About</a></li>
