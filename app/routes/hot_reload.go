@@ -39,7 +39,6 @@ func (r *Routes) createHotReloadRoute() func(c echo.Context) error {
 			knownClients[id] = client
 		}
 
-		c.Response().Header().Set("Access-Control-Allow-Origin", "*")
 		c.Response().Header().Set("Content-Type", "text/event-stream")
 		c.Response().Header().Set("Cache-Control", "no-cache")
 		c.Response().Header().Set("Connection", "keep-alive")
