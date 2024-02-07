@@ -95,13 +95,13 @@ templ configProfileSection(c render.Context) {
 			<button
 				class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold"
 				type="submit"
-				onclick="document.getElementById('add-subreddit-dialog').showModal()"
+				onclick="add_subreddit_dialog.showModal()"
 			>Add New Profile</button>
 		</div>
 		<dialog
-			id="add-subreddit-dialog"
+			id="add_subreddit_dialog"
 			hx-on:close-add-subreddit-dialog="this.close()"
-			class="p-8 md:mr-[35vw]"
+			class="p-8"
 			onclick="if (event.target === this) this.close()"
 		>
 			<p>Dialog Content</p>
@@ -109,7 +109,7 @@ templ configProfileSection(c render.Context) {
 				<a
 					href="#"
 					class="bg-red-500 text-white px-4 py-2 rounded-xl font-bold cursor-pointer no-underline inline-block uppercase w-24 text-center"
-					onclick="document.getElementById('add-subreddit-dialog').close()"
+					onclick="add_subreddit_dialog.close()"
 				>Cancel</a>
 				<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold w-24 uppercase">OK</button>
 			</form>
