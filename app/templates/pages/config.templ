@@ -92,7 +92,27 @@ templ configProfileSection(c render.Context) {
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 		}
 		<div class="flex justify-center">
-			<button class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold" type="submit">Add New Profile</button>
+			<button
+				class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold"
+				type="submit"
+				onclick="document.getElementById('add-subreddit-dialog').showModal()"
+			>Add New Profile</button>
 		</div>
+		<dialog
+			id="add-subreddit-dialog"
+			hx-on:close-add-subreddit-dialog="this.close()"
+			class="p-8 md:mr-[35vw]"
+			onclick="if (event.target === this) this.close()"
+		>
+			<p>Dialog Content</p>
+			<form method="dialog" hx-post="/htmx/v1/config/update/subreddit/add">
+				<a
+					href="#"
+					class="bg-red-500 text-white px-4 py-2 rounded-xl font-bold cursor-pointer no-underline inline-block uppercase w-24 text-center"
+					onclick="document.getElementById('add-subreddit-dialog').close()"
+				>Cancel</a>
+				<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold w-24 uppercase">OK</button>
+			</form>
+		</dialog>
 	</section>
 }
