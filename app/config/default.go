@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
@@ -19,10 +20,14 @@ func init() {
 }
 
 func Default() *Config {
+	dirs := userdirs.ForApp("Redmage", "Tigor", "id.web.tigor.redmage")
 	downloadDir := os.Getenv("REDMAGE_DOWNLOAD_DIRECTORY")
 	if downloadDir == "" {
-		dirs := userdirs.ForApp("Redmage", "Tigor", "id.web.tigor.redmage")
 		downloadDir = dirs.DataHome()
+	}
+	configFile := os.Getenv("REDMAGE_CONFIG")
+	if configFile == "" {
+		configFile = filepath.Join(dirs.ConfigHome(), "redmage.yaml")
 	}
 	k := koanf.New(".")
 	c := &Config{
@@ -35,8 +40,9 @@ func Default() *Config {
 			DownloadIdleTimeout:   time.Minute,
 			DownloadIdleThreshold: 5 * bytesize.KB,
 		},
-		HotReload: strings.HasPrefix(os.Args[0], os.TempDir()), // check if command is executed using "go run"
-		Koanf:     k,
+		HotReload:  strings.HasPrefix(os.Args[0], os.TempDir()), // check if command is executed using "go run"
+		ConfigFile: configFile,
+		Koanf:      k,
 	}
 
 	if err := k.Load(structs.Provider(c, "koanf"), nil); err != nil {

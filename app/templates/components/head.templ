@@ -7,6 +7,7 @@ templ Head(c render.Context, extra ...templ.Component) {
 		<link rel="stylesheet" href="/style.css"/>
 		<link rel="icon" href="/favicon.svg"/>
 		<script src="/htmx-1.9.10.min.js"></script>
+		<script src="/htmx-response-targets-1.9.10.min.js"></script>
 		if c.Config.HotReload {
 			<script src="/hot_reload.js"></script>
 		}

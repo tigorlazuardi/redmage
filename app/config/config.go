@@ -1,9 +1,14 @@
 package config
 
 import (
+	"fmt"
+	"os"
+	"sync"
 	"time"
 
 	"github.com/inhies/go-bytesize"
+	"github.com/knadh/koanf/parsers/yaml"
+	"github.com/knadh/koanf/providers/structs"
 	"github.com/knadh/koanf/v2"
 )
 
@@ -14,6 +19,31 @@ type Config struct {
 	HotReload  bool                       `yaml:"hot_reload" koanf:"hot_reload" json:"hot_reload"`
 
 	Koanf *koanf.Koanf `json:"-" yaml:"-" koanf:"-"`
+
+	ConfigFile string `json:"-" yaml:"-" koanf:"-"`
+	mu         sync.Mutex
+}
+
+func (c *Config) Sync() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.Koanf = koanf.New(".")
+	err := c.Koanf.Load(structs.Provider(c, "koanf"), nil)
+	if err != nil {
+		return fmt.Errorf("error syncing config: %w", err)
+	}
+
+	b, err := c.Koanf.Marshal(yaml.Parser())
+	if err != nil {
+		return fmt.Errorf("error syncing config: fail to serialize data to yaml: %w", err)
+	}
+
+	if err := os.WriteFile(c.ConfigFile, b, 0644); err != nil {
+		return fmt.Errorf("error syncing config: fail to write config to file: %w", err)
+	}
+
+	return nil
 }
 
 type Profile struct {
@@ -44,9 +74,9 @@ func (s SubredditConfig) Count() int {
 }
 
 type Download struct {
-	Directory             string            `yaml:"directory" koanf:"directory" json:"directory"`
-	Concurrency           int               `yaml:"concurrency" koanf:"concurrency" json:"concurrency"`
-	ConnectionTimeout     time.Duration     `yaml:"connection_timeout" koanf:"connection_timeout" json:"connection_timeout"`
-	DownloadIdleTimeout   time.Duration     `yaml:"download_idle_timeout" koanf:"download_idle_timeout" json:"download_idle_timeout"`
-	DownloadIdleThreshold bytesize.ByteSize `yaml:"download_idle_threshold" koanf:"download_idle_threshold" json:"download_idle_threshold"`
+	Directory             string            `yaml:"directory" koanf:"directory" json:"directory" schema:"directory"`
+	Concurrency           int               `yaml:"concurrency" koanf:"concurrency" json:"concurrency" schema:"concurrency"`
+	ConnectionTimeout     time.Duration     `yaml:"connection_timeout" koanf:"connection_timeout" json:"connection_timeout" schema:"connection_timeout"`
+	DownloadIdleTimeout   time.Duration     `yaml:"download_idle_timeout" koanf:"download_idle_timeout" json:"download_idle_timeout" schema:"download_idle_timeout"`
+	DownloadIdleThreshold bytesize.ByteSize `yaml:"download_idle_threshold" koanf:"download_idle_threshold" json:"download_idle_threshold" schema:"download_idle_threshold"`
 }

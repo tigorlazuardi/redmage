@@ -26,6 +26,10 @@ build-dependencies:
 		echo "Htmx not found, installing it"
 		curl -o public/htmx-1.9.10.min.js https://unpkg.com/htmx.org@1.9.10/dist/htmx.min.js
 	fi
+	@if [ ! -f "public/htmx-response-targets-1.9.10.min.js" ]; then
+		echo "Htmx response targets not found, installing it"
+		curl -o public/htmx-response-targets-1.9.10.min.js https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.10/ext/response-targets.min.js
+	fi
 
 build: build-dependencies
 	tailwindcss -i src/styles.css -o public/styles.css
