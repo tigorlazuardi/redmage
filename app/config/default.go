@@ -10,7 +10,6 @@ import (
 	"github.com/apparentlymart/go-userdirs/userdirs"
 	"github.com/inhies/go-bytesize"
 	"github.com/joho/godotenv"
-	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/structs"
 	"github.com/knadh/koanf/v2"
 )
@@ -48,15 +47,6 @@ func Default() *Config {
 	if err := k.Load(structs.Provider(c, "koanf"), nil); err != nil {
 		panic(err)
 	}
-
-	_ = k.Load(env.Provider("REDMAGE_", ".", func(s string) string {
-		key := strings.TrimPrefix(s, "REDMAGE_")
-		key = strings.ToLower(key)
-		key = strings.ReplaceAll(key, "__", ".")
-		return key
-	}), nil)
-
-	_ = k.Unmarshal("", c)
 
 	return c
 }

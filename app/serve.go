@@ -14,8 +14,12 @@ import (
 func (rm *Redmage) Serve() error {
 	// serves static files from the provided public dir (if exists)
 	rm.App.OnBeforeServe().Add(func(e *core.ServeEvent) error {
+		cfg, err := config.Load()
+		if err != nil {
+			return err
+		}
 		r := routes.Routes{
-			Config: config.Default(),
+			Config: cfg,
 		}
 		if r.Config.HotReload {
 			r.HotReload = make(chan struct{}, 1<<4)
