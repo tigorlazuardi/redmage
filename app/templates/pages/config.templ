@@ -119,6 +119,7 @@ templ configDeviceSectionModal() {
 				@configDeviceSectionModal_deviceNameGroup()
 				@configDeviceSectionModal_aspectRatioGroup()
 				@configDeviceSectionModal_minResolutionGroup()
+				@configDeviceSectionModal_maxResolutionGroup()
 				<div id="config-add-subreddit-toast" class="w-max mx-auto mt-4">
 					@components.SuccessToast("foo")
 				</div>
@@ -295,6 +296,56 @@ templ configDeviceSectionModal_minResolutionGroup() {
 				</div>
 				<input
 					name="minimum_resolution_height"
+					type="number"
+					min="0"
+					class="border-2 border-gray-300 rounded-xl px-2"
+					value="0"
+				/>
+			</div>
+		</div>
+	</section>
+}
+
+templ configDeviceSectionModal_maxResolutionGroup() {
+	<section>
+		<h3 class="mb-0">Maximum Resolution</h3>
+		<hr class="my-4"/>
+		<div class="grid gap-4">
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+				<div class="flex items-center gap-4">
+					<label for="maximum_resolution_width" class="font-bold ml-1 lg:ml-0">Width</label>
+					@components.Tooltip(
+						"Do not download images whose width is higher than specicified value. Set to 0 to disable filter.",
+						"Good for saving bandwidth and storage space.",
+						"",
+						`Example: 1920`,
+					) {
+						@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
+					}
+				</div>
+				<input
+					name="maximum_resolution_width"
+					type="number"
+					min="0"
+					class="border-2 border-gray-300 rounded-xl px-2"
+					value="0"
+					required
+				/>
+			</div>
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+				<div class="flex items-center gap-4">
+					<label for="maximum_resolution_height" class="font-bold ml-1 lg:ml-0">Height</label>
+					@components.Tooltip(
+						"Do not download images whose height is higher than specicified value. Set to 0 to disable filter.",
+						"Good for saving bandwidth and storage space.",
+						"",
+						`Example: 1080`,
+					) {
+						@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
+					}
+				</div>
+				<input
+					name="maximum_resolution_height"
 					type="number"
 					min="0"
 					class="border-2 border-gray-300 rounded-xl px-2"
