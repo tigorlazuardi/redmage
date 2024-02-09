@@ -50,6 +50,11 @@ func (r *Routes) createHotReloadRoute() func(c echo.Context) error {
 			case <-c.Request().Context().Done():
 				return nil
 			case <-r.HotReload:
+				// dispose own's channel buffer to prevent deadlock.
+				// because it will be filled with new signal below.
+				if len(ch) > 0 {
+					<-ch
+				}
 				// broadcast to all connected clients
 				// that hot reload is triggered.
 				//
