@@ -103,18 +103,137 @@ templ configProfileSection(c render.Context) {
 		<dialog
 			id="add-subreddit-dialog"
 			hx-on:close-add-subreddit-dialog="this.close()"
-			class="p-8"
+			class="p-8 min-w-[50vw] rounded-2xl"
 			onclick="if (event.target === this) this.close()"
-			onload="console.log(this); setTimeout(() => this.showModal(), 100)"
+			open
 		>
-			<h1>Add New Subreddit</h1>
+			<h2 class="m-0 mb-4">Add New Profile</h2>
+			<hr class="mb-4"/>
 			<form method="dialog" hx-post="/htmx/v1/config/update/subreddit/add">
-				<a
-					href="#"
-					class="bg-red-500 text-white px-4 py-2 rounded-xl font-bold cursor-pointer no-underline inline-block uppercase w-24 text-center"
-					onclick="document.getElementById('add-subreddit-dialog').close()"
-				>Cancel</a>
-				<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold w-24 uppercase">OK</button>
+				<div class="mb-4">
+					<div class="grid lg:grid-cols-2 grid-cols-1 gap-4">
+						<div class="flex items-center gap-4">
+							<label for="add_profile_name" class="font-bold">
+								Profile Name 
+							</label>
+							@components.Tooltip(
+								"Sets the name of the profile.",
+								"Recommended to set to an identifiable name. Like your device name.",
+								`e.g. "My-Laptop"`,
+								"NOTE: Only A-Z, a-z, 0-9, - and _ characters are allowed. No spaces allowed.",
+							) {
+								@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
+							}
+						</div>
+						<input
+							name="add_profile_name"
+							type="text"
+							class="border-2 border-gray-300 rounded-xl px-2"
+							placeholder="e.g. My-Laptop"
+							pattern="[a-zA-Z0-9\\-_]+"
+							oninvalid="this.setCustomValidity('Only A-Z, a-z, 0-9, - and _ characters are allowed. No spaces allowed.');"
+							oninput="this.setCustomValidity('')"
+							required
+						/>
+					</div>
+					<div class="flex items-center mt-8 gap-4">
+						<h3 class="my-0">Aspect Ratio</h3>
+						@components.Tooltip(
+							"Aspect Ratio filters the images based on specified width and height RATIOS, not the resolution.",
+							"If your device has a resolution of 1920x1080, it will target all images that have the same aspect ratio as 1920x1080.",
+							"like image whose resolutions are 3840x2160, 2560x1440, 1280x720, etc., since they all have width/height value ratio of 16:9.",
+							"",
+							"To filter actual image resolution, use (or combine) this with the min and max resolution filters below",
+						) {
+							@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
+						}
+					</div>
+					<hr class="my-4"/>
+					<section class="grid gap-4">
+						<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+							<div class="flex items-center gap-4">
+								<label for="add_profile_aspect_ratio_width" class="font-bold ml-1 lg:ml-0">Width</label>
+								@components.Tooltip(
+									"Filters Width aspect ratio of images to download. Set to 0 to disable.",
+									"If Width is NOT 0, then Height must ALSO NOT be 0",
+									"If you are not sure about the width aspect ratio value, use your device's width resolution",
+									"",
+									`Example: 1920`,
+								) {
+									@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
+								}
+							</div>
+							<input
+								name="add_profile_aspect_ratio_width"
+								type="number"
+								min="0"
+								class="border-2 border-gray-300 rounded-xl px-2"
+								value="0"
+								required
+							/>
+						</div>
+						<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+							<div class="flex items-center gap-4">
+								<label for="add_profile_aspect_ratio_height" class="font-bold ml-1 lg:ml-0">Height</label>
+								@components.Tooltip(
+									"Filters Height aspect ratio of images to download. Set to 0 to disable.",
+									"If Height is NOT 0, then Width must ALSO NOT be 0",
+									"If you are not sure about the Height aspect ratio value, use your device's Height resolution",
+									"",
+									`Example: 1080`,
+								) {
+									@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
+								}
+							</div>
+							<input
+								name="add_profile_aspect_ratio_height"
+								type="number"
+								min="0"
+								class="border-2 border-gray-300 rounded-xl px-2"
+								value="0"
+							/>
+						</div>
+						<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+							<div class="flex items-center gap-4">
+								<label for="add_profile_aspect_ratio_tolerance" class="font-bold ml-1 lg:ml-0">Tolerance</label>
+								@components.Tooltip(
+									"Tolerance is how much deviation from the aspect ratio is allowed. Set to 0 to only accept images with exact aspect ratio set above.",
+									"The value that is used as base of the deviation comes from by dividing width by height of the image.",
+									"",
+									"e.g. Image that has resolution of 1920x1080 has ratio value of ~1.777 (by dividing 1920 by 1080).",
+									"Using ratio value above, A tolerance value of 0.2 will allow Redmage to accept images whose ratio value is in the range of ~1.577 to ~1.977.",
+									"So in this case, an image whose resolution is 4000x2200 is still accepted because it has ratio value of ~1.818, which is still inside the deviation range.",
+									"",
+									"The higher the tolerance, the more images will be accepted. But it will also accept more images that does not fill your screen perfectly.",
+									"A value of 0.2 is recommended because the fetched images will look good even when the picture is stretched and still allow many images to be fetched",
+									"",
+									`Example: 0.2.`,
+									"NOTE: Tolerance only applies when both Width and Height are not 0.",
+								) {
+									@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
+								}
+							</div>
+							<input
+								name="add_profile_aspect_ratio_tolerance"
+								type="number"
+								min="0"
+								class="border-2 border-gray-300 rounded-xl px-2"
+								value="0.2"
+							/>
+						</div>
+					</section>
+					<div id="config-add-subreddit-toast" class="w-max mx-auto mt-4">
+						@components.SuccessToast("foo")
+					</div>
+				</div>
+				<div class="flex justify-center gap-4">
+					<a
+						href="#"
+						class="bg-red-500 text-white px-4 py-2 rounded-xl font-bold cursor-pointer no-underline inline-block uppercase w-24 text-center"
+						onclick="document.getElementById('add-subreddit-dialog').close()"
+					>Cancel</a>
+					<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold w-24 uppercase">Add</button>
+				</div>
 			</form>
 		</dialog>
 	</section>
