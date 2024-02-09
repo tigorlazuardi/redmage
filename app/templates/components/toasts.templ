@@ -5,7 +5,7 @@ import "fmt"
 templ SuccessToast(message string, args ...any) {
 	<div
 		onclick="this.remove();"
-		class="flex items-center justify-center bg-green-500 border-l-4 border-green-700 py-2 px-3 shadow-md my-4 hover:cursor-pointer"
+		class="flex items-center justify-center bg-green-500 border-l-4 border-green-700 py-2 px-3 shadow-md my-4 hover:cursor-pointer hover:bg-green-300 hover:text-gray-800"
 	>
 		<div class="text-green-500 rounded-full bg-white mr-3">
 			<svg width="1.8em" height="1.8em" viewBox="0 0 16 16" class="bi bi-check" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
