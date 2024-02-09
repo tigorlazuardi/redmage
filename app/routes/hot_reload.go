@@ -3,40 +3,22 @@ package routes
 import (
 	"io"
 	"sync"
-	"time"
 
 	"github.com/labstack/echo/v5"
 )
 
 func (r *Routes) createHotReloadRoute() func(c echo.Context) error {
-	type hotReloadClient struct {
-		cleaner *time.Timer
-		ch      chan struct{}
-	}
 	var mu sync.Mutex
-	knownClients := make(map[string]hotReloadClient)
-	cleanup := func(id string) *time.Timer {
-		return time.AfterFunc(5*time.Minute, func() {
-			mu.Lock()
-			defer mu.Unlock()
-			delete(knownClients, id)
-		})
-	}
+	knownClients := make(map[string]chan struct{})
 	return func(c echo.Context) error {
 		id := c.Request().URL.Query().Get("id")
 		var ch chan struct{}
-		if oldClient, known := knownClients[id]; known {
-			oldClient.cleaner.Stop()
-			oldClient.cleaner = cleanup(id)
-			ch = oldClient.ch
+		if oldChannel, known := knownClients[id]; known {
+			ch = oldChannel
 		} else {
-			client := hotReloadClient{
-				cleaner: cleanup(id),
-				ch:      make(chan struct{}, 1),
-			}
-			ch = client.ch
+			ch = make(chan struct{}, 1)
 			ch <- struct{}{}
-			knownClients[id] = client
+			knownClients[id] = ch
 		}
 
 		c.Response().Header().Set("Access-Control-Allow-Origin", "*")
@@ -64,7 +46,7 @@ func (r *Routes) createHotReloadRoute() func(c echo.Context) error {
 				// connected clients.
 				mu.Lock()
 				for _, ch := range knownClients {
-					ch.ch <- struct{}{}
+					ch <- struct{}{}
 				}
 				mu.Unlock()
 			case <-ch:
