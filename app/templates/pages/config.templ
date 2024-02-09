@@ -6,12 +6,14 @@ import "strconv"
 import "fmt"
 
 templ Config(c render.Context, cfg string) {
-	@components.Head(c)
-	@components.Body(c) {
-		@components.Prose() {
-			<pre class="font-bold">{ cfg }</pre>
-			@configDownloadSection(c)
-			@configProfileSection(c)
+	@components.Doctype() {
+		@components.Head(c)
+		@components.Body(c) {
+			@components.Prose() {
+				<pre class="font-bold">{ cfg }</pre>
+				@configDownloadSection(c)
+				@configProfileSection(c)
+			}
 		}
 	}
 }
@@ -103,8 +105,9 @@ templ configProfileSection(c render.Context) {
 			hx-on:close-add-subreddit-dialog="this.close()"
 			class="p-8"
 			onclick="if (event.target === this) this.close()"
+			onload="console.log(this); setTimeout(() => this.showModal(), 100)"
 		>
-			<p>Dialog Content</p>
+			<h1>Add New Subreddit</h1>
 			<form method="dialog" hx-post="/htmx/v1/config/update/subreddit/add">
 				<a
 					href="#"
