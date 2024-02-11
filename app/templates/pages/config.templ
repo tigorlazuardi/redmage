@@ -158,6 +158,47 @@ templ configDeviceSectionModal_deviceNameGroup() {
 			oninput="this.setCustomValidity('')"
 			required
 		/>
+		<div class="flex items-center gap-4">
+			<label for="nsfw" class="font-bold">
+				Allow NSFW
+			</label>
+			@components.Tooltip(
+				"Allows Redmage to fetch images marked as NSFW.",
+				"",
+				"However, due to changes in Reddit's API, NSFW images are most likely not fetched from Reddit.",
+			) {
+				@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
+			}
+		</div>
+		<input
+			name="nsfw"
+			type="checkbox"
+			class="w-4 h-4 my-auto"
+			value="true"
+		/>
+		<div class="flex items-center gap-4">
+			<label for="naming-format" class="font-bold">
+				File Naming Format
+			</label>
+			@components.Tooltip(
+				"Configures the file naming format for the downloaded images for this device.",
+				"",
+				"Must not start with a slash (/)",
+			) {
+				@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
+			}
+		</div>
+		<input
+			name="naming-format"
+			type="text"
+			class="border-2 border-gray-300 rounded-xl px-2"
+			list="naming-format-datalist"
+			placeholder="e.g. Default or Windows Wallpaper Format"
+		/>
+		<datalist id="naming-format-datalist">
+			<option value="{{.Device.Name}}/{{.Subreddit.Name}}/{{.Image.DownloadedAt.Unix()}}_{{.Image.ID}}.{{.Image.Extension}}">Default</option>
+			<option value="{{.Device.Name}}/{{.Subreddit.Name}}_{{.Image.DownloadedAt.Unix()}}_{{.Image.ID}}.{{.Image.Extension}}">Windows Wallpaper Format</option>
+		</datalist>
 	</section>
 }
 
