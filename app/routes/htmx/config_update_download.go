@@ -1,6 +1,7 @@
 package htmx
 
 import (
+	"bytes"
 	"time"
 
 	"github.com/inhies/go-bytesize"
@@ -18,6 +19,10 @@ type secondDuration struct {
 }
 
 func (s *secondDuration) UnmarshalText(text []byte) error {
+	if len(bytes.TrimSpace(text)) == 0 {
+		*s = secondDuration{0}
+		return nil
+	}
 	dur, err := time.ParseDuration(string(text) + "s")
 	if err != nil {
 		return err
@@ -27,6 +32,10 @@ func (s *secondDuration) UnmarshalText(text []byte) error {
 }
 
 func (b *byteSizeParser) UnmarshalText(text []byte) error {
+	if len(bytes.TrimSpace(text)) == 0 {
+		*b = byteSizeParser{0}
+		return nil
+	}
 	text = append(text, 'K', 'B')
 	return b.ByteSize.UnmarshalText(text)
 }
