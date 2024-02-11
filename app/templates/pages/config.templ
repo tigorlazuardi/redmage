@@ -76,7 +76,7 @@ templ configDownloadSection(c render.Context) {
 			<div id="config-update-toast" class="mx-auto w-max mt-4"></div>
 			<div class="flex justify-center mt-4">
 				<button
-					class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold"
+					class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold uppercase"
 					type="submit"
 				>Save Download Configuration</button>
 			</div>
@@ -86,16 +86,16 @@ templ configDownloadSection(c render.Context) {
 
 templ configDeviceSection(c render.Context) {
 	<section class="mt-4">
-		<h1>Profiles</h1>
+		<h1>Device Profiles</h1>
 		<hr class="border-black"/>
 		if len(c.Config.Profiles) == 0 {
-			<p class="text-center">No profile found. Please add a new profile.</p>
+			<p class="text-center">No device profile found. Please add a new profile.</p>
 		} else {
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 		}
 		<div class="flex justify-center">
 			<button
-				class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold"
+				class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold uppercase"
 				type="submit"
 				onclick="document.getElementById('add-subreddit-dialog').showModal()"
 			>Add New Profile</button>
