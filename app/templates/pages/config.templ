@@ -240,9 +240,12 @@ func goBracket(s string) string {
 
 templ configDeviceSectionModal_fileNamingFormatTooltip() {
 	<p>Configures the file naming format for the downloaded images for this device.</p>
-	<p>NOTE: Any starting slash (/) characters will be removed</p>
+	<p>Useful for creating folder structures that other applications may use, like <a class="text-blue-500 underline" href="https://github.com/varietywalls/variety">Variety</a> or Windows Wallpaper Changer</p>
 	<hr class="my-4"/>
-	<p>Available variables:</p>
+	<p>Leave it empty to use 'Default' value.</p>
+	<p>If you are not sure how to use this, select the dropdown when typing 'Default' or 'Windows Wallpaper Changer' and they will be expanded to supported format.</p>
+	<p>NOTE: Any starting slash (/) characters will be removed.</p>
+	<hr class="my-4"/>
 	<table class="w-full">
 		<thead>
 			<tr>
@@ -332,7 +335,7 @@ templ configDeviceSectionModal_aspectRatioGroup() {
 					@components.Tooltip(
 						"Filters Width aspect ratio of images to download. Set to 0 to disable.",
 						"If Width is NOT 0, then Height must ALSO NOT be 0",
-						"If you are not sure about the width aspect ratio value, use your device's width resolution",
+						"If you are not sure about the width aspect ratio value, use your device's width resolution. The aspect ratio value will be calculated by Redmage.",
 						"",
 						`Example: 1920`,
 					) {
@@ -354,7 +357,7 @@ templ configDeviceSectionModal_aspectRatioGroup() {
 					@components.Tooltip(
 						"Filters Height aspect ratio of images to download. Set to 0 to disable.",
 						"If Height is NOT 0, then Width must ALSO NOT be 0",
-						"If you are not sure about the Height aspect ratio value, use your device's Height resolution",
+						"If you are not sure about the Height aspect ratio value, use your device's Height resolution. The aspect ratio value will be calculated by Redmage.",
 						"",
 						`Example: 1080`,
 					) {
