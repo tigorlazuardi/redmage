@@ -42,7 +42,7 @@ func (r *Routes) ConfigUpdateAddSubreddit(c echo.Context) error {
 		return components.
 			ErrorToast("Aspect Ratio Width cannot be 0 if Aspect Ratio Height is not 0").
 			Render(c.Request().Context(), c.Response())
-	case parsed.AspectRatioWidth == 0 && parsed.AspectRatioHeight != 0:
+	case parsed.AspectRatioWidth != 0 && parsed.AspectRatioHeight == 0:
 		c.Response().WriteHeader(400)
 		return components.
 			ErrorToast("Aspect Ratio Height cannot be 0 if Aspect Ratio Width is not 0").
