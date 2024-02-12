@@ -14,10 +14,7 @@ func cx(m map[string]bool) string {
 }
 
 func classForNabvarItem(c render.Context, prefix string) string {
-	classNames := map[string]bool{
-		"hover:text-gray-500": true,
-		"px-8":                true,
-	}
+	classNames := map[string]bool{}
 	if prefix == "/" && c.Echo.Path() == "/" {
 		classNames["font-bold"] = true
 		return cx(classNames)
@@ -28,17 +25,26 @@ func classForNabvarItem(c render.Context, prefix string) string {
 }
 
 templ Navbar(c render.Context) {
-	<header class="bg-white min-w-[200px] w-[15vw] max-w-[300px]">
+	<header class="bg-base-200 min-w-[200px] w-[15vw] max-w-[300px]">
 		<div class="flex flex-col items-center min-w-[180px] max-w-[280px]">
 			@navbarLogo()
 			<span class="font-bold">Redmage</span>
 		</div>
+		<div class="divider"></div>
 		<nav class="pt-4" hx-boost="true">
-			<ul class="flex flex-col flex-wrap space-y-4">
-				<li><a class={ classForNabvarItem(c, "/") } href="/">Home</a></li>
-				<li><a class={ classForNabvarItem(c, "/about") } href="/about">About</a></li>
-				<li><a class={ classForNabvarItem(c, "/config") } href="/config">Config</a></li>
-				<li><a class={ classForNabvarItem(c, "/browse") } href="/browse">Browse</a></li>
+			<ul class="flex flex-col flex-wrap">
+				<a href="/" class={ classForNabvarItem(c, "/") }>
+					<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Home</li>
+				</a>
+				<a href="/about" class={ classForNabvarItem(c, "/about") }>
+					<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">About</li>
+				</a>
+				<a href="/config" class={ classForNabvarItem(c, "/config") }>
+					<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Config</li>
+				</a>
+				<a href="/browse" class={ classForNabvarItem(c, "/browse") }>
+					<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Browse</li>
+				</a>
 			</ul>
 		</nav>
 	</header>
