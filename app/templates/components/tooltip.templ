@@ -18,3 +18,14 @@ templ Tooltip(texts ...string) {
 		}
 	</div>
 }
+
+templ TooltipHtml(c templ.Component) {
+	<div class="group relative">
+		{ children... }
+		<div
+			class="flex-col fixed scale-0 group-hover:scale-100 transform group-aria-selected:flex border shadow-md py-2 px-4 rounded-2xl bg-gray-700 transition-all max-w-[50vw] z-50 text-white"
+		>
+			@c
+		</div>
+	</div>
+}
