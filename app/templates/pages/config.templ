@@ -12,7 +12,7 @@ templ Config(c render.Context, cfg string) {
 			@components.Prose() {
 				<pre class="font-bold">{ cfg }</pre>
 				@configDownloadSection(c)
-				@configDeviceSection(c)
+				@ConfigDeviceSection(c)
 			}
 		}
 	}
@@ -73,7 +73,7 @@ templ configDownloadSection(c render.Context) {
 					<span class="font-bold">(in KB/s)</span>
 				</div>
 			</div>
-			<div id="config-update-toast" class="mx-auto w-max mt-4"></div>
+			<div id="config-update-toast" class="mx-auto mt-4 w-[20%]"></div>
 			<div class="flex justify-center mt-4">
 				<button
 					class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold uppercase hover:bg-blue-400 transition-all"
@@ -84,8 +84,8 @@ templ configDownloadSection(c render.Context) {
 	</section>
 }
 
-templ configDeviceSection(c render.Context) {
-	<section class="mt-4">
+templ ConfigDeviceSection(c render.Context) {
+	<section id="section-device" class="mt-4">
 		<h1>Device Profiles</h1>
 		<hr class="border-black"/>
 		if len(c.Config.Devices) == 0 {
@@ -114,7 +114,12 @@ templ configDeviceSectionModal(c render.Context) {
 		<div class="p-8 min-w-[50vw]">
 			<h2 class="m-0 mb-4">Add New Device</h2>
 			<hr class="mb-4"/>
-			<form method="dialog" hx-post="/htmx/v1/config/update/device/add">
+			<form
+				method="dialog"
+				hx-post="/htmx/v1/config/update/device/add"
+				hx-target-error="#config-add-subreddit-toast"
+				hx-target="closest #section-device"
+			>
 				<div class="mb-4">
 					@configDeviceSectionModal_deviceNameGroup(c)
 					@configDeviceSectionModal_aspectRatioGroup()
@@ -192,6 +197,7 @@ templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
 			</div>
 			<div class="flex flex-col gap-4">
 				<input
+					id="naming-format-input"
 					name="naming_format"
 					type="text"
 					class="border-2 border-gray-300 rounded-xl px-2 font-mono"
@@ -403,7 +409,7 @@ templ configDeviceSectionModal_minResolutionGroup() {
 		<div class="grid gap-4">
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 				<div class="flex items-center gap-4">
-					<label for="minimum_resolution_width" class="font-bold ml-1 lg:ml-0">Width</label>
+					<label for="min_width" class="font-bold ml-1 lg:ml-0">Width</label>
 					@components.Tooltip(
 						"Filters images whose width is below specicified value. Set to 0 to disable filter.",
 						"Recommended to set this value to your device's width resolution to prevent fetching images that are blurry when stretched.",
@@ -414,7 +420,7 @@ templ configDeviceSectionModal_minResolutionGroup() {
 					}
 				</div>
 				<input
-					name="minimum_resolution_width"
+					name="min_width"
 					type="number"
 					min="0"
 					class="border-2 border-gray-300 rounded-xl px-2"
@@ -424,7 +430,7 @@ templ configDeviceSectionModal_minResolutionGroup() {
 			</div>
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 				<div class="flex items-center gap-4">
-					<label for="minimum_resolution_height" class="font-bold ml-1 lg:ml-0">Height</label>
+					<label for="min_height" class="font-bold ml-1 lg:ml-0">Height</label>
 					@components.Tooltip(
 						"Filters images whose height is below specicified value. Set to 0 to disable filter.",
 						"Recommended to set this value to your device's height resolution to prevent fetching images that are blurry when stretched.",
@@ -435,7 +441,7 @@ templ configDeviceSectionModal_minResolutionGroup() {
 					}
 				</div>
 				<input
-					name="minimum_resolution_height"
+					name="min_height"
 					type="number"
 					min="0"
 					class="border-2 border-gray-300 rounded-xl px-2"
@@ -453,7 +459,7 @@ templ configDeviceSectionModal_maxResolutionGroup() {
 		<div class="grid gap-4">
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 				<div class="flex items-center gap-4">
-					<label for="maximum_resolution_width" class="font-bold ml-1 lg:ml-0">Width</label>
+					<label for="max_height" class="font-bold ml-1 lg:ml-0">Width</label>
 					@components.Tooltip(
 						"Do not download images whose width is higher than specicified value. Set to 0 to disable filter.",
 						"Good for saving bandwidth and storage space.",
@@ -464,7 +470,7 @@ templ configDeviceSectionModal_maxResolutionGroup() {
 					}
 				</div>
 				<input
-					name="maximum_resolution_width"
+					name="max_width"
 					type="number"
 					min="0"
 					class="border-2 border-gray-300 rounded-xl px-2"
@@ -474,7 +480,7 @@ templ configDeviceSectionModal_maxResolutionGroup() {
 			</div>
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 				<div class="flex items-center gap-4">
-					<label for="maximum_resolution_height" class="font-bold ml-1 lg:ml-0">Height</label>
+					<label for="max_height" class="font-bold ml-1 lg:ml-0">Height</label>
 					@components.Tooltip(
 						"Do not download images whose height is higher than specicified value. Set to 0 to disable filter.",
 						"Good for saving bandwidth and storage space.",
@@ -485,7 +491,7 @@ templ configDeviceSectionModal_maxResolutionGroup() {
 					}
 				</div>
 				<input
-					name="maximum_resolution_height"
+					name="max_height"
 					type="number"
 					min="0"
 					class="border-2 border-gray-300 rounded-xl px-2"

@@ -1,0 +1,7 @@
+package components
+
+templ Compose(comps ...templ.Component) {
+	for _, comp := range comps {
+		@comp
+	}
+}
