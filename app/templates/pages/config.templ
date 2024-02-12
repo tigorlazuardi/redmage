@@ -171,7 +171,7 @@ templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
 			<label for="nsfw" class="font-bold">
 				Allow NSFW
 			</label>
-			@components.Tooltip("Allows Redmage to fetch images marked as NSFW.") {
+			@components.Tooltip("Allows Redmage to fetch images marked as NSFW for this device.") {
 				@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
 			}
 		</div>
@@ -197,6 +197,11 @@ templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
 					class="border-2 border-gray-300 rounded-xl px-2 font-mono"
 					list="naming-format-datalist"
 					placeholder="e.g. Default or Windows Wallpaper Changer"
+					hx-get="/htmx/v1/config/naming_format/preview"
+					hx-trigger="keyup changed delay:1000ms"
+					hx-target="#file-name-preview"
+					hx-include="[name='name']"
+					hx-swap="outerHTML"
 				/>
 				<div class="flex flex-col gap-2">
 					<p class="my-0">Filename Preview:</p>
@@ -219,13 +224,17 @@ templ ConfigFilenamePreviewOverride(c render.Context, device, subreddit, format 
 	<pre id="file-name-preview" class="my-0">{ c.Config.RenderFileNamingPreviewWithOverride(device, subreddit, format) }</pre>
 }
 
+templ ConfigFilenameError(s string) {
+	<pre id="file-name-preview" class="my-0">{ s }</pre>
+}
+
 func goBracket(s string) string {
 	return fmt.Sprintf("{{%s}}", s)
 }
 
 templ configDeviceSectionModal_fileNamingFormatTooltip() {
 	<p>Configures the file naming format for the downloaded images for this device.</p>
-	<p>NOTE: Value Must not start with a slash (/)</p>
+	<p>NOTE: Any starting slash (/) characters will be removed</p>
 	<hr class="my-4"/>
 	<p>Available variables:</p>
 	<table class="w-full">

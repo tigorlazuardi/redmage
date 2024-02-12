@@ -51,15 +51,15 @@ type Device struct {
 	NSFW         bool   `yaml:"nsfw" koanf:"nsfw" json:"nsfw"`
 	NamingFormat string `yaml:"naming_format" koanf:"naming_format" json:"naming_format"`
 
-	AspectRatioX         float64 `yaml:"aspect_ratio_x" koanf:"aspect_ratio_x" json:"aspect_ratio_x"`
-	AspectRatioY         float64 `yaml:"aspect_ratio_y" koanf:"aspect_ratio_y" json:"aspect_ratio_y"`
+	AspectRatioWidth     float64 `yaml:"aspect_ratio_width" koanf:"aspect_ratio_width" json:"aspect_ratio_width"`
+	AspectRatioHeight    float64 `yaml:"aspect_ratio_height" koanf:"aspect_ratio_height" json:"aspect_ratio_height"`
 	AspectRatioTolerance float64 `yaml:"aspect_ratio_tolerance" koanf:"aspect_ratio_tolerance" json:"aspect_ratio_tolerance"`
 
-	MinX float64 `yaml:"min_x" koanf:"min_x" json:"min_x"`
-	MaxX float64 `yaml:"max_x" koanf:"max_x" json:"max_x"`
+	MinWidth float64 `yaml:"min_width" koanf:"min_width" json:"min_width"`
+	MaxWidth float64 `yaml:"max_width" koanf:"max_width" json:"max_width"`
 
-	MinY float64 `yaml:"min_y" koanf:"min_y" json:"min_y"`
-	MaxY float64 `yaml:"max_y" koanf:"max_y" json:"max_y"`
+	MinHeight float64 `yaml:"min_height" koanf:"min_height" json:"min_height"`
+	MaxHeight float64 `yaml:"max_height" koanf:"max_height" json:"max_height"`
 }
 
 type SubredditConfig struct {

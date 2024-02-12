@@ -34,6 +34,7 @@ func (c *Config) RenderFileNamingPreview() string {
 }
 
 func (c *Config) RenderFileNamingPreviewWithOverride(device string, subreddit string, format string) string {
+	format = strings.TrimLeft(strings.TrimSpace(format), "/")
 	if format == "" {
 		format = defaultNamingFormat
 	}
@@ -58,13 +59,13 @@ func (c *Config) RenderFileNamingPreviewWithOverride(device string, subreddit st
 			Name:                 device,
 			NSFW:                 true,
 			NamingFormat:         format,
-			AspectRatioX:         1920,
-			AspectRatioY:         1080,
+			AspectRatioWidth:     1920,
+			AspectRatioHeight:    1080,
 			AspectRatioTolerance: 0.2,
-			MinX:                 1920,
-			MaxX:                 4096,
-			MinY:                 1080,
-			MaxY:                 2160,
+			MinWidth:             1920,
+			MaxWidth:             4096,
+			MinHeight:            1080,
+			MaxHeight:            2160,
 		},
 		Subreddit: SubredditConfig{
 			Name:        subreddit,
@@ -82,7 +83,7 @@ func (c *Config) RenderFileNamingPreviewWithOverride(device string, subreddit st
 	s := &strings.Builder{}
 	err = tmpl.Execute(s, vars)
 	if err != nil {
-		return "Error: failed executing template: " + err.Error()
+		return "Error: failed parsing template:\n" + err.Error()
 	}
 
 	return s.String()
