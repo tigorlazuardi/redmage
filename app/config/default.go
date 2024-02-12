@@ -30,7 +30,7 @@ func Default() *Config {
 	}
 	k := koanf.New(".")
 	c := &Config{
-		Profiles:   make(map[string]Profile),
+		Devices:    make(map[string]Device),
 		Subreddits: make(map[string]SubredditConfig),
 		Download: Download{
 			Directory:             downloadDir,

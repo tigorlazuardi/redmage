@@ -88,7 +88,7 @@ templ configDeviceSection(c render.Context) {
 	<section class="mt-4">
 		<h1>Device Profiles</h1>
 		<hr class="border-black"/>
-		if len(c.Config.Profiles) == 0 {
+		if len(c.Config.Devices) == 0 {
 			<p class="text-center">No device profile found. Please add a new profile.</p>
 		} else {
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -189,7 +189,7 @@ templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
 					list="naming-format-datalist"
 					placeholder="e.g. Default or Windows Wallpaper Changer"
 				/>
-				<p>{ c.Config.RenderFileNamingPreview() }</p>
+				<p class="my-0">Filename Preview: <pre class="my-0">{ c.Config.RenderFileNamingPreview() }</pre></p>
 			</div>
 		</div>
 		<datalist id="naming-format-datalist">

@@ -13,7 +13,7 @@ import (
 )
 
 type Config struct {
-	Profiles   map[string]Profile         `yaml:"profiles" koanf:"profiles" json:"profiles"`
+	Devices    map[string]Device          `yaml:"profiles" koanf:"profiles" json:"profiles"`
 	Subreddits map[string]SubredditConfig `yaml:"subreddits" koanf:"subreddits" json:"subreddits"`
 	Download   Download                   `yaml:"download" koanf:"download" json:"download"`
 	HotReload  bool                       `yaml:"hot_reload" koanf:"hot_reload" json:"hot_reload"`
@@ -46,7 +46,11 @@ func (c *Config) Sync() error {
 	return nil
 }
 
-type Profile struct {
+type Device struct {
+	Name         string `yaml:"name" koanf:"name" json:"name"`
+	NSFW         bool   `yaml:"nsfw" koanf:"nsfw" json:"nsfw"`
+	NamingFormat string `yaml:"naming_format" koanf:"naming_format" json:"naming_format"`
+
 	AspectRatioX         float64 `yaml:"aspect_ratio_x" koanf:"aspect_ratio_x" json:"aspect_ratio_x"`
 	AspectRatioY         float64 `yaml:"aspect_ratio_y" koanf:"aspect_ratio_y" json:"aspect_ratio_y"`
 	AspectRatioTolerance float64 `yaml:"aspect_ratio_tolerance" koanf:"aspect_ratio_tolerance" json:"aspect_ratio_tolerance"`
@@ -56,12 +60,10 @@ type Profile struct {
 
 	MinY float64 `yaml:"min_y" koanf:"min_y" json:"min_y"`
 	MaxY float64 `yaml:"max_y" koanf:"max_y" json:"max_y"`
-
-	NSFW         bool   `yaml:"nsfw" koanf:"nsfw" json:"nsfw"`
-	NamingFormat string `yaml:"naming_format" koanf:"naming_format" json:"naming_format"`
 }
 
 type SubredditConfig struct {
+	Name        string `yaml:"name" koanf:"name" json:"name"`
 	Schedule    string `yaml:"schedule" koanf:"schedule" json:"schedule"`
 	LookupCount int    `yaml:"lookup_count" koanf:"lookup_count" json:"lookup_count"`
 }

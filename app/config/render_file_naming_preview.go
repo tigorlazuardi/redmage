@@ -8,33 +8,74 @@ import (
 
 const defaultNamingFormat = "{{ .Device.Name }}/{{ .Subreddit.Name }}/{{ .Image.DownloadedAt.Unix }}_{{ .Image.ID }}.{{ .Image.Extension }}"
 
+type PreviewOptions struct {
+	Device    Device
+	Subreddit SubredditConfig
+	Image     PreviewImageOption
+}
+
+type Date struct {
+	time.Time
+}
+
+func (t *Date) String() string {
+	return t.Format(time.DateOnly)
+}
+
+type PreviewImageOption struct {
+	ID           string
+	DownloadedAt Date
+	PostedAt     Date
+	Extension    string
+}
+
 func (c *Config) RenderFileNamingPreview() string {
-	namingFormat := defaultNamingFormat
-	if len(c.Profiles) > 0 {
-		for _, profile := range c.Profiles {
-			if profile.NamingFormat != "" {
-				namingFormat = profile.NamingFormat
-				break
-			}
+	return c.RenderFileNamingPreviewWithOverride("", "", "")
+}
+
+func (c *Config) RenderFileNamingPreviewWithOverride(device string, subreddit string, format string) string {
+	if format == "" {
+		format = defaultNamingFormat
+	}
+	if subreddit == "" {
+		subreddit = "wallpapers"
+	}
+	if device == "" {
+		device = "My-Laptop"
+	}
+	if d, ok := c.Devices[device]; ok {
+		if d.NamingFormat != "" {
+			format = d.NamingFormat
 		}
 	}
-	tmpl, err := template.New("").Parse(c.Download.Directory + "/" + namingFormat)
+	tmpl, err := template.New("").Parse(c.Download.Directory + "/" + format)
 	if err != nil {
 		return "Error: bad template format: " + err.Error()
 	}
 
-	vars := map[string]any{
-		"Device": map[string]any{
-			"Name": "My-Laptop",
+	vars := PreviewOptions{
+		Device: Device{
+			Name:                 device,
+			NSFW:                 true,
+			NamingFormat:         format,
+			AspectRatioX:         1920,
+			AspectRatioY:         1080,
+			AspectRatioTolerance: 0.2,
+			MinX:                 1920,
+			MaxX:                 4096,
+			MinY:                 1080,
+			MaxY:                 2160,
 		},
-		"Subreddit": map[string]any{
-			"Name": "aww",
+		Subreddit: SubredditConfig{
+			Name:        subreddit,
+			Schedule:    "0 0 * * *",
+			LookupCount: 100,
 		},
-		"Image": map[string]any{
-			"DownloadedAt": time.Now(),
-			"ID":           "AAAAAAA",
-			"Extension":    "jpg",
-			"PostedAt":     time.Now().Add(-time.Hour * 24 * 7),
+		Image: PreviewImageOption{
+			DownloadedAt: Date{time.Now()},
+			Extension:    "jpg",
+			PostedAt:     Date{time.Now().Add(-24 * time.Hour)},
+			ID:           "0123456789ABCDEF",
 		},
 	}
 
