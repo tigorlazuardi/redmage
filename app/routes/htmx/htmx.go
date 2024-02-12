@@ -14,4 +14,5 @@ type Routes struct {
 func (r *Routes) RegisterV1(group *echo.Group) {
 	v1Group := group.Group("/v1")
 	v1Group.POST("/config/update/download", r.ConfigUpdateDownload)
+	v1Group.GET("/config/naming_format/preview", r.ConfigFileNamePreview)
 }

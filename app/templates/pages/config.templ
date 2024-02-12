@@ -108,28 +108,30 @@ templ configDeviceSectionModal(c render.Context) {
 	<dialog
 		id="add-subreddit-dialog"
 		hx-on:close-add-subreddit-dialog="this.close()"
-		class="p-8 min-w-[50vw] rounded-2xl"
+		class="rounded-2xl"
 		onclick="if (event.target === this) this.close()"
 	>
-		<h2 class="m-0 mb-4">Add New Device</h2>
-		<hr class="mb-4"/>
-		<form method="dialog" hx-post="/htmx/v1/config/update/device/add">
-			<div class="mb-4">
-				@configDeviceSectionModal_deviceNameGroup(c)
-				@configDeviceSectionModal_aspectRatioGroup()
-				@configDeviceSectionModal_minResolutionGroup()
-				@configDeviceSectionModal_maxResolutionGroup()
-				<div id="config-add-subreddit-toast" class="w-max mx-auto mt-4"></div>
-			</div>
-			<div class="flex justify-center gap-4">
-				<a
-					href="#"
-					class="bg-red-500 text-white px-4 py-2 rounded-xl font-bold cursor-pointer no-underline inline-block uppercase w-24 text-center"
-					onclick="document.getElementById('add-subreddit-dialog').close()"
-				>Cancel</a>
-				<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold w-24 uppercase">Add</button>
-			</div>
-		</form>
+		<div class="p-8 min-w-[50vw]">
+			<h2 class="m-0 mb-4">Add New Device</h2>
+			<hr class="mb-4"/>
+			<form method="dialog" hx-post="/htmx/v1/config/update/device/add">
+				<div class="mb-4">
+					@configDeviceSectionModal_deviceNameGroup(c)
+					@configDeviceSectionModal_aspectRatioGroup()
+					@configDeviceSectionModal_minResolutionGroup()
+					@configDeviceSectionModal_maxResolutionGroup()
+					<div id="config-add-subreddit-toast" class="w-max mx-auto mt-4"></div>
+				</div>
+				<div class="flex justify-center gap-4">
+					<a
+						href="#"
+						class="bg-red-500 text-white px-4 py-2 rounded-xl font-bold cursor-pointer no-underline inline-block uppercase w-24 text-center"
+						onclick="document.getElementById('add-subreddit-dialog').close()"
+					>Cancel</a>
+					<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold w-24 uppercase">Add</button>
+				</div>
+			</form>
+		</div>
 	</dialog>
 }
 
@@ -151,11 +153,18 @@ templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
 		<input
 			name="name"
 			type="text"
-			class="border-2 border-gray-300 rounded-xl px-2"
+			class="border-2 border-gray-300 rounded-xl px-2 invalid:border-red-500"
 			placeholder="e.g. My-Laptop"
 			pattern="[a-zA-Z0-9\\-_]+"
-			oninvalid="this.setCustomValidity('Only A-Z, a-z, 0-9, - and _ characters are allowed. No spaces allowed.');"
+			oninvalid="this.setCustomValidity('Only A-Z, a-z, 0-9, - and _ characters are allowed. No spaces allowed.')"
 			oninput="this.setCustomValidity('')"
+			onchange="this.form.reportValidity()"
+			hx-get="/htmx/v1/config/naming_format/preview"
+			hx-trigger="keyup changed delay:500ms"
+			hx-target="#file-name-preview"
+			hx-include="[name='naming_format']"
+			hx-swap="outerHTML"
+			hx-validate="true"
 			required
 		/>
 		<div class="flex items-center gap-4">
@@ -174,7 +183,7 @@ templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
 		/>
 		<div class="col-span-2 flex flex-col gap-4">
 			<div class="flex items-center gap-4">
-				<label for="naming-format" class="font-bold">
+				<label for="naming_format" class="font-bold">
 					File Naming Format
 				</label>
 				@components.TooltipHtml(configDeviceSectionModal_fileNamingFormatTooltip()) {
@@ -183,13 +192,16 @@ templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
 			</div>
 			<div class="flex flex-col gap-4">
 				<input
-					name="naming-format"
+					name="naming_format"
 					type="text"
 					class="border-2 border-gray-300 rounded-xl px-2 font-mono"
 					list="naming-format-datalist"
 					placeholder="e.g. Default or Windows Wallpaper Changer"
 				/>
-				<p class="my-0">Filename Preview: <pre class="my-0">{ c.Config.RenderFileNamingPreview() }</pre></p>
+				<div class="flex flex-col gap-2">
+					<p class="my-0">Filename Preview:</p>
+					@ConfigFilenamePreview(c)
+				</div>
 			</div>
 		</div>
 		<datalist id="naming-format-datalist">
@@ -197,6 +209,14 @@ templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
 			<option value="{{.Device.Name}}/{{.Subreddit.Name}}_{{.Image.DownloadedAt.Unix}}_{{.Image.ID}}.{{.Image.Extension}}">Windows Wallpaper Changer</option>
 		</datalist>
 	</section>
+}
+
+templ ConfigFilenamePreview(c render.Context) {
+	<pre id="file-name-preview" class="my-0">{ c.Config.RenderFileNamingPreview() }</pre>
+}
+
+templ ConfigFilenamePreviewOverride(c render.Context, device, subreddit, format string) {
+	<pre id="file-name-preview" class="my-0">{ c.Config.RenderFileNamingPreviewWithOverride(device, subreddit, format) }</pre>
 }
 
 func goBracket(s string) string {
