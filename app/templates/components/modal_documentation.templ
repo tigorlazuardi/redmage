@@ -5,7 +5,7 @@ script modalClose(id string) {
 }
 
 templ ModalDocumentation(id string, header string, body ...string) {
-	<dialog class="modal max-h-[90vh]" id={ id } onclick="if (event.target === this) this.close()">
+	<dialog class="modal max-w-[95vw] max-h-[90vh]" id={ id } onclick="if (event.target === this) this.close()">
 		<div class="modal-box">
 			<h1>{ header }</h1>
 			<hr class="my-4"/>

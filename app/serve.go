@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
@@ -36,6 +37,12 @@ func (rm *Redmage) Serve() error {
 			Config: cfg,
 		}
 		if r.Config.HotReload {
+			e.Router.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+				return func(c echo.Context) error {
+					c.Response().Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+					return next(c)
+				}
+			})
 			r.HotReload = make(chan struct{}, 1<<4)
 			r.HotReload <- struct{}{}
 		}

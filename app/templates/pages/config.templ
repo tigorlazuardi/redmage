@@ -30,54 +30,131 @@ templ configDownloadSection(c render.Context) {
 		>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<label
-					for="directory"
+					for="directory-input"
 					class="font-bold my-auto flex items-center gap-4"
 				>
 					<span>Directory</span>
-					@components.Tooltip("Directory Documentation") {
+					<div class="tooltip" data-tip="Click for more info about Directory config">
 						<button type="button" class="btn btn-ghost btn-square" onclick="document.getElementById('directory-documentation-modal').showModal();">
-							@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
+							@components.InfoIcon(components.IconProps{Width: 20, Height: 20})
 						</button>
-					}
+					</div>
 					@components.ModalDocumentation("directory-documentation-modal", "Directory",
 						"Sets the root directory where the images will be downloaded.",
-						"You should avoid changing this value on Containerized environment like running this application via docker.",
+						"You should avoid changing this value when running this application via docker or other containerized runtime and change the host's mount point instead.",
 					)
 				</label>
 				<input
+					id="directory-input"
 					name="directory"
 					type="text"
 					class="input input-bordered w-full"
 					value={ c.Config.Download.Directory }
 				/>
-				<label for="concurrency" class="font-bold my-auto">Concurrency</label>
+				<label
+					for="concurrency-input"
+					class="font-bold my-auto flex items-center gap-4"
+				>
+					<span>Concurrency</span>
+					<div class="tooltip" data-tip="Click for more info about Concurrency">
+						<button
+							type="button"
+							class="btn btn-ghost btn-square"
+							onclick="document.getElementById('concurrency-documentation-modal').showModal();"
+						>
+							@components.InfoIcon(components.IconProps{Width: 20, Height: 20})
+						</button>
+					</div>
+					@components.ModalDocumentation("concurrency-documentation-modal", "Concurrency",
+						"The number of concurrent downloads that Redmage will perform.",
+						"Avoid too high of a value as it may drain your network bandwidth and resources.",
+						"Value of 0 will use the number of logical CPUs available in the system.",
+					)
+				</label>
 				<input
+					id="concurrency-input"
 					name="concurrency"
 					type="number"
 					class="input input-bordered"
 					value={ strconv.Itoa(c.Config.Download.Concurrency) }
 				/>
-				<label for="connection_timeout" class="font-bold my-auto">First-Byte Connection Timeout</label>
+				<label
+					for="first-byte-connection-timeout"
+					class="font-bold my-auto flex items-center gap-4"
+				>
+					<span>First Byte Connection Timeout</span>
+					<div class="tooltip" data-tip="Click for more info about First Byte Connection Timeout">
+						<button
+							type="button"
+							class="btn btn-ghost btn-square"
+							onclick="document.getElementById('first-byte-documentation-modal').showModal();"
+						>
+							@components.InfoIcon(components.IconProps{Width: 20, Height: 20})
+						</button>
+					</div>
+					@components.ModalDocumentation("first-byte-documentation-modal", "First Byte Connection Timeout",
+						"How long Redmage will wait the server to send the first byte of the response.",
+						"This is to prevent cases where the server is slow to respond or never respond at all after the connection is established and thus may block the download concurrency slot forever.",
+						"After receiving the first byte, this timeout will not be used anymore and the download will continue as normal.",
+						"Value of 0 will make Redmage to wait indefinitely for the first byte.",
+					)
+				</label>
 				<div class="flex gap-4 items-center">
 					<input
+						id="first-byte-connection-timeout"
 						name="connection_timeout"
 						type="number"
 						class="basis-3/4 input input-bordered"
 						value={ fmt.Sprintf("%.0f", c.Config.Download.ConnectionTimeout.Seconds()) }
 					/>
-					<span class="font-bold mx-auto">(in seconds)</span>
+					<span class="font-bold mx-auto">second</span>
 				</div>
-				<label for="download_idle_timeout" class="font-bold my-auto">Download Idle Timeout</label>
+				<label
+					for="download-idle-timeout"
+					class="font-bold my-auto flex items-center gap-4"
+				>
+					<span>Download Idle Timeout</span>
+					<div class="tooltip" data-tip="Click for more info about Download Idle Timeout">
+						<button
+							type="button"
+							class="btn btn-ghost btn-square"
+							onclick="document.getElementById('download-idle-documentation-modal').showModal();"
+						>
+							@components.InfoIcon(components.IconProps{Width: 20, Height: 20})
+						</button>
+					</div>
+					@components.ModalDocumentation("download-idle-documentation-modal", "Download Idle Timeout",
+						"How long Redmage will wait when the server is not sending any data or the download speed is below the threshold for that amount of time.",
+						"This is to prevent cases where the download speed is too slow or the download is stuck and thus blocks the download slot.",
+						"Value of 0 will make Redmage to wait indefinitely for the download to finish.",
+					)
+				</label>
 				<div class="flex gap-4 items-center">
 					<input
+						id="download-idle-timeout"
 						name="download_idle_timeout"
 						type="number"
 						class="basis-3/4 input input-bordered"
 						value={ fmt.Sprintf("%.0f", c.Config.Download.DownloadIdleTimeout.Seconds()) }
 					/>
-					<span class="font-bold mx-auto">(in seconds)</span>
+					<span class="font-bold mx-auto">second</span>
 				</div>
-				<label for="download_idle_threshold" class="font-bold my-auto">Download Idle Speed Threshold</label>
+				<label for="download_idle_threshold" class="font-bold my-auto flex items-center gap-4">
+					<span>Download Idle Speed Threshold</span>
+					<div class="tooltip" data-tip="Click for more info about Download Idle Speed Threshold">
+						<button
+							type="button"
+							class="btn btn-ghost btn-square"
+							onclick="document.getElementById('download-idle-threshold-documentation-modal').showModal();"
+						>
+							@components.InfoIcon(components.IconProps{Width: 20, Height: 20})
+						</button>
+					</div>
+					@components.ModalDocumentation("download-idle-threshold-documentation-modal", "Download Idle Timeout",
+						"The minimum download speed that Redmage will consider as idle.",
+						"If the download speed is below this threshold for the amount of time specified in Download Idle Timeout, Redmage will consider the download as stuck and will abort the download.",
+					)
+				</label>
 				<div class="flex gap-4 items-center">
 					<input
 						name="download_idle_threshold"
@@ -85,7 +162,7 @@ templ configDownloadSection(c render.Context) {
 						class="basis-3/4 input input-bordered"
 						value={ strconv.FormatUint(uint64(c.Config.Download.DownloadIdleThreshold/1024), 10) }
 					/>
-					<span class="font-bold mx-auto">(in KB/s)</span>
+					<span class="font-bold mx-auto">KB/s</span>
 				</div>
 			</div>
 			<div id="config-update-toast" class="mx-auto mt-4 lg:max-w-[50%]"></div>

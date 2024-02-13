@@ -5,7 +5,7 @@ templ Tooltip(texts ...string) {
 		{ children... }
 		if len(texts) > 0 {
 			<div
-				class="flex-col fixed scale-0 group-hover:scale-100 transform group-aria-selected:flex border shadow-md py-2 px-4 rounded-2xl bg-gray-700 transition-all max-w-[50vw] z-50"
+				class="flex-col absolute scale-0 group-hover:scale-100 transform group-aria-selected:flex border shadow-md py-2 px-4 rounded-2xl bg-gray-700 transition-all max-w-[50vw] z-50"
 			>
 				for _, text := range texts {
 					if text == "" {

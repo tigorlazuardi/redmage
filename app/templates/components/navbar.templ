@@ -25,8 +25,8 @@ func classForNabvarItem(c render.Context, prefix string) string {
 }
 
 templ Navbar(c render.Context) {
-	<header class="hidden lg:inline-block bg-base-200 min-w-[200px] w-[15vw] max-w-[300px]">
-		<div class="flex flex-col items-center min-w-[180px] max-w-[280px]">
+	<header class="hidden lg:inline-block bg-base-200 min-w-[200px] w-[15vw] max-w-[300px] min-h-screen">
+		<div class="flex flex-col items-center min-w-[180px] max-w-[280px] mx-auto">
 			@navbarLogo()
 			<span class="font-bold">Redmage</span>
 		</div>
