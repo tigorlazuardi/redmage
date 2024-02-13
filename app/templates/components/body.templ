@@ -3,10 +3,14 @@ package components
 import "github.com/tigorlazuardi/redmage/app/models/render"
 
 templ Body(c render.Context) {
-	<body class="bg-base-100 min-h-screen flex" hx-ext="response-targets">
-		@Navbar(c)
-		<main class="flex-1">
-			{ children... }
-		</main>
+	<body class="bg-base-100 min-h-screen" hx-ext="response-targets">
+		@NavigationDrawer(c) {
+			<div class="flex">
+				@Navbar(c)
+				<main class="flex-1">
+					{ children... }
+				</main>
+			</div>
+		}
 	</body>
 }

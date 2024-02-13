@@ -78,6 +78,6 @@ func (r *Routes) ConfigUpdateDownload(c echo.Context) error {
 	}
 
 	return components.
-		SuccessToast("Config updated successfully").
+		SuccessToast("Config updated").
 		Render(c.Request().Context(), c.Response())
 }

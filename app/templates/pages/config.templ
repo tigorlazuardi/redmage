@@ -10,7 +10,7 @@ templ Config(c render.Context, cfg string) {
 		@components.Head(c)
 		@components.Body(c) {
 			@components.Prose() {
-				<pre class="font-bold">{ cfg }</pre>
+				<pre class="hidden lg:inline-block font-bold">{ cfg }</pre>
 				@configDownloadSection(c)
 				@ConfigDeviceSection(c)
 			}
@@ -112,8 +112,18 @@ templ configDeviceSectionModal(c render.Context) {
 		onclick="if (event.target === this) this.close()"
 	>
 		<div class="p-8 min-w-[50vw]">
-			<h2 class="m-0 mb-4">Add New Device</h2>
-			<hr class="mb-4"/>
+			<div class="flex mt-4 items-center">
+				<h2 class="m-0 flex-1">Add New Device</h2>
+				<button
+					class="btn btn-ghost btn-square"
+					onclick="document.getElementById('add-subreddit-dialog').close()"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
+					</svg>
+				</button>
+			</div>
+			<hr class="my-4"/>
 			<form
 				method="dialog"
 				hx-post="/htmx/v1/config/update/device/add"
@@ -141,51 +151,55 @@ templ configDeviceSectionModal(c render.Context) {
 }
 
 templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
-	<section class="grid lg:grid-cols-2 grid-cols-1 gap-4">
-		<div class="flex items-center gap-4">
-			<label for="name" class="font-bold">
-				Device Name 
-			</label>
-			@components.Tooltip(
-				"Sets the name of the device.",
-				"Recommended to set to an identifiable name. Like your device name.",
-				`e.g. "My-Laptop"`,
-				"NOTE: Only A-Z, a-z, 0-9, - and _ characters are allowed. No spaces allowed.",
-			) {
-				@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
-			}
+	<section>
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 my-4">
+			<div class="flex items-center gap-4">
+				<label for="name" class="font-bold">
+					Device Name 
+				</label>
+				@components.Tooltip(
+					"Sets the name of the device.",
+					"Recommended to set to an identifiable name. Like your device name.",
+					`e.g. "My-Laptop"`,
+					"NOTE: Only A-Z, a-z, 0-9, - and _ characters are allowed. No spaces allowed.",
+				) {
+					@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
+				}
+			</div>
+			<input
+				name="name"
+				type="text"
+				class="input input-bordered invalid:input-error"
+				placeholder="e.g. My-Laptop"
+				pattern="[a-zA-Z0-9\\-_]+"
+				oninvalid="this.setCustomValidity('Only A-Z, a-z, 0-9, - and _ characters are allowed. No spaces allowed.')"
+				oninput="this.setCustomValidity('')"
+				onchange="this.form.reportValidity()"
+				hx-get="/htmx/v1/config/naming_format/preview"
+				hx-trigger="keyup changed delay:500ms"
+				hx-target="#file-name-preview"
+				hx-include="[name='naming_format']"
+				hx-swap="outerHTML"
+				hx-validate="true"
+				required
+			/>
 		</div>
-		<input
-			name="name"
-			type="text"
-			class="border-2 border-gray-300 rounded-xl px-2 invalid:border-red-500"
-			placeholder="e.g. My-Laptop"
-			pattern="[a-zA-Z0-9\\-_]+"
-			oninvalid="this.setCustomValidity('Only A-Z, a-z, 0-9, - and _ characters are allowed. No spaces allowed.')"
-			oninput="this.setCustomValidity('')"
-			onchange="this.form.reportValidity()"
-			hx-get="/htmx/v1/config/naming_format/preview"
-			hx-trigger="keyup changed delay:500ms"
-			hx-target="#file-name-preview"
-			hx-include="[name='naming_format']"
-			hx-swap="outerHTML"
-			hx-validate="true"
-			required
-		/>
-		<div class="flex items-center gap-4">
-			<label for="nsfw" class="font-bold">
-				Allow NSFW
-			</label>
-			@components.Tooltip("Allows Redmage to fetch images marked as NSFW for this device.") {
-				@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
-			}
+		<div class="grid grid-cols-[1fr_auto] sm:grid-cols-2 gap-4 my-4">
+			<div class="flex items-center gap-4">
+				<label for="nsfw" class="font-bold">
+					Allow NSFW
+				</label>
+				@components.Tooltip("Allows Redmage to fetch images marked as NSFW for this device.") {
+					@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
+				}
+			</div>
+			<input
+				name="nsfw"
+				type="checkbox"
+				class="w-4 h-4 my-auto"
+				value="true"
+			/>
 		</div>
-		<input
-			name="nsfw"
-			type="checkbox"
-			class="w-4 h-4 my-auto"
-			value="true"
-		/>
 		<div class="col-span-2 flex flex-col gap-4">
 			<div class="flex items-center gap-4">
 				<label for="naming_format" class="font-bold">
@@ -200,11 +214,11 @@ templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
 					id="naming-format-input"
 					name="naming_format"
 					type="text"
-					class="border-2 border-gray-300 rounded-xl px-2 font-mono"
+					class="input input-bordered font-mono"
 					list="naming-format-datalist"
 					placeholder="e.g. Default or Windows Wallpaper Changer"
 					hx-get="/htmx/v1/config/naming_format/preview"
-					hx-trigger="keyup changed delay:1000ms"
+					hx-trigger="blur changed"
 					hx-target="#file-name-preview"
 					hx-include="[name='name']"
 					hx-swap="outerHTML"
