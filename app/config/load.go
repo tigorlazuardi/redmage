@@ -1,6 +1,8 @@
 package config
 
 import (
+	"errors"
+	"os"
 	"strings"
 
 	"github.com/knadh/koanf/parsers/yaml"
@@ -13,7 +15,7 @@ func Load() (*Config, error) {
 
 	fp := file.Provider(cfg.ConfigFile)
 	err := cfg.Koanf.Load(fp, yaml.Parser())
-	if err != nil {
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return cfg, err
 	}
 
