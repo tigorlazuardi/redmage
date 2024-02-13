@@ -77,7 +77,6 @@ func (r *Routes) ConfigUpdateDownload(c echo.Context) error {
 			Render(c.Request().Context(), c.Response())
 	}
 
-	c.Response().WriteHeader(200)
 	return components.
 		SuccessToast("Config updated successfully").
 		Render(c.Request().Context(), c.Response())

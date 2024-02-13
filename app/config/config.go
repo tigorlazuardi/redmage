@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -39,6 +40,11 @@ func (c *Config) Sync() error {
 	err := c.Koanf.Load(structs.Provider(c, "koanf"), nil)
 	if err != nil {
 		return fmt.Errorf("error syncing config: %w", err)
+	}
+
+	dir := filepath.Dir(c.ConfigFile)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("error syncing config: fail to create directory: %w", err)
 	}
 
 	b, err := c.Koanf.Marshal(yaml.Parser())

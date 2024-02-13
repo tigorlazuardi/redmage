@@ -2,6 +2,8 @@ package app
 
 import (
 	"fmt"
+	"log/slog"
+	"net"
 	"os"
 	"strings"
 
@@ -11,6 +13,16 @@ import (
 	"github.com/tigorlazuardi/redmage/app/config"
 	"github.com/tigorlazuardi/redmage/app/routes"
 )
+
+func getOutboundIP() string {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		return ""
+	}
+	defer conn.Close()
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	return localAddr.IP.String()
+}
 
 func (rm *Redmage) Serve() error {
 	// serves static files from the provided public dir (if exists)
@@ -29,6 +41,7 @@ func (rm *Redmage) Serve() error {
 		}
 		r.Register(e.Router)
 		e.Router.GET("/*", apis.StaticDirectoryHandler(rm.Public, false))
+		slog.Info(fmt.Sprintf("Server outbound host: http://%s:%d", getOutboundIP(), cfg.Server.Port))
 		return nil
 	})
 

@@ -28,55 +28,55 @@ templ configDownloadSection(c render.Context) {
 			hx-target="#config-update-toast"
 		>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<label for="directory" class="font-bold">Directory</label>
+				<label for="directory" class="font-bold my-auto">Directory</label>
 				<input
 					name="directory"
 					type="text"
-					class="border-2 border-gray-300 rounded-xl px-2"
+					class="input input-bordered w-full"
 					value={ c.Config.Download.Directory }
 				/>
-				<label for="concurrency" class="font-bold">Concurrency</label>
+				<label for="concurrency" class="font-bold my-auto">Concurrency</label>
 				<input
 					name="concurrency"
 					type="number"
-					class="border-2 border-gray-300 rounded-xl px-2"
+					class="input input-bordered"
 					value={ strconv.Itoa(c.Config.Download.Concurrency) }
 				/>
-				<label for="connection_timeout" class="font-bold">First-Byte Connection Timeout</label>
-				<div class="flex gap-4">
+				<label for="connection_timeout" class="font-bold my-auto">First-Byte Connection Timeout</label>
+				<div class="flex gap-4 items-center">
 					<input
 						name="connection_timeout"
 						type="number"
-						class="basis-3/4 border-2 border-gray-300 rounded-xl px-2"
+						class="basis-3/4 input input-bordered"
 						value={ fmt.Sprintf("%.0f", c.Config.Download.ConnectionTimeout.Seconds()) }
 					/>
-					<span class="font-bold">(in seconds)</span>
+					<span class="font-bold mx-auto">(in seconds)</span>
 				</div>
-				<label for="download_idle_timeout" class="font-bold">Download Idle Timeout</label>
-				<div class="flex gap-4">
+				<label for="download_idle_timeout" class="font-bold my-auto">Download Idle Timeout</label>
+				<div class="flex gap-4 items-center">
 					<input
 						name="download_idle_timeout"
 						type="number"
-						class="basis-3/4 border-2 border-gray-300 rounded-xl px-2"
+						class="basis-3/4 input input-bordered"
 						value={ fmt.Sprintf("%.0f", c.Config.Download.DownloadIdleTimeout.Seconds()) }
 					/>
-					<span class="font-bold">(in seconds)</span>
+					<span class="font-bold mx-auto">(in seconds)</span>
 				</div>
-				<label for="download_idle_threshold" class="font-bold">Download Idle Speed Threshold</label>
-				<div class="flex gap-4">
+				<label for="download_idle_threshold" class="font-bold my-auto">Download Idle Speed Threshold</label>
+				<div class="flex gap-4 items-center">
 					<input
 						name="download_idle_threshold"
 						type="number"
-						class="basis-3/4 border-2 border-gray-300 rounded-xl px-2"
+						class="basis-3/4 input input-bordered"
 						value={ strconv.FormatUint(uint64(c.Config.Download.DownloadIdleThreshold/1024), 10) }
 					/>
-					<span class="font-bold">(in KB/s)</span>
+					<span class="font-bold mx-auto">(in KB/s)</span>
 				</div>
 			</div>
-			<div id="config-update-toast" class="mx-auto mt-4 w-[20%]"></div>
+			<div id="config-update-toast" class="mx-auto mt-4 lg:max-w-[50%]"></div>
 			<div class="flex justify-center mt-4">
 				<button
-					class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold uppercase hover:bg-blue-400 transition-all"
+					class="btn btn-primary text-base-100 uppercase"
 					type="submit"
 				>Save Download Configuration</button>
 			</div>
@@ -95,10 +95,10 @@ templ ConfigDeviceSection(c render.Context) {
 		}
 		<div class="flex justify-center">
 			<button
-				class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold uppercase"
+				class="btn btn-primary text-base-100 mt-4"
 				type="submit"
 				onclick="document.getElementById('add-subreddit-dialog').showModal()"
-			>Add New Profile</button>
+			>ADD NEW DEVICE</button>
 		</div>
 		@configDeviceSectionModal(c)
 	</section>

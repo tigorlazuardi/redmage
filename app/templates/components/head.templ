@@ -4,6 +4,8 @@ import "github.com/tigorlazuardi/redmage/app/models/render"
 
 templ Head(c render.Context, extra ...templ.Component) {
 	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<meta name="keywords" content="Reddit, Image, Downloader"/>
 		<link rel="stylesheet" href="/style.css"/>
 		<link rel="icon" href="/favicon.svg"/>
 		<script src="/htmx-1.9.10.min.js"></script>
