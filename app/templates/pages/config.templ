@@ -23,12 +23,27 @@ templ configDownloadSection(c render.Context) {
 		<h1>Download</h1>
 		<hr class="border-black"/>
 		<form
+			method="post"
 			hx-post="/htmx/v1/config/update/download"
 			hx-target-x="#config-update-toast"
 			hx-target="#config-update-toast"
 		>
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<label for="directory" class="font-bold my-auto">Directory</label>
+				<label
+					for="directory"
+					class="font-bold my-auto flex items-center gap-4"
+				>
+					<span>Directory</span>
+					@components.Tooltip("Directory Documentation") {
+						<button type="button" class="btn btn-ghost btn-square" onclick="document.getElementById('directory-documentation-modal').showModal();">
+							@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
+						</button>
+					}
+					@components.ModalDocumentation("directory-documentation-modal", "Directory",
+						"Sets the root directory where the images will be downloaded.",
+						"You should avoid changing this value on Containerized environment like running this application via docker.",
+					)
+				</label>
 				<input
 					name="directory"
 					type="text"
@@ -139,8 +154,9 @@ templ configDeviceSectionModal(c render.Context) {
 				</div>
 				<div class="flex justify-center gap-4">
 					<button
+						type="button"
 						class="btn btn-error text-base-100 w-[8rem]"
-						onclick="event.preventDefault(); document.getElementById('add-subreddit-dialog').close()"
+						onclick="document.getElementById('add-subreddit-dialog').close()"
 					>CANCEL</button>
 					<button type="submit" class="btn btn-primary text-base-100 w-[8rem]">ADD</button>
 				</div>
