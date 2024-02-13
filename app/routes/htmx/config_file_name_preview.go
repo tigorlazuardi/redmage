@@ -15,6 +15,7 @@ func (r *Routes) ConfigFileNamePreview(c echo.Context) error {
 	}
 	format := c.FormValue("naming_format")
 	if format != "" && strings.Count(format, "{{") == 0 && strings.Count(format, "}}") == 0 {
+		c.Response().Header().Set("HX-Trigger", "invalid-naming-format")
 		return pages.
 			ConfigFilenameError("Error: File Naming Format must contain at least one variable, otherwise all images in the device profile will be overwritten.\nIf using given sets in the dropdown when typing, click on the Dropdown selection to expand them.").
 			Render(c.Request().Context(), c.Response())

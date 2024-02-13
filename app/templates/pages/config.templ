@@ -176,7 +176,7 @@ templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
 				oninput="this.setCustomValidity('')"
 				onchange="this.form.reportValidity()"
 				hx-get="/htmx/v1/config/naming_format/preview"
-				hx-trigger="keyup changed delay:500ms"
+				hx-trigger="blur, keyup changed delay:500ms"
 				hx-target="#file-name-preview"
 				hx-include="[name='naming_format']"
 				hx-swap="outerHTML"
@@ -214,7 +214,7 @@ templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
 					id="naming-format-input"
 					name="naming_format"
 					type="text"
-					class="input input-bordered font-mono"
+					class="input input-bordered font-mono invalid:input-error"
 					list="naming-format-datalist"
 					placeholder="e.g. Default or Windows Wallpaper Changer"
 					hx-get="/htmx/v1/config/naming_format/preview"
@@ -222,6 +222,8 @@ templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
 					hx-target="#file-name-preview"
 					hx-include="[name='name']"
 					hx-swap="outerHTML"
+					hx-on:invalid-naming-format="this.setCustomValidity('Invalid value')"
+					oninput="this.setCustomValidity('')"
 				/>
 				<div class="flex flex-col gap-2">
 					<p class="my-0">Filename Preview:</p>
@@ -360,7 +362,7 @@ templ configDeviceSectionModal_aspectRatioGroup() {
 					name="aspect_ratio_width"
 					type="number"
 					min="0"
-					class="border-2 border-gray-300 rounded-xl px-2"
+					class="input input-bordered"
 					value="0"
 					required
 				/>
@@ -382,7 +384,7 @@ templ configDeviceSectionModal_aspectRatioGroup() {
 					name="aspect_ratio_height"
 					type="number"
 					min="0"
-					class="border-2 border-gray-300 rounded-xl px-2"
+					class="input input-bordered"
 					value="0"
 				/>
 			</div>
@@ -410,7 +412,7 @@ templ configDeviceSectionModal_aspectRatioGroup() {
 					name="aspect_ratio_tolerance"
 					type="number"
 					min="0"
-					class="border-2 border-gray-300 rounded-xl px-2"
+					class="input input-bordered"
 					value="0.2"
 					step="0.01"
 				/>
@@ -440,7 +442,7 @@ templ configDeviceSectionModal_minResolutionGroup() {
 					name="min_width"
 					type="number"
 					min="0"
-					class="border-2 border-gray-300 rounded-xl px-2"
+					class="input input-bordered"
 					value="0"
 					required
 				/>
@@ -461,7 +463,7 @@ templ configDeviceSectionModal_minResolutionGroup() {
 					name="min_height"
 					type="number"
 					min="0"
-					class="border-2 border-gray-300 rounded-xl px-2"
+					class="input input-bordered"
 					value="0"
 				/>
 			</div>
@@ -490,7 +492,7 @@ templ configDeviceSectionModal_maxResolutionGroup() {
 					name="max_width"
 					type="number"
 					min="0"
-					class="border-2 border-gray-300 rounded-xl px-2"
+					class="input input-bordered"
 					value="0"
 					required
 				/>
@@ -511,7 +513,7 @@ templ configDeviceSectionModal_maxResolutionGroup() {
 					name="max_height"
 					type="number"
 					min="0"
-					class="border-2 border-gray-300 rounded-xl px-2"
+					class="input input-bordered"
 					value="0"
 				/>
 			</div>
