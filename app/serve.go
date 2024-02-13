@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
@@ -32,6 +33,7 @@ func (rm *Redmage) Serve() error {
 		if err != nil {
 			return err
 		}
+		e.Router.Use(middleware.Gzip())
 		e.Server.Addr = fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port)
 		r := routes.Routes{
 			Config: cfg,

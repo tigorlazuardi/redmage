@@ -1,19 +1,25 @@
 package components
 
+import "fmt"
+
 script modalClose(id string) {
     document.getElementById(id).close();
 }
 
 templ ModalDocumentation(id string, header string, body ...string) {
-	<dialog class="modal max-w-[95vw] max-h-[90vh]" id={ id } onclick="if (event.target === this) this.close()">
-		<div class="modal-box">
-			<h1>{ header }</h1>
+	<dialog
+		class="modal max-w-[95vw] w-max max-h-[90vh] mx-auto"
+		id={ id }
+		onclick="if (event.target === this) this.close()"
+	>
+		<div class="modal-box max-w-none lg:max-w-[75vw] font-normal">
+			<h2 class="my-4">{ header }</h2>
 			<hr class="my-4"/>
 			for _, b := range body {
 				<p>{ b }</p>
 			}
 			<hr class="my-4"/>
-			<div class="modal-action">
+			<div class="modal-action justify-center">
 				<button
 					type="button"
 					class="btn btn-primary"
@@ -22,4 +28,24 @@ templ ModalDocumentation(id string, header string, body ...string) {
 			</div>
 		</div>
 	</dialog>
+}
+
+script modalOpen(id string) {
+    document.getElementById(id).showModal();
+}
+
+templ ModalDocumentationInfo(id string, header string, body ...string) {
+	<div class="tooltip" data-tip={ fmt.Sprintf("Click for more info on %s", header) }>
+		<button
+			onclick={ modalOpen(id) }
+			type="button"
+			class="btn btn-ghost btn-square"
+		>
+			@InfoIcon(IconProps{
+				Height: 20,
+				Width:  20,
+			})
+		</button>
+	</div>
+	@ModalDocumentation(id, header, body...)
 }

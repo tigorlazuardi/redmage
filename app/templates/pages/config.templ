@@ -201,11 +201,11 @@ templ configDeviceSectionModal(c render.Context) {
 	<dialog
 		id="add-subreddit-dialog"
 		hx-on:close-add-subreddit-dialog="this.close()"
-		class="rounded-2xl"
+		class="modal"
 		onclick="if (event.target === this) this.close()"
 	>
-		<div class="p-8 min-w-[50vw]">
-			<div class="flex mt-4 items-center">
+		<div class="modal-box max-w-none xl:max-w-[80vw] 2xl:max-w-[50vw]">
+			<div class="flex items-center">
 				<h2 class="m-0 flex-1">Add New Device</h2>
 				<button
 					class="btn btn-ghost btn-square"
@@ -230,7 +230,7 @@ templ configDeviceSectionModal(c render.Context) {
 					@configDeviceSectionModal_maxResolutionGroup()
 					<div id="config-add-subreddit-toast" class="w-max mx-auto mt-4"></div>
 				</div>
-				<div class="flex justify-center gap-4">
+				<div class="modal-action justify-center">
 					<button
 						type="button"
 						class="btn btn-error text-base-100 w-[8rem]"
@@ -247,46 +247,49 @@ templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
 	<section>
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 my-4">
 			<div class="flex items-center gap-4">
-				<label for="name" class="font-bold">
-					Device Name 
-				</label>
-				@components.Tooltip(
+				<label for="name" class="font-bold">Device Name</label>
+				<div class="tooltip" data-tip="Click for more info about Directory config">
+					<button type="button" class="btn btn-ghost btn-square" onclick="document.getElementById('device-name-documentation-modal').showModal();">
+						@components.InfoIcon(components.IconProps{Width: 20, Height: 20})
+					</button>
+				</div>
+				@components.ModalDocumentation("device-name-documentation-modal", "Device Name",
 					"Sets the name of the device.",
 					"Recommended to set to an identifiable name. Like your device name.",
 					`e.g. "My-Laptop"`,
 					"NOTE: Only A-Z, a-z, 0-9, - and _ characters are allowed. No spaces allowed.",
-				) {
-					@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
-				}
+				)
 			</div>
-			<input
-				name="name"
-				type="text"
-				class="input input-bordered invalid:input-error"
-				placeholder="e.g. My-Laptop"
-				pattern="[a-zA-Z0-9\\-_]+"
-				oninvalid="this.setCustomValidity('Only A-Z, a-z, 0-9, - and _ characters are allowed. No spaces allowed.')"
-				oninput="this.setCustomValidity('')"
-				onchange="this.form.reportValidity()"
-				hx-get="/htmx/v1/config/naming_format/preview"
-				hx-trigger="blur, keyup changed delay:500ms"
-				hx-target="#file-name-preview"
-				hx-include="[name='naming_format']"
-				hx-swap="outerHTML"
-				hx-validate="true"
-				required
-			/>
+			<div class="form-control">
+				<input
+					name="name"
+					type="text"
+					class="input input-bordered invalid:input-error peer"
+					placeholder="e.g. My-Laptop"
+					pattern="[a-zA-Z0-9\\-_]+"
+					oninvalid="this.setCustomValidity('Device name is required. Only A-Z, a-z, 0-9, - and _ characters are allowed. No spaces allowed.')"
+					oninput="this.setCustomValidity('')"
+					onchange="this.form.reportValidity()"
+					hx-get="/htmx/v1/config/naming_format/preview"
+					hx-trigger="blur, keyup changed delay:500ms"
+					hx-target="#file-name-preview"
+					hx-include="[name='naming_format']"
+					hx-swap="outerHTML"
+					hx-validate="true"
+					required
+				/>
+				<div class="label hidden peer-invalid:inline-block">
+					<span class="label-text text-error">Device name is required. Only A-Z, a-z, 0-9, - and _ characters are allowed. No spaces allowed.</span>
+				</div>
+			</div>
 		</div>
 		<div class="grid grid-cols-[1fr_auto] sm:grid-cols-2 gap-4 my-4">
 			<div class="flex items-center gap-4">
-				<label for="nsfw" class="font-bold">
-					Allow NSFW
-				</label>
-				@components.Tooltip("Allows Redmage to fetch images marked as NSFW for this device.") {
-					@components.InfoIcon(components.IconProps{Width: 20, Height: 20, Class: []string{"text-gray-500"}})
-				}
+				<label for="nsfw-checkbox" class="font-bold">Allow NSFW</label>
+				@components.ModalDocumentationInfo("nsfw-checkbox-modal", "Allow NSFW", "Allows Redmage to fetch images marked as NSFW for this device.")
 			</div>
 			<input
+				id="nsfw-checkbox"
 				name="nsfw"
 				type="checkbox"
 				class="w-4 h-4 my-auto"
