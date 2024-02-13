@@ -76,9 +76,9 @@ templ configDownloadSection(c render.Context) {
 			<div id="config-update-toast" class="mx-auto mt-4 lg:max-w-[50%]"></div>
 			<div class="flex justify-center mt-4">
 				<button
-					class="btn btn-primary text-base-100 uppercase"
+					class="btn btn-primary"
 					type="submit"
-				>Save Download Configuration</button>
+				>SAVE DOWNLOAD CONFIGURATION</button>
 			</div>
 		</form>
 	</section>
@@ -95,7 +95,7 @@ templ ConfigDeviceSection(c render.Context) {
 		}
 		<div class="flex justify-center">
 			<button
-				class="btn btn-primary text-base-100 mt-4"
+				class="btn btn-primary mt-4"
 				type="submit"
 				onclick="document.getElementById('add-subreddit-dialog').showModal()"
 			>ADD NEW DEVICE</button>
@@ -138,12 +138,11 @@ templ configDeviceSectionModal(c render.Context) {
 					<div id="config-add-subreddit-toast" class="w-max mx-auto mt-4"></div>
 				</div>
 				<div class="flex justify-center gap-4">
-					<a
-						href="#"
-						class="bg-red-500 text-white px-4 py-2 rounded-xl font-bold cursor-pointer no-underline inline-block uppercase w-24 text-center"
-						onclick="document.getElementById('add-subreddit-dialog').close()"
-					>Cancel</a>
-					<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-xl font-bold w-24 uppercase">Add</button>
+					<button
+						class="btn btn-error text-base-100 w-[8rem]"
+						onclick="event.preventDefault(); document.getElementById('add-subreddit-dialog').close()"
+					>CANCEL</button>
+					<button type="submit" class="btn btn-primary text-base-100 w-[8rem]">ADD</button>
 				</div>
 			</form>
 		</div>
