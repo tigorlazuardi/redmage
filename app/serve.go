@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -18,6 +19,7 @@ func (rm *Redmage) Serve() error {
 		if err != nil {
 			return err
 		}
+		e.Server.Addr = fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port)
 		r := routes.Routes{
 			Config: cfg,
 		}

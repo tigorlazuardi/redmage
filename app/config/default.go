@@ -30,6 +30,10 @@ func Default() *Config {
 	}
 	k := koanf.New(".")
 	c := &Config{
+		Server: Server{
+			Host: "0.0.0.0",
+			Port: 8090,
+		},
 		Devices:    make(map[string]Device),
 		Subreddits: make(map[string]SubredditConfig),
 		Download: Download{

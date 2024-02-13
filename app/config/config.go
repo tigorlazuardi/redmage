@@ -13,6 +13,8 @@ import (
 )
 
 type Config struct {
+	Server Server `yaml:"server" koanf:"server" json:"server" schema:"server"`
+
 	Devices    map[string]Device          `yaml:"profiles" koanf:"profiles" json:"profiles"`
 	Subreddits map[string]SubredditConfig `yaml:"subreddits" koanf:"subreddits" json:"subreddits"`
 	Download   Download                   `yaml:"download" koanf:"download" json:"download"`
@@ -22,6 +24,11 @@ type Config struct {
 
 	ConfigFile string `json:"-" yaml:"-" koanf:"-"`
 	mu         sync.Mutex
+}
+
+type Server struct {
+	Host string `yaml:"host" koanf:"host" json:"host" schema:"host"`
+	Port int    `yaml:"port" koanf:"port" json:"port" schema:"port"`
 }
 
 func (c *Config) Sync() error {
