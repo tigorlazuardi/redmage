@@ -139,7 +139,7 @@ templ configDownloadSection(c render.Context) {
 					/>
 					<span class="font-bold mx-auto">second</span>
 				</div>
-				<label for="download_idle_threshold" class="font-bold my-auto flex items-center gap-4">
+				<label for="download-idle-threshold-input" class="font-bold my-auto flex items-center gap-4">
 					<span>Download Idle Speed Threshold</span>
 					<div class="tooltip" data-tip="Click for more info about Download Idle Speed Threshold">
 						<button
@@ -157,6 +157,7 @@ templ configDownloadSection(c render.Context) {
 				</label>
 				<div class="flex gap-4 items-center">
 					<input
+						id="download-idle-threshold-input"
 						name="download_idle_threshold"
 						type="number"
 						class="basis-3/4 input input-bordered"
