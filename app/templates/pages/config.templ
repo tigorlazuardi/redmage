@@ -4,13 +4,13 @@ import "github.com/tigorlazuardi/redmage/app/templates/components"
 import "github.com/tigorlazuardi/redmage/app/models/render"
 import "strconv"
 import "fmt"
+import "encoding/json"
 
 templ Config(c render.Context, cfg string) {
 	@components.Doctype() {
 		@components.Head(c)
 		@components.Body(c) {
 			@components.Prose() {
-				<pre class="hidden lg:inline-block font-bold">{ cfg }</pre>
 				@configDownloadSection(c)
 				@ConfigDeviceSection(c)
 			}
@@ -177,6 +177,33 @@ templ configDownloadSection(c render.Context) {
 	</section>
 }
 
+func marshalJson(a any, prefix, indent string) string {
+	b, _ := json.MarshalIndent(a, prefix, indent)
+	return string(b)
+}
+
+templ ConfigDevicesList(c render.Context) {
+	for _, device := range c.Config.GetSortedDevices() {
+		<div class="collapse collapse-arrow bg-base-200 my-2">
+			<input
+				class="peer"
+				type="radio"
+				name="devices-accordion"
+			/>
+			<div class="collapse-title">
+				<span class="my-0 mr-4">{ device.Name }</span>
+				if device.NSFW {
+					<span class="badge badge-error">NSFW</span>
+				}
+			</div>
+			<div class="collapse-content">
+				<div class="divider"></div>
+				<pre>{ marshalJson(device, "", "  ") }</pre>
+			</div>
+		</div>
+	}
+}
+
 templ ConfigDeviceSection(c render.Context) {
 	<section id="section-device" class="mt-4">
 		<h1>Device Profiles</h1>
@@ -184,7 +211,9 @@ templ ConfigDeviceSection(c render.Context) {
 		if len(c.Config.Devices) == 0 {
 			<p class="text-center">No device profile found. Please add a new profile.</p>
 		} else {
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+			<div class="mx-auto">
+				@ConfigDevicesList(c)
+			</div>
 		}
 		<div class="flex justify-center">
 			<button
