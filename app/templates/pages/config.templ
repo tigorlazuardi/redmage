@@ -5,6 +5,7 @@ import "github.com/tigorlazuardi/redmage/app/models/render"
 import "strconv"
 import "fmt"
 import "encoding/json"
+import "github.com/tigorlazuardi/redmage/app/config"
 
 templ Config(c render.Context, cfg string) {
 	@components.Doctype() {
@@ -35,7 +36,11 @@ templ configDownloadSection(c render.Context) {
 				>
 					<span>Directory</span>
 					<div class="tooltip" data-tip="Click for more info about Directory config">
-						<button type="button" class="btn btn-ghost btn-square" onclick="document.getElementById('directory-documentation-modal').showModal();">
+						<button
+							type="button"
+							class="btn btn-ghost btn-square"
+							onclick="document.getElementById('directory-documentation-modal').showModal();"
+						>
 							@components.InfoIcon(components.IconProps{Width: 20, Height: 20})
 						</button>
 					</div>
@@ -198,7 +203,7 @@ templ ConfigDevicesList(c render.Context) {
 			</div>
 			<div class="collapse-content">
 				<div class="divider"></div>
-				<pre>{ marshalJson(device, "", "  ") }</pre>
+				@config_DeviceFormFields(c, device)
 			</div>
 		</div>
 	}
@@ -210,11 +215,10 @@ templ ConfigDeviceSection(c render.Context) {
 		<hr class="border-black"/>
 		if len(c.Config.Devices) == 0 {
 			<p class="text-center">No device profile found. Please add a new profile.</p>
-		} else {
-			<div class="mx-auto">
-				@ConfigDevicesList(c)
-			</div>
 		}
+		<div class="mx-auto">
+			@ConfigDevicesList(c)
+		</div>
 		<div class="flex justify-center">
 			<button
 				class="btn btn-primary mt-4"
@@ -253,7 +257,7 @@ templ configDeviceSectionModal(c render.Context) {
 				hx-target="closest #section-device"
 			>
 				<div class="mb-4">
-					@configDeviceSectionModal_deviceNameGroup(c)
+					@config_DeviceFormFields(c, config.Device{})
 					@configDeviceSectionModal_aspectRatioGroup()
 					@configDeviceSectionModal_minResolutionGroup()
 					@configDeviceSectionModal_maxResolutionGroup()
@@ -272,17 +276,24 @@ templ configDeviceSectionModal(c render.Context) {
 	</dialog>
 }
 
-templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
+script openDirectoryDocumentationModal(device config.Device) {
+    document.getElementById(`${device.name}-directory-documentation-modal`).showModal() 
+}
+
+templ config_DeviceFormFields(c render.Context, device config.Device) {
+	<!-- Device Metadata -->
 	<section>
+		<h3 class="my-4">Device Metadata</h3>
+		<div class="divider"></div>
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 my-4">
 			<div class="flex items-center gap-4">
 				<label for="name" class="font-bold">Device Name</label>
 				<div class="tooltip" data-tip="Click for more info about Directory config">
-					<button type="button" class="btn btn-ghost btn-square" onclick="document.getElementById('device-name-documentation-modal').showModal();">
+					<button type="button" class="btn btn-ghost btn-square" onclick={ openDirectoryDocumentationModal(device) }>
 						@components.InfoIcon(components.IconProps{Width: 20, Height: 20})
 					</button>
 				</div>
-				@components.ModalDocumentation("device-name-documentation-modal", "Device Name",
+				@components.ModalDocumentation(fmt.Sprintf("%s-directory-documentation-modal", device.Name), "Device Name",
 					"Sets the name of the device.",
 					"Recommended to set to an identifiable name. Like your device name.",
 					`e.g. "My-Laptop"`,
@@ -305,6 +316,7 @@ templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
 					hx-include="[name='naming_format']"
 					hx-swap="outerHTML"
 					hx-validate="true"
+					value={ device.Name }
 					required
 				/>
 				<div class="label hidden peer-invalid:inline-block">
@@ -315,13 +327,14 @@ templ configDeviceSectionModal_deviceNameGroup(c render.Context) {
 		<div class="grid grid-cols-[1fr_auto] sm:grid-cols-2 gap-4 my-4">
 			<div class="flex items-center gap-4">
 				<label for="nsfw-checkbox" class="font-bold">Allow NSFW</label>
-				@components.ModalDocumentationInfo("nsfw-checkbox-modal", "Allow NSFW", "Allows Redmage to fetch images marked as NSFW for this device.")
+				@components.ModalDocumentationInfo("nsfw-checkbox-modal", "Allow NSFW",
+					"Allows Redmage to fetch images marked as NSFW for this device.")
 			</div>
 			<input
 				id="nsfw-checkbox"
 				name="nsfw"
 				type="checkbox"
-				class="w-4 h-4 my-auto"
+				class="checkbox my-auto"
 				value="true"
 			/>
 		</div>
