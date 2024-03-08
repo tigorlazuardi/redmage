@@ -26,3 +26,4 @@ pb_data
 *_templ.go
 public/style.css
 public/htmx*.js
+.direnv
