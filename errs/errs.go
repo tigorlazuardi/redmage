@@ -3,6 +3,7 @@ package errs
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 	"reflect"
@@ -71,27 +72,37 @@ func (er *Err) Error() string {
 	var (
 		s      = strings.Builder{}
 		source = er.origin
-		msg    = er.msg + ": " + source.Error()
+		msg    = source.Error()
+		unwrap = errors.Unwrap(source)
 	)
+	if unwrap == nil {
+		if er.msg != "" {
+			s.WriteString(er.msg)
+			s.WriteString(": ")
+		}
+		s.WriteString(msg)
+		return s.String()
+	}
 	for unwrap := errors.Unwrap(source); unwrap != nil; source = unwrap {
 		originMsg := unwrap.Error()
-		// TODO: Test this!
+		var write string
 		if cut, found := strings.CutSuffix(msg, originMsg); found {
-			s.WriteString(cut)
-			msg = originMsg
+			write = cut
 		} else {
-			s.WriteString(msg)
+			write = msg
 		}
-
-		s.WriteString(": ")
-
-		unwrap = errors.Unwrap(unwrap)
+		msg = originMsg
+		if write != "" {
+			s.WriteString(write)
+			s.WriteString(": ")
+		}
 	}
 	return s.String()
 }
 
 func (er *Err) Message(msg string, args ...any) Error {
-	panic("not implemented") // TODO: Implement
+	er.msg = fmt.Sprintf(msg, args...)
+	return er
 }
 
 func (er *Err) GetMessage() string {
