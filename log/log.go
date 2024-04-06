@@ -6,13 +6,13 @@ import (
 	"io"
 	"log/slog"
 	"os"
-	"runtime"
 	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/mattn/go-colorable"
 	"github.com/mattn/go-isatty"
+	"github.com/tigorlazuardi/redmage/caller"
 	"github.com/tigorlazuardi/redmage/config"
 )
 
@@ -47,7 +47,7 @@ func NewHandler(cfg *config.Config) slog.Handler {
 type Entry struct {
 	ctx     context.Context
 	handler slog.Handler
-	caller  uintptr
+	caller  caller.Caller
 	time    time.Time
 }
 
@@ -60,13 +60,13 @@ func Log(ctx context.Context) *Entry {
 	return &Entry{ctx: ctx, handler: h, time: time.Now()}
 }
 
-func (entry *Entry) Caller(pc uintptr) *Entry {
-	entry.caller = pc
+func (entry *Entry) Caller(caller caller.Caller) *Entry {
+	entry.caller = caller
 	return entry
 }
 
 func (entry *Entry) Info(message string, fields ...any) {
-	record := slog.NewRecord(entry.time, slog.LevelInfo, message, entry.getCaller())
+	record := slog.NewRecord(entry.time, slog.LevelInfo, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
 	record.AddAttrs(slog.Group("context", fields...))
 	_ = entry.handler.Handle(entry.ctx, record)
@@ -74,13 +74,13 @@ func (entry *Entry) Info(message string, fields ...any) {
 
 func (entry *Entry) Infof(format string, args ...any) {
 	message := fmt.Sprintf(format, args...)
-	record := slog.NewRecord(entry.time, slog.LevelInfo, message, entry.getCaller())
+	record := slog.NewRecord(entry.time, slog.LevelInfo, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
 	_ = entry.handler.Handle(entry.ctx, record)
 }
 
 func (entry *Entry) Error(message string, fields ...any) {
-	record := slog.NewRecord(entry.time, slog.LevelError, message, entry.getCaller())
+	record := slog.NewRecord(entry.time, slog.LevelError, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
 	record.AddAttrs(slog.Group("context", fields...))
 	_ = entry.handler.Handle(entry.ctx, record)
@@ -88,13 +88,13 @@ func (entry *Entry) Error(message string, fields ...any) {
 
 func (entry *Entry) Errorf(format string, args ...any) {
 	message := fmt.Sprintf(format, args...)
-	record := slog.NewRecord(entry.time, slog.LevelError, message, entry.getCaller())
+	record := slog.NewRecord(entry.time, slog.LevelError, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
 	_ = entry.handler.Handle(entry.ctx, record)
 }
 
 func (entry *Entry) Debug(message string, fields ...any) {
-	record := slog.NewRecord(entry.time, slog.LevelDebug, message, entry.getCaller())
+	record := slog.NewRecord(entry.time, slog.LevelDebug, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
 	record.AddAttrs(slog.Group("context", fields...))
 	_ = entry.handler.Handle(entry.ctx, record)
@@ -102,13 +102,13 @@ func (entry *Entry) Debug(message string, fields ...any) {
 
 func (entry *Entry) Debugf(format string, args ...any) {
 	message := fmt.Sprintf(format, args...)
-	record := slog.NewRecord(entry.time, slog.LevelDebug, message, entry.getCaller())
+	record := slog.NewRecord(entry.time, slog.LevelDebug, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
 	_ = entry.handler.Handle(entry.ctx, record)
 }
 
 func (entry *Entry) Warn(message string, fields ...any) {
-	record := slog.NewRecord(entry.time, slog.LevelWarn, message, entry.getCaller())
+	record := slog.NewRecord(entry.time, slog.LevelWarn, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
 	record.AddAttrs(slog.Group("context", fields...))
 	_ = entry.handler.Handle(entry.ctx, record)
@@ -116,25 +116,16 @@ func (entry *Entry) Warn(message string, fields ...any) {
 
 func (entry *Entry) Warnf(format string, args ...any) {
 	message := fmt.Sprintf(format, args...)
-	record := slog.NewRecord(entry.time, slog.LevelWarn, message, entry.getCaller())
+	record := slog.NewRecord(entry.time, slog.LevelWarn, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
 	_ = entry.handler.Handle(entry.ctx, record)
 }
 
-func (entry *Entry) getCaller() uintptr {
-	if entry.caller != 0 {
+func (entry *Entry) getCaller() caller.Caller {
+	if entry.caller.PC != 0 {
 		return entry.caller
 	}
-	return GetCaller(4)
-}
-
-func GetCaller(skip int) uintptr {
-	pc := make([]uintptr, 1)
-	n := runtime.Callers(skip, pc)
-	if n == 0 {
-		return 0
-	}
-	return pc[0]
+	return caller.New(4)
 }
 
 func (entry *Entry) getExtra() []slog.Attr {

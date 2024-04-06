@@ -7,11 +7,11 @@ import (
 	"io"
 	"log/slog"
 	"os"
-	"runtime"
 	"strings"
 	"sync"
 
 	"github.com/fatih/color"
+	"github.com/tigorlazuardi/redmage/caller"
 )
 
 type PrettyHandler struct {
@@ -89,7 +89,7 @@ func (pr *PrettyHandler) Handle(ctx context.Context, record slog.Record) error {
 	defer putBuffer(jsonBuf)
 
 	if record.PC != 0 && pr.opts.AddSource {
-		frame := getFrame(record.PC)
+		frame := caller.From(record.PC).Frame
 		levelColor.Fprint(buf, frame.File)
 		levelColor.Fprint(buf, ":")
 		levelColor.Fprint(buf, frame.Line)
@@ -118,7 +118,7 @@ func (pr *PrettyHandler) Handle(ctx context.Context, record slog.Record) error {
 	_ = serializer.Handle(ctx, record)
 	if jsonBuf.Len() > 3 { // Ignore empty json like "{}\n"
 		_ = json.Indent(buf, jsonBuf.Bytes(), "", "  ")
-		// json indent includes new line, no need to add extra text.
+		// json indent includes new line, no need to add extra new line.
 	} else {
 		buf.WriteByte('\n')
 	}
@@ -146,12 +146,6 @@ func (pr *PrettyHandler) createSerializer(w io.Writer) slog.Handler {
 	}
 
 	return jsonHandler
-}
-
-func getFrame(pc uintptr) runtime.Frame {
-	frames := runtime.CallersFrames([]uintptr{pc})
-	frame, _ := frames.Next()
-	return frame
 }
 
 func (pr *PrettyHandler) clone() *PrettyHandler {
