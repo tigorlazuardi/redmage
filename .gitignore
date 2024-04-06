@@ -1,2 +1,6 @@
 .direnv
 
+
+*.db
+
+db/queries/**/*.go

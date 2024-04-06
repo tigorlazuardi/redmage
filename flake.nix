@@ -18,6 +18,8 @@
           go
           modd
           nodejs_21
+          goose
+          sqlc
         ];
       };
     };

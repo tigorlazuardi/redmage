@@ -31,13 +31,7 @@ func (builder *ConfigBuilder) BuildHandle() (*Config, error) {
 }
 
 func (builder *ConfigBuilder) LoadDefault() *ConfigBuilder {
-	provider := confmap.Provider(map[string]any{
-		"log.enable": true,
-		"log.source": true,
-		"log.format": "pretty",
-		"log.level":  "info",
-		"log.output": "stderr",
-	}, ".")
+	provider := confmap.Provider(defaultConfig, ".")
 
 	_ = builder.koanf.Load(provider, nil)
 	return builder
