@@ -5,10 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"os"
 	"reflect"
-	"runtime"
 	"strings"
+
+	"github.com/tigorlazuardi/redmage/caller"
+	"github.com/tigorlazuardi/redmage/log"
 )
 
 type Error interface {
@@ -17,8 +18,8 @@ type Error interface {
 	GetMessage() string
 	Code(status int) Error
 	GetCode() int
-	Caller(pc uintptr) Error
-	GetCaller() uintptr
+	Caller(pc caller.Caller) Error
+	GetCaller() caller.Caller
 	Details(...any) Error
 	GetDetails() []any
 	Log(ctx context.Context) Error
@@ -27,9 +28,9 @@ type Error interface {
 var _ Error = (*Err)(nil)
 
 type Err struct {
-	msg     string
+	message string
 	code    int
-	caller  uintptr
+	caller  caller.Caller
 	details []any
 	origin  error
 }
@@ -37,33 +38,34 @@ type Err struct {
 func (er *Err) LogValue() slog.Value {
 	values := make([]slog.Attr, 0, 5)
 
-	if er.msg != "" {
-		values = append(values, slog.String("message", er.msg))
+	if er.message != "" {
+		values = append(values, slog.String("message", er.message))
 	}
 
 	if er.code != 0 {
 		values = append(values, slog.Int("code", er.code))
 	}
-	if er.caller != 0 {
-		frame, _ := runtime.CallersFrames([]uintptr{er.caller}).Next()
-		split := strings.Split(frame.Function, string(os.PathSeparator))
-		fnName := split[len(split)-1]
-
-		values = append(values, slog.Group("origin",
-			slog.String("file", frame.File),
-			slog.Int("line", frame.Line),
-			slog.String("function", fnName),
-		))
+	if er.caller.PC != 0 {
+		values = append(values, slog.Any("origin", er.caller))
 	}
 
 	if len(er.details) > 0 {
 		values = append(values, slog.Group("details", er.details...))
 	}
 
-	values = append(values, slog.Group("error",
-		slog.String("type", reflect.TypeOf(er.origin).String()),
-		slog.Any("data", er.origin),
-	))
+	if er.origin == nil {
+		values = append(values, slog.Any("error", er.origin))
+	} else {
+		errGroupValues := make([]slog.Attr, 0, 3)
+		errGroupValues = append(errGroupValues, slog.String("type", reflect.TypeOf(er.origin).String()))
+		if lv, ok := er.origin.(slog.LogValuer); ok {
+			errGroupValues = append(errGroupValues, slog.Attr{Key: "data", Value: lv.LogValue()})
+		} else {
+			errGroupValues = append(errGroupValues, slog.String("message", er.origin.Error()), slog.Any("data", er.origin))
+		}
+
+		values = append(values, slog.Attr{Key: "error", Value: slog.GroupValue(errGroupValues...)})
+	}
 
 	return slog.GroupValue(values...)
 }
@@ -76,8 +78,8 @@ func (er *Err) Error() string {
 		unwrap = errors.Unwrap(source)
 	)
 	if unwrap == nil {
-		if er.msg != "" {
-			s.WriteString(er.msg)
+		if er.message != "" {
+			s.WriteString(er.message)
 			s.WriteString(": ")
 		}
 		s.WriteString(msg)
@@ -101,38 +103,75 @@ func (er *Err) Error() string {
 }
 
 func (er *Err) Message(msg string, args ...any) Error {
-	er.msg = fmt.Sprintf(msg, args...)
+	er.message = fmt.Sprintf(msg, args...)
 	return er
 }
 
 func (er *Err) GetMessage() string {
-	panic("not implemented") // TODO: Implement
+	return er.message
 }
 
 func (er *Err) Code(status int) Error {
-	panic("not implemented") // TODO: Implement
+	er.code = status
+	return er
 }
 
 func (er *Err) GetCode() int {
-	panic("not implemented") // TODO: Implement
+	return er.code
 }
 
-func (er *Err) Caller(pc uintptr) Error {
-	panic("not implemented") // TODO: Implement
+func (er *Err) Caller(pc caller.Caller) Error {
+	er.caller = pc
+	return er
 }
 
-func (er *Err) GetCaller() uintptr {
-	panic("not implemented") // TODO: Implement
+func (er *Err) GetCaller() caller.Caller {
+	return er.caller
 }
 
-func (er *Err) Details(_ ...any) Error {
-	panic("not implemented") // TODO: Implement
+func (er *Err) Details(ctx ...any) Error {
+	er.details = ctx
+	return er
 }
 
 func (er *Err) GetDetails() []any {
-	panic("not implemented") // TODO: Implement
+	return er.details
 }
 
 func (er *Err) Log(ctx context.Context) Error {
-	panic("not implemented") // TODO: Implement
+	log.Log(ctx).Caller(er.caller).Error(er.message, "error", er)
+	return er
+}
+
+func Wrap(err error, message string, details ...any) Error {
+	return &Err{
+		origin:  err,
+		details: details,
+		message: message,
+		caller:  caller.New(3),
+	}
+}
+
+func Wrapf(err error, message string, args ...any) Error {
+	message = fmt.Sprintf(message, args...)
+	return &Err{
+		origin:  err,
+		message: message,
+		caller:  caller.New(3),
+	}
+}
+
+func Fail(message string, details ...any) Error {
+	return &Err{
+		origin:  errors.New(message),
+		details: details,
+		caller:  caller.New(3),
+	}
+}
+
+func Failf(message string, args ...any) Error {
+	return &Err{
+		origin: fmt.Errorf(message, args...),
+		caller: caller.New(3),
+	}
 }
