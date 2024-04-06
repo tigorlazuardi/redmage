@@ -12,8 +12,8 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/mattn/go-colorable"
 	"github.com/mattn/go-isatty"
-	"github.com/tigorlazuardi/redmage/caller"
 	"github.com/tigorlazuardi/redmage/config"
+	"github.com/tigorlazuardi/redmage/pkg/caller"
 )
 
 var handler slog.Handler = NullHandler{}

@@ -11,7 +11,7 @@ import (
 	"sync"
 
 	"github.com/fatih/color"
-	"github.com/tigorlazuardi/redmage/caller"
+	"github.com/tigorlazuardi/redmage/pkg/caller"
 )
 
 type PrettyHandler struct {

@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/tigorlazuardi/redmage/caller"
-	"github.com/tigorlazuardi/redmage/log"
+	"github.com/tigorlazuardi/redmage/pkg/caller"
+	"github.com/tigorlazuardi/redmage/pkg/log"
 )
 
 type Error interface {
