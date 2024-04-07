@@ -9,8 +9,10 @@ import (
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
+	"github.com/knadh/koanf/providers/posflag"
 	"github.com/knadh/koanf/providers/rawbytes"
 	"github.com/knadh/koanf/v2"
+	"github.com/spf13/pflag"
 )
 
 type ConfigBuilder struct {
@@ -31,7 +33,7 @@ func (builder *ConfigBuilder) BuildHandle() (*Config, error) {
 }
 
 func (builder *ConfigBuilder) LoadDefault() *ConfigBuilder {
-	provider := confmap.Provider(defaultConfig, ".")
+	provider := confmap.Provider(DefaultConfig, ".")
 
 	_ = builder.koanf.Load(provider, nil)
 	return builder
@@ -88,5 +90,14 @@ func (builder *ConfigBuilder) LoadEnv() *ConfigBuilder {
 	})
 
 	_ = builder.koanf.Load(provider, nil)
+	return builder
+}
+
+func (builder *ConfigBuilder) LoadFlags(flags *pflag.FlagSet) *ConfigBuilder {
+	provider := posflag.Provider(flags, ".", nil)
+	if err := builder.koanf.Load(provider, nil); err != nil {
+		builder.err = err
+	}
+
 	return builder
 }

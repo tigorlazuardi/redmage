@@ -1,6 +1,6 @@
 package config
 
-var defaultConfig = map[string]any{
+var DefaultConfig = map[string]any{
 	"log.enable": true,
 	"log.source": true,
 	"log.format": "pretty",
@@ -10,4 +10,7 @@ var defaultConfig = map[string]any{
 	"db.driver":      "sqlite3",
 	"db.string":      "data.db",
 	"db.automigrate": true,
+
+	"http.port": "8080",
+	"http.host": "0.0.0.0",
 }
