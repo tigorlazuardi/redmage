@@ -139,11 +139,18 @@ func (er *Err) GetDetails() []any {
 }
 
 func (er *Err) Log(ctx context.Context) Error {
-	log.Log(ctx).Caller(er.caller).Error(er.message, "error", er)
+	log.Log(ctx).Caller(er.caller).Err(er).Error(er.message)
 	return er
 }
 
-func Wrap(err error, message string, details ...any) Error {
+func Wrap(err error) Error {
+	return &Err{
+		origin: err,
+		caller: caller.New(3),
+	}
+}
+
+func Wrapw(err error, message string, details ...any) Error {
 	return &Err{
 		origin:  err,
 		details: details,

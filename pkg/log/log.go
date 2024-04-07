@@ -49,6 +49,7 @@ type Entry struct {
 	handler slog.Handler
 	caller  caller.Caller
 	time    time.Time
+	err     error
 }
 
 // Log prepares a new entry to write logs.
@@ -65,10 +66,18 @@ func (entry *Entry) Caller(caller caller.Caller) *Entry {
 	return entry
 }
 
+func (entry *Entry) Err(err error) *Entry {
+	entry.err = err
+	return entry
+}
+
 func (entry *Entry) Info(message string, fields ...any) {
 	record := slog.NewRecord(entry.time, slog.LevelInfo, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
-	record.AddAttrs(slog.Group("context", fields...))
+	record.AddAttrs(slog.Group("details", fields...))
+	if entry.err != nil {
+		record.AddAttrs(slog.Any("error", entry.err))
+	}
 	_ = entry.handler.Handle(entry.ctx, record)
 }
 
@@ -76,13 +85,19 @@ func (entry *Entry) Infof(format string, args ...any) {
 	message := fmt.Sprintf(format, args...)
 	record := slog.NewRecord(entry.time, slog.LevelInfo, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
+	if entry.err != nil {
+		record.AddAttrs(slog.Any("error", entry.err))
+	}
 	_ = entry.handler.Handle(entry.ctx, record)
 }
 
 func (entry *Entry) Error(message string, fields ...any) {
 	record := slog.NewRecord(entry.time, slog.LevelError, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
-	record.AddAttrs(slog.Group("context", fields...))
+	record.AddAttrs(slog.Group("details", fields...))
+	if entry.err != nil {
+		record.AddAttrs(slog.Any("error", entry.err))
+	}
 	_ = entry.handler.Handle(entry.ctx, record)
 }
 
@@ -90,13 +105,19 @@ func (entry *Entry) Errorf(format string, args ...any) {
 	message := fmt.Sprintf(format, args...)
 	record := slog.NewRecord(entry.time, slog.LevelError, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
+	if entry.err != nil {
+		record.AddAttrs(slog.Any("details", entry.err))
+	}
 	_ = entry.handler.Handle(entry.ctx, record)
 }
 
 func (entry *Entry) Debug(message string, fields ...any) {
 	record := slog.NewRecord(entry.time, slog.LevelDebug, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
-	record.AddAttrs(slog.Group("context", fields...))
+	record.AddAttrs(slog.Group("details", fields...))
+	if entry.err != nil {
+		record.AddAttrs(slog.Any("error", entry.err))
+	}
 	_ = entry.handler.Handle(entry.ctx, record)
 }
 
@@ -104,13 +125,19 @@ func (entry *Entry) Debugf(format string, args ...any) {
 	message := fmt.Sprintf(format, args...)
 	record := slog.NewRecord(entry.time, slog.LevelDebug, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
+	if entry.err != nil {
+		record.AddAttrs(slog.Any("error", entry.err))
+	}
 	_ = entry.handler.Handle(entry.ctx, record)
 }
 
 func (entry *Entry) Warn(message string, fields ...any) {
 	record := slog.NewRecord(entry.time, slog.LevelWarn, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
-	record.AddAttrs(slog.Group("context", fields...))
+	record.AddAttrs(slog.Group("details", fields...))
+	if entry.err != nil {
+		record.AddAttrs(slog.Any("error", entry.err))
+	}
 	_ = entry.handler.Handle(entry.ctx, record)
 }
 
@@ -118,6 +145,9 @@ func (entry *Entry) Warnf(format string, args ...any) {
 	message := fmt.Sprintf(format, args...)
 	record := slog.NewRecord(entry.time, slog.LevelWarn, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
+	if entry.err != nil {
+		record.AddAttrs(slog.Any("error", entry.err))
+	}
 	_ = entry.handler.Handle(entry.ctx, record)
 }
 

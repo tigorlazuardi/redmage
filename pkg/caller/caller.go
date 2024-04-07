@@ -16,6 +16,17 @@ func (ca Caller) File() string {
 	return ca.Frame.File
 }
 
+func (ca Caller) ShortFile() string {
+	wd, err := os.Getwd()
+	if err != nil {
+		return ca.Frame.File
+	}
+	if after, found := strings.CutPrefix(ca.Frame.File, wd); found {
+		return strings.TrimPrefix(after, string(os.PathSeparator))
+	}
+	return ca.Frame.File
+}
+
 func (ca Caller) Line() int {
 	return ca.Frame.Line
 }
@@ -35,7 +46,7 @@ func (ca Caller) LogValue() slog.Value {
 	}
 
 	return slog.GroupValue(
-		slog.String("file", ca.File()),
+		slog.String("file", ca.ShortFile()),
 		slog.Int("line", ca.Line()),
 		slog.String("function", ca.ShortFunction()),
 	)

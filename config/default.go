@@ -11,6 +11,7 @@ var DefaultConfig = map[string]any{
 	"db.string":      "data.db",
 	"db.automigrate": true,
 
-	"http.port": "8080",
-	"http.host": "0.0.0.0",
+	"http.port":             "8080",
+	"http.host":             "0.0.0.0",
+	"http.shutdown_timeout": "5s",
 }

@@ -118,10 +118,8 @@ func (pr *PrettyHandler) Handle(ctx context.Context, record slog.Record) error {
 	_ = serializer.Handle(ctx, record)
 	if jsonBuf.Len() > 3 { // Ignore empty json like "{}\n"
 		_ = json.Indent(buf, jsonBuf.Bytes(), "", "  ")
-		// json indent includes new line, no need to add extra new line.
-	} else {
-		buf.WriteByte('\n')
 	}
+	buf.WriteByte('\n')
 
 	pr.mu.Lock()
 	defer pr.mu.Unlock()
