@@ -5,8 +5,12 @@ import (
 	"os/signal"
 
 	"github.com/spf13/cobra"
+	"github.com/tigorlazuardi/redmage/db"
+	"github.com/tigorlazuardi/redmage/db/queries/subreddits"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/server"
+	"github.com/tigorlazuardi/redmage/server/routes/api"
+	"github.com/tigorlazuardi/redmage/server/routes/www"
 )
 
 var serveCmd = &cobra.Command{
@@ -14,7 +18,22 @@ var serveCmd = &cobra.Command{
 	Short:        "Starts the HTTP Server",
 	SilenceUsage: true,
 	Run: func(cmd *cobra.Command, args []string) {
-		server := server.New(cfg)
+		db, err := db.Open(cfg)
+		if err != nil {
+			log.Log(cmd.Context()).Err(err).Error("failed to connect database")
+			os.Exit(1)
+		}
+
+		subreddits := subreddits.New(db)
+
+		api := &api.API{
+			Subreddits: subreddits,
+		}
+
+		www := &www.WWW{
+			Subreddits: subreddits,
+		}
+		server := server.New(cfg, api, www)
 
 		exit := make(chan struct{}, 1)
 

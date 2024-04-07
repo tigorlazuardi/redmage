@@ -11,7 +11,7 @@
       pkgs = inputs.nixpkgs.legacyPackages.${system};
     in
     {
-      devShell.${system} = pkgs.mkShell rec {
+      devShell.${system} = pkgs.mkShell {
         name = "redmage-shell";
         buildInputs = with pkgs; [
           templPkg
@@ -20,6 +20,7 @@
           nodejs_21
           goose
           sqlc
+          air
         ];
       };
     };

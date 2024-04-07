@@ -9,12 +9,11 @@ import (
 	"github.com/tigorlazuardi/redmage/db"
 )
 
-// go:embed db/migrations/*.sql
-var migrations embed.FS
+//go:embed db/migrations/*.sql
+var Migrations embed.FS
 
 func main() {
-	db.Migrations = migrations
-
+	db.Migrations = Migrations
 	if err := cli.RootCmd.ExecuteContext(context.Background()); err != nil {
 		os.Exit(1)
 	}

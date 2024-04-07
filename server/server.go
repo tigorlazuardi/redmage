@@ -11,7 +11,7 @@ import (
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/server/routes/api"
-	"github.com/tigorlazuardi/redmage/server/routes/htmx"
+	"github.com/tigorlazuardi/redmage/server/routes/www"
 )
 
 type Server struct {
@@ -41,12 +41,11 @@ func (srv *Server) Start(exit <-chan struct{}) error {
 	}
 }
 
-func New(cfg *config.Config) *Server {
+func New(cfg *config.Config, api *api.API, www *www.WWW) *Server {
 	router := chi.NewRouter()
 
 	router.Route("/api", api.Register)
-
-	router.Route("/htmx", htmx.Register)
+	router.Route("/", www.Register)
 
 	server := &http.Server{
 		Handler: router,
