@@ -14,4 +14,5 @@ var DefaultConfig = map[string]any{
 	"http.port":             "8080",
 	"http.host":             "0.0.0.0",
 	"http.shutdown_timeout": "5s",
+	"http.hotreload":        false,
 }

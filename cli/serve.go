@@ -28,10 +28,12 @@ var serveCmd = &cobra.Command{
 
 		api := &api.API{
 			Subreddits: subreddits,
+			Config:     cfg,
 		}
 
 		www := &www.WWW{
 			Subreddits: subreddits,
+			Config:     cfg,
 		}
 		server := server.New(cfg, api, www)
 

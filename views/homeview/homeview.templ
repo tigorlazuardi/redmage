@@ -1,5 +1,11 @@
 package homeview
 
-templ Home() {
-	<div>Hello World</div>
+import "github.com/tigorlazuardi/redmage/views/components"
+import "github.com/tigorlazuardi/redmage/views"
+
+templ Home(vc *views.Context) {
+	@components.Doctype() {
+		@components.Head(vc)
+		<div class="text-secondary">Hello World</div>
+	}
 }

@@ -77,3 +77,28 @@ func formatDuration(dur time.Duration) string {
 
 	return fmt.Sprintf("%.3fms", nanosecs/float64(time.Millisecond))
 }
+
+type ChiSimpleLogger struct{}
+
+func (ChiSimpleLogger) NewLogEntry(r *http.Request) chimiddleware.LogEntry {
+	return &ChiSimpleEntry{request: r}
+}
+
+type ChiSimpleEntry struct {
+	request *http.Request
+}
+
+func (ch *ChiSimpleEntry) Write(status int, bytes int, header http.Header, elapsed time.Duration, extra interface{}) {
+	elapsedStr := formatDuration(elapsed)
+	message := fmt.Sprintf("%s %s %d %s", ch.request.Method, ch.request.URL, status, elapsedStr)
+
+	level := slog.LevelInfo
+	if status >= 400 {
+		level = slog.LevelError
+	}
+	log.New(ch.request.Context()).Level(level).Log(message)
+}
+
+func (ch *ChiSimpleEntry) Panic(v interface{}, stack []byte) {
+	(&ChiEntry{ch.request}).Panic(v, stack)
+}

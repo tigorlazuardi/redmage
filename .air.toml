@@ -23,7 +23,7 @@ poll_interval = 0
 post_cmd = []
 pre_cmd = [
     "mkdir -p public",
-    "tailwindcss -i views/styles.css -o public/style.css",
+    "tailwindcss -i views/style.css -o public/style.css",
     "templ generate",
     "sqlc generate",
 ]
