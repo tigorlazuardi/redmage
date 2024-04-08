@@ -36,6 +36,7 @@ func (www *WWW) Register(router chi.Router) {
 
 	router.Group(func(r chi.Router) {
 		r.Use(chimiddleware.RequestLogger(middleware.ChiLogger{}))
+		r.Use(chimiddleware.SetHeader("Content-Type", "text/html; utf-8"))
 		r.Get("/", www.Home)
 	})
 }
