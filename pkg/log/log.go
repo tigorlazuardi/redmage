@@ -115,6 +115,9 @@ func argsToAttr(args []any) (slog.Attr, []any) {
 }
 
 func (entry *Entry) Log(message string, fields ...any) {
+	if !entry.handler.Enabled(entry.ctx, entry.level) {
+		return
+	}
 	record := slog.NewRecord(entry.time, entry.level, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
 	record.AddAttrs(slog.Group("details", fields...))
@@ -125,6 +128,9 @@ func (entry *Entry) Log(message string, fields ...any) {
 }
 
 func (entry *Entry) Info(message string, fields ...any) {
+	if !entry.handler.Enabled(entry.ctx, slog.LevelInfo) {
+		return
+	}
 	record := slog.NewRecord(entry.time, slog.LevelInfo, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
 	record.AddAttrs(slog.Group("details", fields...))
@@ -135,6 +141,9 @@ func (entry *Entry) Info(message string, fields ...any) {
 }
 
 func (entry *Entry) Infof(format string, args ...any) {
+	if !entry.handler.Enabled(entry.ctx, slog.LevelInfo) {
+		return
+	}
 	message := fmt.Sprintf(format, args...)
 	record := slog.NewRecord(entry.time, slog.LevelInfo, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
@@ -145,6 +154,9 @@ func (entry *Entry) Infof(format string, args ...any) {
 }
 
 func (entry *Entry) Error(message string, fields ...any) {
+	if !entry.handler.Enabled(entry.ctx, slog.LevelError) {
+		return
+	}
 	record := slog.NewRecord(entry.time, slog.LevelError, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
 	record.AddAttrs(slog.Group("details", fields...))
@@ -155,6 +167,9 @@ func (entry *Entry) Error(message string, fields ...any) {
 }
 
 func (entry *Entry) Errorf(format string, args ...any) {
+	if !entry.handler.Enabled(entry.ctx, slog.LevelError) {
+		return
+	}
 	message := fmt.Sprintf(format, args...)
 	record := slog.NewRecord(entry.time, slog.LevelError, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
@@ -165,6 +180,9 @@ func (entry *Entry) Errorf(format string, args ...any) {
 }
 
 func (entry *Entry) Debug(message string, fields ...any) {
+	if !entry.handler.Enabled(entry.ctx, slog.LevelDebug) {
+		return
+	}
 	record := slog.NewRecord(entry.time, slog.LevelDebug, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
 	record.AddAttrs(slog.Group("details", fields...))
@@ -175,6 +193,9 @@ func (entry *Entry) Debug(message string, fields ...any) {
 }
 
 func (entry *Entry) Debugf(format string, args ...any) {
+	if !entry.handler.Enabled(entry.ctx, slog.LevelDebug) {
+		return
+	}
 	message := fmt.Sprintf(format, args...)
 	record := slog.NewRecord(entry.time, slog.LevelDebug, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
@@ -185,6 +206,9 @@ func (entry *Entry) Debugf(format string, args ...any) {
 }
 
 func (entry *Entry) Warn(message string, fields ...any) {
+	if !entry.handler.Enabled(entry.ctx, slog.LevelWarn) {
+		return
+	}
 	record := slog.NewRecord(entry.time, slog.LevelWarn, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)
 	record.AddAttrs(slog.Group("details", fields...))
@@ -195,6 +219,9 @@ func (entry *Entry) Warn(message string, fields ...any) {
 }
 
 func (entry *Entry) Warnf(format string, args ...any) {
+	if !entry.handler.Enabled(entry.ctx, slog.LevelWarn) {
+		return
+	}
 	message := fmt.Sprintf(format, args...)
 	record := slog.NewRecord(entry.time, slog.LevelWarn, message, entry.getCaller().PC)
 	record.AddAttrs(entry.getExtra()...)

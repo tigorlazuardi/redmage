@@ -23,7 +23,7 @@ type ChiEntry struct {
 
 func (ch *ChiEntry) Write(status int, bytes int, header http.Header, elapsed time.Duration, extra interface{}) {
 	elasedStr := formatDuration(elapsed)
-	message := fmt.Sprintf("%s %s %d %s", ch.request.Method, ch.request.URL.Path, status, elasedStr)
+	message := fmt.Sprintf("%s %s %d %s", ch.request.Method, ch.request.URL, status, elasedStr)
 
 	requestLog := slog.Attr{Key: "request", Value: ch.extractRequestLog()}
 	responseLog := slog.Group("response", "status", status, "headers", flatHeader(header), "bytes", bytes)
