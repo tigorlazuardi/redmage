@@ -21,7 +21,6 @@ type WWW struct {
 }
 
 func (www *WWW) Register(router chi.Router) {
-	router.Use(chimiddleware.RequestID)
 	router.Use(chimiddleware.RealIP)
 	router.
 		With(chimiddleware.RequestLogger(middleware.ChiSimpleLogger{})).
@@ -35,6 +34,7 @@ func (www *WWW) Register(router chi.Router) {
 	}
 
 	router.Group(func(r chi.Router) {
+		r.Use(chimiddleware.RequestID)
 		r.Use(chimiddleware.RequestLogger(middleware.ChiLogger{}))
 		r.Use(chimiddleware.SetHeader("Content-Type", "text/html; utf-8"))
 		r.Get("/", www.Home)
