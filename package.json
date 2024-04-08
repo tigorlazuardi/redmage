@@ -1,0 +1,16 @@
+{
+  "name": "redmage",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Reddit Image Downloader",
+  "main": "index.js",
+  "keywords": [],
+  "author": "Tigor Hutasuhut <tigor.hutasuhut@gmail.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@tailwindcss/typography": "^0.5.10",
+    "daisyui": "^4.6.3",
+    "rollup": "^4.9.6",
+    "tailwindcss": "^3.4.1"
+  }
+}

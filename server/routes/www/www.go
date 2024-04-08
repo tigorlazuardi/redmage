@@ -9,4 +9,6 @@ type WWW struct {
 	Subreddits *subreddits.Queries
 }
 
-func (www *WWW) Register(router chi.Router) {}
+func (www *WWW) Register(router chi.Router) {
+	router.Get("/", www.Home)
+}
