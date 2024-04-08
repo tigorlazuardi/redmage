@@ -6,6 +6,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pressly/goose/v3"
+	sqldblogger "github.com/simukti/sqldb-logger"
 	"github.com/tigorlazuardi/redmage/config"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 )
@@ -14,7 +15,8 @@ var Migrations fs.FS
 
 func Open(cfg *config.Config) (*sql.DB, error) {
 	driver := cfg.String("db.driver")
-	db, err := sql.Open(driver, cfg.String("db.string"))
+	dsn := cfg.String("db.string")
+	db, err := sql.Open(driver, dsn)
 	if err != nil {
 		return db, errs.Wrapw(err, "failed to open database", "driver", driver)
 	}
@@ -32,5 +34,8 @@ func Open(cfg *config.Config) (*sql.DB, error) {
 		}
 	}
 
+	db = sqldblogger.OpenDriver(dsn, db.Driver(), sqlLogger{},
+		sqldblogger.WithSQLQueryAsMessage(true),
+	)
 	return db, err
 }

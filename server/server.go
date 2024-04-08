@@ -23,13 +23,13 @@ func (srv *Server) Start(exit <-chan struct{}) error {
 	errch := make(chan error, 1)
 	caller := caller.New(3)
 	go func() {
-		log.Log(context.Background()).Caller(caller).Info("starting http server", "address", "http://"+srv.server.Addr)
+		log.New(context.Background()).Caller(caller).Info("starting http server", "address", "http://"+srv.server.Addr)
 		errch <- srv.server.ListenAndServe()
 	}()
 
 	select {
 	case <-exit:
-		log.Log(context.Background()).Caller(caller).Info("received exit signal. shutting down server")
+		log.New(context.Background()).Caller(caller).Info("received exit signal. shutting down server")
 		ctx, cancel := context.WithTimeout(context.Background(), srv.config.Duration("http.shutdown_timeout"))
 		defer cancel()
 		return srv.server.Shutdown(ctx)

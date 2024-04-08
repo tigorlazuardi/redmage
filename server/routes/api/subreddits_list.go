@@ -19,6 +19,6 @@ func (api *API) ListSubreddits(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(rw).Encode(subs); err != nil {
-		log.Log(r.Context()).Err(err).Error("failed to list subreddits")
+		log.New(r.Context()).Err(err).Error("failed to list subreddits")
 	}
 }

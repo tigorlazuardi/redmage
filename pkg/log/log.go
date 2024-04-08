@@ -45,15 +45,17 @@ func NewHandler(cfg *config.Config) slog.Handler {
 }
 
 type Entry struct {
-	ctx     context.Context
-	handler slog.Handler
-	caller  caller.Caller
-	time    time.Time
-	err     error
+	ctx       context.Context
+	handler   slog.Handler
+	caller    caller.Caller
+	time      time.Time
+	err       error
+	level     slog.Level
+	withAttrs []slog.Attr
 }
 
-// Log prepares a new entry to write logs.
-func Log(ctx context.Context) *Entry {
+// New prepares a new entry to write logs.
+func New(ctx context.Context) *Entry {
 	h := FromContext(ctx)
 	if h == nil {
 		h = handler
@@ -69,6 +71,57 @@ func (entry *Entry) Caller(caller caller.Caller) *Entry {
 func (entry *Entry) Err(err error) *Entry {
 	entry.err = err
 	return entry
+}
+
+func (entry *Entry) Level(lvl slog.Level) *Entry {
+	entry.level = lvl
+	return entry
+}
+
+// With adds fields to top level of the log entry.
+func (entry *Entry) With(fields ...any) *Entry {
+	entry.withAttrs = append(entry.withAttrs, argsToAttrSlice(fields)...)
+	return entry
+}
+
+const badKey = "!BADKEY"
+
+func argsToAttrSlice(args []any) []slog.Attr {
+	var (
+		attr  slog.Attr
+		attrs []slog.Attr
+	)
+	for len(args) > 0 {
+		attr, args = argsToAttr(args)
+		attrs = append(attrs, attr)
+	}
+	return attrs
+}
+
+func argsToAttr(args []any) (slog.Attr, []any) {
+	switch x := args[0].(type) {
+	case string:
+		if len(args) == 1 {
+			return slog.String(badKey, x), nil
+		}
+		return slog.Any(x, args[1]), args[2:]
+
+	case slog.Attr:
+		return x, args[1:]
+
+	default:
+		return slog.Any(badKey, x), args[1:]
+	}
+}
+
+func (entry *Entry) Log(message string, fields ...any) {
+	record := slog.NewRecord(entry.time, entry.level, message, entry.getCaller().PC)
+	record.AddAttrs(entry.getExtra()...)
+	record.AddAttrs(slog.Group("details", fields...))
+	if entry.err != nil {
+		record.AddAttrs(slog.Any("error", entry.err))
+	}
+	_ = entry.handler.Handle(entry.ctx, record)
 }
 
 func (entry *Entry) Info(message string, fields ...any) {
@@ -159,10 +212,12 @@ func (entry *Entry) getCaller() caller.Caller {
 }
 
 func (entry *Entry) getExtra() []slog.Attr {
-	out := make([]slog.Attr, 0, 1)
+	out := make([]slog.Attr, 0, 4)
 	if reqid := middleware.GetReqID(entry.ctx); reqid != "" {
 		out = append(out, slog.String("request.id", reqid))
 	}
+
+	out = append(out, entry.withAttrs...)
 
 	return out
 }

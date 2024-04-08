@@ -20,7 +20,7 @@ var serveCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		db, err := db.Open(cfg)
 		if err != nil {
-			log.Log(cmd.Context()).Err(err).Error("failed to connect database")
+			log.New(cmd.Context()).Err(err).Error("failed to connect database")
 			os.Exit(1)
 		}
 
@@ -45,7 +45,7 @@ var serveCmd = &cobra.Command{
 		}()
 
 		if err := server.Start(exit); err != nil {
-			log.Log(cmd.Context()).Err(err).Error("failed to start server")
+			log.New(cmd.Context()).Err(err).Error("failed to start server")
 			os.Exit(1)
 		}
 	},

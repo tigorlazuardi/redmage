@@ -139,7 +139,7 @@ func (er *Err) GetDetails() []any {
 }
 
 func (er *Err) Log(ctx context.Context) Error {
-	log.Log(ctx).Caller(er.caller).Err(er).Error(er.message)
+	log.New(ctx).Caller(er.caller).Err(er).Error(er.message)
 	return er
 }
 
