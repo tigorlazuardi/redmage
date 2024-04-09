@@ -3,6 +3,7 @@
 CREATE TABLE subreddits (
     id INTEGER PRIMARY KEY,
     name VARCHAR(30) NOT NULL,
+    enable INT NOT NULL DEFAULT 1,
     subtype INT NOT NULL DEFAULT 0,
     schedule VARCHAR(20) NOT NULL DEFAULT '0 0 * * *',
     countback INT NOT NULL DEFAULT 100,
