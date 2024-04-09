@@ -39,7 +39,9 @@ func (routes *Routes) registerWWWRoutes(router chi.Router) {
 	router.Mount("/public", http.StripPrefix("/public", http.FileServer(http.FS(routes.PublicDir))))
 
 	router.Group(func(r chi.Router) {
+		r.Use(chimiddleware.RequestID)
 		r.Use(chimiddleware.RequestLogger(middleware.ChiLogger{}))
+		r.Use(chimiddleware.SetHeader("Content-Type", "text/html; charset=utf-8"))
 		r.Get("/", routes.PageHome)
 	})
 }

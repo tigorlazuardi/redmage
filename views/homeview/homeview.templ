@@ -2,10 +2,30 @@ package homeview
 
 import "github.com/tigorlazuardi/redmage/views/components"
 import "github.com/tigorlazuardi/redmage/views"
+import "github.com/tigorlazuardi/redmage/api"
 
-templ Home(vc *views.Context) {
+type Data struct {
+	SubredditsList api.ListSubredditsResult
+	Error          error
+}
+
+templ Home(c *views.Context, data Data) {
 	@components.Doctype() {
-		@components.Head(vc)
-		<div class="text-secondary">Hello World</div>
+		@components.Head(c)
+		@components.Body(c) {
+			@components.Container() {
+				if data.Error != nil {
+					@components.ErrorToast(data.Error.Error())
+				} else {
+					@home(c, data)
+				}
+			}
+		}
 	}
+}
+
+templ home(c *views.Context, data Data) {
+	<div class="prose">
+		<h1>Recently Added</h1>
+	</div>
 }
