@@ -1,4 +1,4 @@
-package www
+package routes
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 	"github.com/tigorlazuardi/redmage/pkg/log"
 )
 
-func (www *WWW) CreateHotReloadRoute() http.HandlerFunc {
+func (routes *Routes) CreateHotReloadRoute() http.HandlerFunc {
 	var mu sync.Mutex
 	knownClients := make(map[string]chan struct{})
 	firstTime := make(chan struct{}, 1)

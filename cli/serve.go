@@ -1,17 +1,19 @@
 package cli
 
 import (
+	"io/fs"
 	"os"
 	"os/signal"
 
 	"github.com/spf13/cobra"
+	"github.com/tigorlazuardi/redmage/api"
 	"github.com/tigorlazuardi/redmage/db"
-	"github.com/tigorlazuardi/redmage/db/queries/subreddits"
+	"github.com/tigorlazuardi/redmage/db/queries"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/server"
-	"github.com/tigorlazuardi/redmage/server/routes/api"
-	"github.com/tigorlazuardi/redmage/server/routes/www"
 )
+
+var PublicDir fs.FS = os.DirFS("public")
 
 var serveCmd = &cobra.Command{
 	Use:          "serve",
@@ -24,18 +26,14 @@ var serveCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		subreddits := subreddits.New(db)
+		queries := queries.New(db)
 
 		api := &api.API{
-			Subreddits: subreddits,
-			Config:     cfg,
+			Queries: queries,
+			DB:      db,
 		}
 
-		www := &www.WWW{
-			Subreddits: subreddits,
-			Config:     cfg,
-		}
-		server := server.New(cfg, api, www)
+		server := server.New(cfg, api, PublicDir)
 
 		exit := make(chan struct{}, 1)
 

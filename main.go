@@ -10,7 +10,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/tigorlazuardi/redmage/cli"
 	"github.com/tigorlazuardi/redmage/db"
-	"github.com/tigorlazuardi/redmage/server/routes/www"
 )
 
 //go:embed db/migrations/*.sql
@@ -23,7 +22,7 @@ func main() {
 	_ = godotenv.Load()
 	db.Migrations = Migrations
 	var err error
-	www.PublicFS, err = fs.Sub(PublicFS, "public")
+	cli.PublicDir, err = fs.Sub(PublicFS, "public")
 	if err != nil {
 		panic(errors.New("failed to create sub filesystem"))
 	}

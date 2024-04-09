@@ -3,20 +3,22 @@ package server
 import (
 	"context"
 	"errors"
+	"io/fs"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/tigorlazuardi/redmage/api"
 	"github.com/tigorlazuardi/redmage/config"
 	"github.com/tigorlazuardi/redmage/pkg/caller"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
-	"github.com/tigorlazuardi/redmage/server/routes/api"
-	"github.com/tigorlazuardi/redmage/server/routes/www"
+	"github.com/tigorlazuardi/redmage/server/routes"
 )
 
 type Server struct {
-	server *http.Server
-	config *config.Config
+	server    *http.Server
+	config    *config.Config
+	PublicDir fs.FS
 }
 
 func (srv *Server) Start(exit <-chan struct{}) error {
@@ -41,11 +43,16 @@ func (srv *Server) Start(exit <-chan struct{}) error {
 	}
 }
 
-func New(cfg *config.Config, api *api.API, www *www.WWW) *Server {
+func New(cfg *config.Config, api *api.API, publicDir fs.FS) *Server {
 	router := chi.NewRouter()
 
-	router.Route("/api", api.Register)
-	router.Route("/", www.Register)
+	routes := routes.Routes{
+		API:       api,
+		Config:    cfg,
+		PublicDir: publicDir,
+	}
+
+	routes.Register(router)
 
 	server := &http.Server{
 		Handler: router,
