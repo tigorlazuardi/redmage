@@ -28,10 +28,7 @@ var serveCmd = &cobra.Command{
 
 		queries := queries.New(db)
 
-		api := &api.API{
-			Queries: queries,
-			DB:      db,
-		}
+		api := api.New(queries, db)
 
 		server := server.New(cfg, api, PublicDir)
 

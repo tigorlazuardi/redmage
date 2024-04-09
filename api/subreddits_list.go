@@ -20,7 +20,7 @@ type ListSubredditsResult struct {
 
 func (api *API) ListSubreddits(ctx context.Context, arg ListSubredditsParams) (result ListSubredditsResult, err error) {
 	if arg.Name != "" {
-		result.Data, err = api.Queries.SubredditsSearch(ctx, queries.SubredditsSearchParams{
+		result.Data, err = api.queries.SubredditsSearch(ctx, queries.SubredditsSearchParams{
 			Name:   "%" + arg.Name + "%",
 			Limit:  arg.Limit,
 			Offset: arg.Offset,
@@ -28,7 +28,7 @@ func (api *API) ListSubreddits(ctx context.Context, arg ListSubredditsParams) (r
 		if err != nil {
 			return result, errs.Wrapw(err, "failed to search subreddit", "query", arg)
 		}
-		result.Total, err = api.Queries.SubredditsSearchCount(ctx, queries.SubredditsSearchCountParams{
+		result.Total, err = api.queries.SubredditsSearchCount(ctx, queries.SubredditsSearchCountParams{
 			Name:   "%" + arg.Name + "%",
 			Limit:  arg.Limit,
 			Offset: arg.Offset,
@@ -39,14 +39,14 @@ func (api *API) ListSubreddits(ctx context.Context, arg ListSubredditsParams) (r
 		return result, err
 	}
 
-	result.Data, err = api.Queries.SubredditsList(ctx, queries.SubredditsListParams{
+	result.Data, err = api.queries.SubredditsList(ctx, queries.SubredditsListParams{
 		Limit:  arg.Limit,
 		Offset: arg.Offset,
 	})
 	if err != nil {
 		return result, errs.Wrapw(err, "failed to list subreddit", "query", arg)
 	}
-	result.Total, err = api.Queries.SubredditsListCount(ctx)
+	result.Total, err = api.queries.SubredditsListCount(ctx)
 	if err != nil {
 		return result, errs.Wrapw(err, "failed to count subreddit list", "query", arg)
 	}

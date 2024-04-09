@@ -3,6 +3,9 @@
 # Variables
 export PATH := $(shell pwd)/node_modules/.bin:$(shell pwd)/bin:$(PATH)
 export GOBIN := $(shell pwd)/bin
+export GOOSE_DRIVER=sqlite3
+export GOOSE_DBSTRING=./data.db
+export GOOSE_MIGRATION_DIR=db/migrations
 
 start: dev-dependencies
 	@air
@@ -40,3 +43,10 @@ build: build-dependencies
 	tailwindcss -i src/styles.css -o public/styles.css
 	templ generate
 	go build -o redmage
+
+migrate-new:
+	@read -p "Name new migration: " name
+	if [[ $$name ]]; then goose create "$$name" sql; fi
+	
+migrate-redo:
+	@goose redo

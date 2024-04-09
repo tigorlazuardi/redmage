@@ -8,6 +8,13 @@ CREATE TABLE subreddits (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
+
+CREATE UNIQUE INDEX idx_subreddits_name ON subreddits (name);
+
+CREATE TRIGGER update_subreddits_timestamp AFTER UPDATE ON subreddits FOR EACH ROW
+BEGIN
+    UPDATE subreddits SET updated_at = CURRENT_TIMESTAMP WHERE id = old.id;
+END;
 -- +goose StatementEnd
 
 -- +goose Down

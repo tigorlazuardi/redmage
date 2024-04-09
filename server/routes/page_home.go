@@ -21,7 +21,7 @@ func (routes *Routes) PageHome(rw http.ResponseWriter, r *http.Request) {
 
 	data := homeview.Data{
 		SubredditsList: list,
-		Error: err,
+		Error:          err,
 	}
 
 	if err := homeview.Home(vc, data).Render(ctx, rw); err != nil {

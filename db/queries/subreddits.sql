@@ -1,3 +1,6 @@
+-- name: SubredditsGetAll :many
+SELECT * FROM subreddits;
+
 -- name: SubredditsList :many
 SELECT * FROM subreddits
 ORDER BY name

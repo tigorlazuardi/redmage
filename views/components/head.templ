@@ -2,7 +2,7 @@ package components
 
 import "github.com/tigorlazuardi/redmage/views"
 
-templ Head(vc *views.Context) {
+templ Head(vc *views.Context, extras ...templ.Component) {
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<meta name="keywords" content="Reddit, Image, Downloader"/>
@@ -13,5 +13,12 @@ templ Head(vc *views.Context) {
 		if vc.Config.Bool("http.hotreload") {
 			<script src="/public/hot_reload.js"></script>
 		}
+		for _, extra := range extras {
+			@extra
+		}
 	</head>
+}
+
+templ HeadTitle(name string) {
+	<title>{name}</title>
 }

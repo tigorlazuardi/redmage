@@ -17,7 +17,7 @@
           templPkg
           go
           modd
-          nodejs_21
+          nodePackages_latest.nodejs
           goose
           sqlc
           air

@@ -11,7 +11,7 @@ type Data struct {
 
 templ Home(c *views.Context, data Data) {
 	@components.Doctype() {
-		@components.Head(c)
+		@components.Head(c, components.HeadTitle("Redmage - Home"))
 		@components.Body(c) {
 			@components.Container() {
 				if data.Error != nil {
@@ -26,6 +26,14 @@ templ Home(c *views.Context, data Data) {
 
 templ home(c *views.Context, data Data) {
 	<div class="prose">
-		<h1>Recently Added</h1>
+		<section>
+			<h1>Recently Added</h1>
+		</section>
+		<section>
+			<h1>Subreddits</h1>
+			for _, subreddit := range data.SubredditsList.Data {
+				<h3>{ subreddit.Name } - { subreddit.Schedule }</h3>
+			}
+		</section>
 	</div>
 }
