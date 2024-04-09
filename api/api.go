@@ -7,6 +7,7 @@ import (
 
 	"github.com/robfig/cron/v3"
 	"github.com/teivah/broadcast"
+	"github.com/tigorlazuardi/redmage/config"
 	"github.com/tigorlazuardi/redmage/db/queries"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
@@ -20,15 +21,18 @@ type API struct {
 	scheduleMap map[cron.EntryID]queries.Subreddit
 
 	downloadBroadcast *broadcast.Relay[DownloadStatusMessage]
+
+	config *config.Config
 }
 
-func New(q *queries.Queries, db *sql.DB) *API {
+func New(q *queries.Queries, db *sql.DB, cfg *config.Config) *API {
 	return &API{
 		queries:           q,
 		db:                db,
 		scheduler:         cron.New(),
 		scheduleMap:       make(map[cron.EntryID]queries.Subreddit, 8),
 		downloadBroadcast: broadcast.NewRelay[DownloadStatusMessage](),
+		config:            cfg,
 	}
 }
 
