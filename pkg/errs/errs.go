@@ -102,6 +102,10 @@ func (er *Err) Error() string {
 	return s.String()
 }
 
+func (er *Err) Unwrap() error {
+	return er.origin
+}
+
 func (er *Err) Message(msg string, args ...any) Error {
 	er.message = fmt.Sprintf(msg, args...)
 	return er
