@@ -1,8 +1,12 @@
 package reddit
 
-type Post struct {
+type Listing struct {
 	Kind string `json:"kind"`
 	Data Data   `json:"data"`
+}
+
+func (l *Listing) GetPosts() []Post {
+	return l.Data.Children
 }
 
 type (
@@ -65,7 +69,7 @@ type AuthorFlairRichtext struct {
 	E string `json:"e"`
 	T string `json:"t"`
 }
-type ChildrenData struct {
+type PostData struct {
 	ApprovedAtUtc              any                      `json:"approved_at_utc"`
 	Subreddit                  string                   `json:"subreddit"`
 	Selftext                   string                   `json:"selftext"`
@@ -176,16 +180,44 @@ type ChildrenData struct {
 	NumCrossposts              int                      `json:"num_crossposts"`
 	Media                      any                      `json:"media"`
 	IsVideo                    bool                     `json:"is_video"`
+	PostHint                   string                   `json:"post_hint"`
+	Preview                    Preview                  `json:"preview"`
 }
-type Children struct {
-	Kind string       `json:"kind"`
-	Data ChildrenData `json:"data,omitempty"`
+
+type Post struct {
+	Kind string   `json:"kind"`
+	Data PostData `json:"data,omitempty"`
 }
+
+func (post *Post) IsImagePost() bool {
+	return post.Data.PostHint == "image"
+}
+
+func (post *Post) GetImageURL() string {
+	return post.Data.URL
+}
+
+func (post *Post) GetImageSize() (height, width int) {
+	if len(post.Data.Preview.Images) == 0 {
+		return 0, 0
+	}
+	source := post.Data.Preview.Images[0].Source
+	return source.Height, source.Width
+}
+
+func (post *Post) GetThumbnailURL() string {
+	return post.Data.Thumbnail
+}
+
+func (post *Post) GetThumbnailSize() (height, width int) {
+	return post.Data.ThumbnailHeight, post.Data.ThumbnailWidth
+}
+
 type Data struct {
-	After     string     `json:"after"`
-	Dist      int        `json:"dist"`
-	Modhash   string     `json:"modhash"`
-	GeoFilter any        `json:"geo_filter"`
-	Children  []Children `json:"children"`
-	Before    any        `json:"before"`
+	After     string `json:"after"`
+	Dist      int    `json:"dist"`
+	Modhash   string `json:"modhash"`
+	GeoFilter any    `json:"geo_filter"`
+	Children  []Post `json:"children"`
+	Before    any    `json:"before"`
 }

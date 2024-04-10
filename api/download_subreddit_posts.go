@@ -11,6 +11,6 @@ type DownloadSubredditPostsParams struct {
 	Limit int
 }
 
-func (api *API) DownloadSubredditPosts(ctx context.Context, subredditName string, params DownloadSubredditParams) (posts []reddit.Post, err error) {
+func (api *API) DownloadSubredditPosts(ctx context.Context, subredditName string, params DownloadSubredditParams) (posts []reddit.Listing, err error) {
 	return posts, err
 }

@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 )
@@ -34,7 +35,7 @@ type GetPostsParam struct {
 	SubredditType SubredditType
 }
 
-func (reddit *Reddit) GetPosts(ctx context.Context, params GetPostsParam) (posts []Post, err error) {
+func (reddit *Reddit) GetPosts(ctx context.Context, params GetPostsParam) (posts Listing, err error) {
 	url := fmt.Sprintf("https://reddit.com/%s/%s.json?limit=%d&page=%d", params.SubredditType.Code(), params.Subreddit, params.Limit, params.Page)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
@@ -51,7 +52,7 @@ func (reddit *Reddit) GetPosts(ctx context.Context, params GetPostsParam) (posts
 		body, _ := io.ReadAll(res.Body)
 		return posts, errs.Fail("reddit: unexpected status code when executing GetPosts",
 			slog.Group("request", "url", url, "params", params),
-			slog.Group("response", "status_code", res.StatusCode, "body", json.RawMessage(body)),
+			slog.Group("response", "status_code", res.StatusCode, "body", formatLogBody(res, body)),
 		)
 	}
 
@@ -61,4 +62,11 @@ func (reddit *Reddit) GetPosts(ctx context.Context, params GetPostsParam) (posts
 	}
 
 	return posts, nil
+}
+
+func formatLogBody(res *http.Response, body []byte) any {
+	if strings.HasPrefix(res.Header.Get("Content-Type"), "application/json") {
+		return json.RawMessage(body)
+	}
+	return string(body)
 }

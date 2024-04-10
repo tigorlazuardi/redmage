@@ -67,7 +67,7 @@ func flatHeader(header http.Header) map[string]string {
 	m := make(map[string]string, len(header))
 
 	for k := range header {
-		m[k] = strings.Join(header[k], "; ")
+		m[k] = strings.Join(header[k], ", ")
 	}
 	return m
 }
