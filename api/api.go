@@ -21,7 +21,7 @@ type API struct {
 	scheduler   *cron.Cron
 	scheduleMap map[cron.EntryID]queries.Subreddit
 
-	downloadBroadcast *broadcast.Relay[bmessage.DownloadStatusMessage]
+	downloadBroadcast *broadcast.Relay[bmessage.ImageDownloadMessage]
 
 	config *config.Config
 }
@@ -32,7 +32,7 @@ func New(q *queries.Queries, db *sql.DB, cfg *config.Config) *API {
 		db:                db,
 		scheduler:         cron.New(),
 		scheduleMap:       make(map[cron.EntryID]queries.Subreddit, 8),
-		downloadBroadcast: broadcast.NewRelay[bmessage.DownloadStatusMessage](),
+		downloadBroadcast: broadcast.NewRelay[bmessage.ImageDownloadMessage](),
 		config:            cfg,
 	}
 }

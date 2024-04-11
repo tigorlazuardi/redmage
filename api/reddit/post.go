@@ -197,20 +197,32 @@ func (post *Post) GetImageURL() string {
 	return post.Data.URL
 }
 
-func (post *Post) GetImageSize() (height, width int) {
+func (post *Post) GetImageSize() (width, height int) {
 	if len(post.Data.Preview.Images) == 0 {
 		return 0, 0
 	}
 	source := post.Data.Preview.Images[0].Source
-	return source.Height, source.Width
+	return source.Width, source.Height
 }
 
 func (post *Post) GetThumbnailURL() string {
 	return post.Data.Thumbnail
 }
 
-func (post *Post) GetThumbnailSize() (height, width int) {
-	return post.Data.ThumbnailHeight, post.Data.ThumbnailWidth
+func (post *Post) GetThumbnailSize() (width, height int) {
+	return post.Data.ThumbnailWidth, post.Data.ThumbnailHeight
+}
+
+func (post *Post) GetSubreddit() string {
+	return post.Data.Subreddit
+}
+
+func (post *Post) GetPermalink() string {
+	return post.Data.Permalink
+}
+
+func (post *Post) GetID() string {
+	return post.Data.ID
 }
 
 type Data struct {

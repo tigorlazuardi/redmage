@@ -5,17 +5,22 @@ import (
 )
 
 type ImageMetadata struct {
-	URL             string
-	Height          int
-	Width           int
-	ThumbnailURL    string
-	ThumbnailHeight int
-	ThumbnailWidth  int
+	Kind   ImageKind
+	URL    string
+	Height int
+	Width  int
 }
 
-type DownloadStatusMessage struct {
+type ImageKind int
+
+const (
+	KindImage ImageKind = iota
+	KindThumbnail
+)
+
+type ImageDownloadMessage struct {
 	Metadata      ImageMetadata
-	ContantLength units.MetricBytes
+	ContentLength units.MetricBytes
 	Downloaded    units.MetricBytes
 	Subreddit     string
 	PostURL       string
