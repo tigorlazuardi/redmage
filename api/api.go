@@ -44,21 +44,27 @@ func (api *API) StartScheduler(ctx context.Context) error {
 	}
 
 	for _, subreddit := range subreddits {
-		id, err := api.scheduler.AddFunc(subreddit.Schedule, func() {
-			//  TODO: Add download
-		})
+		err := api.scheduleSubreddit(subreddit)
 		if err != nil {
-			log.
-				New(ctx).
-				Err(err).
-				Error(
-					fmt.Sprintf("failed to start scheduler for subreddit '%s'", subreddit.Name),
-					"subreddit", subreddit,
-				)
+			log.New(ctx).Err(err).Error(
+				fmt.Sprintf("failed to start scheduler for subreddit '%s'", subreddit.Name),
+				"subreddit", subreddit,
+			)
 			continue
 		}
-		api.scheduleMap[id] = subreddit
 	}
+
+	return nil
+}
+
+func (api *API) scheduleSubreddit(subreddit queries.Subreddit) error {
+	id, err := api.scheduler.AddFunc(subreddit.Schedule, func() {
+	})
+	if err != nil {
+		return errs.Wrap(err)
+	}
+
+	api.scheduleMap[id] = subreddit
 
 	return nil
 }

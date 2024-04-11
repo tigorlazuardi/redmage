@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io/fs"
 	"os"
+	"os/signal"
 
 	"github.com/joho/godotenv"
 	"github.com/tigorlazuardi/redmage/cli"
@@ -26,7 +27,11 @@ func main() {
 	if err != nil {
 		panic(errors.New("failed to create sub filesystem"))
 	}
-	if err := cli.RootCmd.ExecuteContext(context.Background()); err != nil {
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	if err := cli.RootCmd.ExecuteContext(ctx); err != nil {
 		os.Exit(1)
 	}
 }

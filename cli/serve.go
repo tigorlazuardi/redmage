@@ -3,7 +3,6 @@ package cli
 import (
 	"io/fs"
 	"os"
-	"os/signal"
 
 	"github.com/spf13/cobra"
 	"github.com/tigorlazuardi/redmage/api"
@@ -32,16 +31,7 @@ var serveCmd = &cobra.Command{
 
 		server := server.New(cfg, api, PublicDir)
 
-		exit := make(chan struct{}, 1)
-
-		go func() {
-			sig := make(chan os.Signal, 1)
-			signal.Notify(sig, os.Interrupt)
-			<-sig
-			exit <- struct{}{}
-		}()
-
-		if err := server.Start(exit); err != nil {
+		if err := server.Start(cmd.Context().Done()); err != nil {
 			log.New(cmd.Context()).Err(err).Error("failed to start server")
 			os.Exit(1)
 		}

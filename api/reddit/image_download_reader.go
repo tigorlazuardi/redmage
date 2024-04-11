@@ -77,7 +77,7 @@ func (idr *ImageDownloadReader) checkSpeed() {
 
 	delta := idr.deltavalue.Load()
 
-	if delta >= idr.IdleSpeedThreshold {
+	if delta >= int64(idr.IdleSpeedThreshold) {
 		idr.deltavalue.Store(0)
 		idr.cancelDebounce.Stop()
 		idr.cancelDebounce = nil
