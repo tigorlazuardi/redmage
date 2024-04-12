@@ -36,4 +36,13 @@ var DefaultConfig = map[string]any{
 	"telemetry.openobserve.log.buffer.timeout": "500ms",
 	"telemetry.openobserve.log.username":       "root@example.com",
 	"telemetry.openobserve.log.password":       "Complexpass#123",
+
+	"telemetry.openobserve.trace.enable": true,
+	"telemetry.openobserve.trace.url":    "http://localhost:5080/api/default/v1/traces",
+	"telemetry.openobserve.trace.auth":   "Basic AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+
+	"telemetry.trace.ratio": 1,
+
+	"runtime.version":     "0.0.1",
+	"runtime.environment": "development",
 }

@@ -19,6 +19,8 @@ type ListSubredditsResult struct {
 }
 
 func (api *API) ListSubreddits(ctx context.Context, arg ListSubredditsParams) (result ListSubredditsResult, err error) {
+	ctx, span := tracer.Start(ctx, "api.ListSubreddits")
+	defer span.End()
 	if arg.Name != "" {
 		result.Data, err = api.queries.SubredditsSearch(ctx, queries.SubredditsSearchParams{
 			Name:   "%" + arg.Name + "%",

@@ -9,7 +9,9 @@ import (
 )
 
 func (routes *Routes) PageHome(rw http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+	ctx, span := tracer.Start(r.Context(), "routes.PageHome")
+	defer span.End()
+
 	vc := views.NewContext(routes.Config, r)
 
 	params := parseSubredditListQuery(r)

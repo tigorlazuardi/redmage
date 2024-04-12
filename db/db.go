@@ -9,6 +9,9 @@ import (
 	sqldblogger "github.com/simukti/sqldb-logger"
 	"github.com/tigorlazuardi/redmage/config"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+
+	"github.com/XSAM/otelsql"
 )
 
 var Migrations fs.FS
@@ -16,9 +19,16 @@ var Migrations fs.FS
 func Open(cfg *config.Config) (*sql.DB, error) {
 	driver := cfg.String("db.driver")
 	dsn := cfg.String("db.string")
-	db, err := sql.Open(driver, dsn)
+	db, err := otelsql.Open(driver, dsn, otelsql.WithAttributes(
+		semconv.DBSystemSqlite,
+	))
 	if err != nil {
 		return db, errs.Wrapw(err, "failed to open database", "driver", driver)
+	}
+
+	err = otelsql.RegisterDBStatsMetrics(db, otelsql.WithAttributes(semconv.DBSystemSqlite))
+	if err != nil {
+		return db, errs.Wrapw(err, "failed to instrument database with otel")
 	}
 
 	if cfg.Bool("db.automigrate") {

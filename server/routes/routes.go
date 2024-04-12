@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/riandyrn/otelchi"
 	"github.com/tigorlazuardi/redmage/api"
 	"github.com/tigorlazuardi/redmage/config"
 	"github.com/tigorlazuardi/redmage/server/routes/middleware"
@@ -29,6 +30,7 @@ func (routes *Routes) Register(router chi.Router) {
 }
 
 func (routes *Routes) registerV1APIRoutes(router chi.Router) {
+	router.Use(otelchi.Middleware("redmage"))
 	router.Use(chimiddleware.RequestLogger(middleware.ChiLogger{}))
 	router.Use(chimiddleware.SetHeader("Content-Type", "application/json"))
 
@@ -39,6 +41,7 @@ func (routes *Routes) registerWWWRoutes(router chi.Router) {
 	router.Mount("/public", http.StripPrefix("/public", http.FileServer(http.FS(routes.PublicDir))))
 
 	router.Group(func(r chi.Router) {
+		r.Use(otelchi.Middleware("redmage"))
 		r.Use(chimiddleware.RequestID)
 		r.Use(chimiddleware.RequestLogger(middleware.ChiLogger{}))
 		r.Use(chimiddleware.SetHeader("Content-Type", "text/html; charset=utf-8"))
