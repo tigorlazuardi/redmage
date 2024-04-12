@@ -26,11 +26,6 @@ func Open(cfg *config.Config) (*sql.DB, error) {
 		return db, errs.Wrapw(err, "failed to open database", "driver", driver)
 	}
 
-	err = otelsql.RegisterDBStatsMetrics(db, otelsql.WithAttributes(semconv.DBSystemSqlite))
-	if err != nil {
-		return db, errs.Wrapw(err, "failed to instrument database with otel")
-	}
-
 	if cfg.Bool("db.automigrate") {
 		goose.SetLogger(&gooseLogger{})
 		goose.SetBaseFS(Migrations)
