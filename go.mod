@@ -28,6 +28,8 @@ require (
 	github.com/teivah/broadcast v0.1.0
 )
 
+require github.com/samber/lo v1.38.1 // indirect
+
 require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
@@ -41,6 +43,7 @@ require (
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/riandyrn/otelchi v0.6.0 // indirect
+	github.com/samber/slog-multi v1.0.2
 	github.com/sethvargo/go-retry v0.2.4 // indirect
 	go.opentelemetry.io/otel v1.25.0 // indirect
 	go.opentelemetry.io/otel/metric v1.25.0 // indirect

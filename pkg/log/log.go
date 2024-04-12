@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -14,15 +15,33 @@ import (
 	"github.com/tigorlazuardi/redmage/config"
 	"github.com/tigorlazuardi/redmage/pkg/caller"
 	"go.opentelemetry.io/otel/trace"
+
+	slogmulti "github.com/samber/slog-multi"
 )
 
 var handler slog.Handler = NullHandler{}
 
 func NewHandler(cfg *config.Config) slog.Handler {
-	if !cfg.Bool("log.enable") {
+	var handlers []slog.Handler
+
+	if cfg.Bool("log.enable") {
+		handlers = append(handlers, createStandardLogger(cfg))
+	}
+
+	if cfg.Bool("telemetry.openobserve.enable") && cfg.Bool("telemetry.openobserve.log.enable") {
+		handlers = append(handlers, createO2Logger(cfg))
+	}
+
+	if len(handlers) == 0 {
 		return NullHandler{}
 	}
+
+	return slogmulti.Fanout(handlers...)
+}
+
+func createStandardLogger(cfg *config.Config) slog.Handler {
 	var output io.Writer
+
 	if strings.ToLower(cfg.String("log.output")) == "stdout" {
 		output = colorable.NewColorableStdout()
 	} else {
@@ -42,6 +61,25 @@ func NewHandler(cfg *config.Config) slog.Handler {
 	} else {
 		return slog.NewJSONHandler(output, opts)
 	}
+}
+
+func createO2Logger(cfg *config.Config) slog.Handler {
+	var lvl slog.Level
+	_ = lvl.UnmarshalText(cfg.Bytes("telemetry.openobserve.log.level"))
+	opts := &slog.HandlerOptions{
+		AddSource: cfg.Bool("telemetry.openobserve.log.source"),
+		Level:     lvl,
+	}
+	return NewOpenObserveHandler(OpenObserveHandlerOptions{
+		HandlerOptions: opts,
+		BufferSize:     cfg.Int("telemetry.openobserve.log.buffer.size"),
+		BufferTimeout:  cfg.Duration("telemetry.openobserve.log.buffer.timeout"),
+		Concurrency:    cfg.Int("telemetry.openobserve.log.concurrency"),
+		Endpoint:       cfg.String("telemetry.openobserve.log.endpoint"),
+		HTTPClient:     http.DefaultClient,
+		Username:       cfg.String("telemetry.openobserve.log.username"),
+		Password:       cfg.String("telemetry.openobserve.log.password"),
+	})
 }
 
 type Entry struct {

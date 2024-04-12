@@ -25,4 +25,15 @@ var DefaultConfig = map[string]any{
 	"http.host":             "0.0.0.0",
 	"http.shutdown_timeout": "5s",
 	"http.hotreload":        false,
+
+	"telemetry.openobserve.enable":             false,
+	"telemetry.openobserve.log.enable":         true,
+	"telemetry.openobserve.log.level":          "info",
+	"telemetry.openobserve.log.source":         true,
+	"telemetry.openobserve.log.endpoint":       "http://localhost:5080/api/default/default/_json",
+	"telemetry.openobserve.log.concurrency":    4,
+	"telemetry.openobserve.log.buffer.size":    2 * 1024, // 2kb
+	"telemetry.openobserve.log.buffer.timeout": "500ms",
+	"telemetry.openobserve.log.username":       "root@example.com",
+	"telemetry.openobserve.log.password":       "Complexpass#123",
 }
