@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/riandyrn/otelchi"
 	"github.com/tigorlazuardi/redmage/api"
 	"github.com/tigorlazuardi/redmage/config"
 	"github.com/tigorlazuardi/redmage/pkg/caller"
@@ -45,6 +46,7 @@ func (srv *Server) Start(exit <-chan struct{}) error {
 
 func New(cfg *config.Config, api *api.API, publicDir fs.FS) *Server {
 	router := chi.NewRouter()
+	router.Use(otelchi.Middleware("redmage"))
 
 	routes := routes.Routes{
 		API:       api,

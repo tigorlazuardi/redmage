@@ -9,6 +9,7 @@ import (
 	"github.com/tigorlazuardi/redmage/db"
 	"github.com/tigorlazuardi/redmage/db/queries"
 	"github.com/tigorlazuardi/redmage/pkg/log"
+	"github.com/tigorlazuardi/redmage/pkg/telemetry"
 	"github.com/tigorlazuardi/redmage/server"
 )
 
@@ -19,6 +20,9 @@ var serveCmd = &cobra.Command{
 	Short:        "Starts the HTTP Server",
 	SilenceUsage: true,
 	Run: func(cmd *cobra.Command, args []string) {
+		tele := telemetry.New()
+		defer tele.Close()
+
 		db, err := db.Open(cfg)
 		if err != nil {
 			log.New(cmd.Context()).Err(err).Error("failed to connect database")

@@ -9,11 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/mattn/go-colorable"
 	"github.com/mattn/go-isatty"
 	"github.com/tigorlazuardi/redmage/config"
 	"github.com/tigorlazuardi/redmage/pkg/caller"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var handler slog.Handler = NullHandler{}
@@ -240,8 +240,11 @@ func (entry *Entry) getCaller() caller.Caller {
 
 func (entry *Entry) getExtra() []slog.Attr {
 	out := make([]slog.Attr, 0, 4)
-	if reqid := middleware.GetReqID(entry.ctx); reqid != "" {
-		out = append(out, slog.String("request.id", reqid))
+	if span := trace.SpanFromContext(entry.ctx); span.IsRecording() {
+		out = append(out,
+			slog.String("trace.id", span.SpanContext().TraceID().String()),
+			slog.String("span.id", span.SpanContext().SpanID().String()),
+		)
 	}
 
 	out = append(out, entry.withAttrs...)
