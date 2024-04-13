@@ -82,7 +82,7 @@ func (api *API) DownloadSubredditImages(ctx context.Context, subredditName strin
 }
 
 func (api *API) downloadSubredditListImage(ctx context.Context, list reddit.Listing, params DownloadSubredditParams) error {
-	ctx, span := tracer.Start(ctx, "*API.downloadSubredditImage")
+	ctx, span := tracer.Start(ctx, "*API.downloadSubredditListImage")
 	defer span.End()
 
 	wg := sync.WaitGroup{}
@@ -98,74 +98,74 @@ func (api *API) downloadSubredditListImage(ctx context.Context, list reddit.List
 		wg.Add(1)
 		api.imageSemaphore <- struct{}{}
 		go func(ctx context.Context, post reddit.Post) {
-			ctx, span := tracer.Start(ctx, "*API.downloadSubredditImage.goFunc")
-			defer span.End()
-
 			defer func() {
 				<-api.imageSemaphore
 				wg.Done()
 			}()
 
-			imageHandler, err := api.reddit.DownloadImage(ctx, post, api.downloadBroadcast)
-			if err != nil {
-				log.New(ctx).Err(err).Error("failed to download image")
-				return
-			}
-			defer imageHandler.Close()
-
-			// copy to temp dir first to avoid copying incomplete files.
-			tmpImageFile, err := api.copyImageToTempDir(ctx, imageHandler)
-			if err != nil {
-				log.New(ctx).Err(err).Error("failed to download image to temp file")
-				return
-			}
-			defer tmpImageFile.Close()
-
-			w, close, err := api.createDeviceImageWriters(post, devices)
-			if err != nil {
-				log.New(ctx).Err(err).Error("failed to create image files")
-				return
-			}
-			defer close()
-			_, err = io.Copy(w, tmpImageFile)
-			if err != nil {
-				log.New(ctx).Err(err).Error("failed to create save image files")
-				return
-			}
-			thumbnailPath := post.GetThumbnailTargetPath(api.config)
-			_, errStat := os.Stat(thumbnailPath)
-			if errStat == nil {
-				// file exist
-				return
-			}
-			if !errors.Is(errStat, os.ErrNotExist) {
-				log.New(ctx).Err(err).Error("failed to check thumbail existence", "path", thumbnailPath)
-				return
-			}
-
-			thumbnailSource, err := imaging.Open(tmpImageFile.filename)
-			if err != nil {
-				log.New(ctx).Err(err).Error("failed to open temp thumbnail file", "filename", tmpImageFile.filename)
-				return
-			}
-
-			thumbnail := imaging.Resize(thumbnailSource, 256, 0, imaging.Lanczos)
-			thumbnailFile, err := os.Create(thumbnailPath)
-			if err != nil {
-				log.New(ctx).Err(err).Error("failed to create thumbnail file", "filename", thumbnailPath)
-				return
-			}
-			defer thumbnailFile.Close()
-
-			err = jpeg.Encode(thumbnailFile, thumbnail, nil)
-			if err != nil {
-				log.New(ctx).Err(err).Error("failed to encode thumbnail file to jpeg", "filename", thumbnailPath)
-				return
+			if err := api.downloadSubredditImage(ctx, post, devices); err != nil {
+				log.New(ctx).Err(err).Error("failed to download subreddit image")
 			}
 		}(ctx, post)
 	}
 
 	wg.Wait()
+
+	return nil
+}
+
+func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, devices []queries.Device) error {
+	ctx, span := tracer.Start(ctx, "*API.downloadSubredditImage")
+	defer span.End()
+
+	imageHandler, err := api.reddit.DownloadImage(ctx, post, api.downloadBroadcast)
+	if err != nil {
+		return errs.Wrapw(err, "failed to download image")
+	}
+	defer imageHandler.Close()
+
+	// copy to temp dir first to avoid copying incomplete files.
+	tmpImageFile, err := api.copyImageToTempDir(ctx, imageHandler)
+	if err != nil {
+		return errs.Wrapw(err, "failed to download image to temp file")
+	}
+	defer tmpImageFile.Close()
+
+	w, close, err := api.createDeviceImageWriters(post, devices)
+	if err != nil {
+		return errs.Wrapw(err, "failed to create image files")
+	}
+	defer close()
+	_, err = io.Copy(w, tmpImageFile)
+	if err != nil {
+		return errs.Wrapw(err, "failed to save image files")
+	}
+	thumbnailPath := post.GetThumbnailTargetPath(api.config)
+	_, errStat := os.Stat(thumbnailPath)
+	if errStat == nil {
+		// file exist
+		return nil
+	}
+	if !errors.Is(errStat, os.ErrNotExist) {
+		return errs.Wrapw(err, "failed to check thumbail existence", "path", thumbnailPath)
+	}
+
+	thumbnailSource, err := imaging.Open(tmpImageFile.filename)
+	if err != nil {
+		return errs.Wrapw(err, "failed to open temp thumbnail file", "filename", tmpImageFile.filename)
+	}
+
+	thumbnail := imaging.Resize(thumbnailSource, 256, 0, imaging.Lanczos)
+	thumbnailFile, err := os.Create(thumbnailPath)
+	if err != nil {
+		return errs.Wrapw(err, "failed to create thumbnail file", "filename", thumbnailPath)
+	}
+	defer thumbnailFile.Close()
+
+	err = jpeg.Encode(thumbnailFile, thumbnail, nil)
+	if err != nil {
+		return errs.Wrapw(err, "failed to encode thumbnail file to jpeg", "filename", thumbnailPath)
+	}
 
 	return nil
 }
