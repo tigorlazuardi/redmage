@@ -98,6 +98,9 @@ func (api *API) downloadSubredditListImage(ctx context.Context, list reddit.List
 		wg.Add(1)
 		api.imageSemaphore <- struct{}{}
 		go func(ctx context.Context, post reddit.Post) {
+			ctx, span := tracer.Start(ctx, "*API.downloadSubredditImage.goFunc")
+			defer span.End()
+
 			defer func() {
 				<-api.imageSemaphore
 				wg.Done()
