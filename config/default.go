@@ -15,11 +15,12 @@ var DefaultConfig = map[string]any{
 	"db.string":      "data.db",
 	"db.automigrate": true,
 
-	"download.concurrency":       5,
-	"download.directory":         "",
-	"download.timeout.headers":   "10s",
-	"download.timeout.idle":      "5s",
-	"download.timeout.idlespeed": "10KB",
+	"download.concurrency.images":     5,
+	"download.concurrency.subreddits": 3,
+	"download.directory":              "",
+	"download.timeout.headers":        "10s",
+	"download.timeout.idle":           "5s",
+	"download.timeout.idlespeed":      "10KB",
 
 	"http.port":             "8080",
 	"http.host":             "0.0.0.0",

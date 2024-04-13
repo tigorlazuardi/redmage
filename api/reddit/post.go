@@ -1,5 +1,15 @@
 package reddit
 
+import (
+	"fmt"
+	"net/url"
+	"path"
+	"strings"
+
+	"github.com/tigorlazuardi/redmage/config"
+	"github.com/tigorlazuardi/redmage/db/queries"
+)
+
 type Listing struct {
 	Kind string `json:"kind"`
 	Data Data   `json:"data"`
@@ -15,8 +25,8 @@ type (
 	Gildings         struct{}
 	Source           struct {
 		URL    string `json:"url"`
-		Width  int    `json:"width"`
-		Height int    `json:"height"`
+		Width  int64  `json:"width"`
+		Height int64  `json:"height"`
 	}
 )
 
@@ -86,7 +96,7 @@ type PostData struct {
 	Pwls                       int                      `json:"pwls"`
 	LinkFlairCSSClass          string                   `json:"link_flair_css_class"`
 	Downs                      int                      `json:"downs"`
-	ThumbnailHeight            int                      `json:"thumbnail_height"`
+	ThumbnailHeight            int64                    `json:"thumbnail_height"`
 	TopAwardedType             any                      `json:"top_awarded_type"`
 	HideScore                  bool                     `json:"hide_score"`
 	MediaMetadata              map[string]MediaMetadata `json:"media_metadata"`
@@ -98,7 +108,7 @@ type PostData struct {
 	Ups                        int                      `json:"ups"`
 	Domain                     string                   `json:"domain"`
 	MediaEmbed                 MediaEmbed               `json:"media_embed"`
-	ThumbnailWidth             int                      `json:"thumbnail_width"`
+	ThumbnailWidth             int64                    `json:"thumbnail_width"`
 	AuthorFlairTemplateID      string                   `json:"author_flair_template_id"`
 	IsOriginalContent          bool                     `json:"is_original_content"`
 	UserReports                []any                    `json:"user_reports"`
@@ -189,6 +199,10 @@ type Post struct {
 	Data PostData `json:"data,omitempty"`
 }
 
+func (post *Post) IsNSFW() bool {
+	return post.Data.Over18
+}
+
 func (post *Post) IsImagePost() bool {
 	return post.Data.PostHint == "image"
 }
@@ -197,7 +211,44 @@ func (post *Post) GetImageURL() string {
 	return post.Data.URL
 }
 
-func (post *Post) GetImageSize() (width, height int) {
+func (post *Post) GetImageAspectRatio() float64 {
+	width, height := post.GetImageSize()
+	if height == 0 {
+		return 0
+	}
+	return float64(width) / float64(height)
+}
+
+func (post *Post) GetImageTargetPath(cfg *config.Config, device queries.Device) string {
+	baseDownloadDir := cfg.String("download.directory")
+	return path.Join(baseDownloadDir, device.Name, post.GetSubreddit(), post.GetImageFilename())
+}
+
+func (post *Post) GetWindowsWallpaperImageTargetPath(cfg *config.Config, device queries.Device) string {
+	baseDownloadDir := cfg.String("download.directory")
+	filename := fmt.Sprintf("%s_%s", post.GetSubreddit(), post.GetImageFilename())
+	return path.Join(baseDownloadDir, device.Name, filename)
+}
+
+func (post *Post) GetThumbnailTargetPath(cfg *config.Config) string {
+	baseDownloadDir := cfg.String("download.directory")
+	return path.Join(baseDownloadDir, "_thumbnails", post.GetSubreddit(), post.GetImageFilename())
+}
+
+func (post *Post) GetImageFilename() string {
+	if !post.IsImagePost() {
+		return ""
+	}
+	link := post.GetImageURL()
+	u, _ := url.Parse(link)
+	if u == nil {
+		return ""
+	}
+	split := strings.Split(u.Path, "/")
+	return split[len(split)-1]
+}
+
+func (post *Post) GetImageSize() (width, height int64) {
 	if len(post.Data.Preview.Images) == 0 {
 		return 0, 0
 	}
@@ -209,7 +260,7 @@ func (post *Post) GetThumbnailURL() string {
 	return post.Data.Thumbnail
 }
 
-func (post *Post) GetThumbnailSize() (width, height int) {
+func (post *Post) GetThumbnailSize() (width, height int64) {
 	return post.Data.ThumbnailWidth, post.Data.ThumbnailHeight
 }
 

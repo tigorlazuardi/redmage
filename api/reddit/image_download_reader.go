@@ -15,7 +15,7 @@ var ErrIdleTimeoutReached = errors.New("download idle timeout reached")
 
 type ImageDownloadReader struct {
 	OnProgress         func(downloaded int64, contentLength int64, err error)
-	OnClose            func(closeErr error)
+	OnClose            func(downloaded int64, contentLength int64, closeErr error)
 	IdleTimeout        time.Duration
 	IdleSpeedThreshold units.MetricBytes
 
@@ -107,7 +107,7 @@ func (idr *ImageDownloadReader) Close() error {
 	idr.exit <- struct{}{}
 	err := idr.reader.Close()
 	if idr.OnClose != nil {
-		idr.OnClose(err)
+		idr.OnClose(idr.downloaded.Load(), idr.contentLength, err)
 	}
 	return err
 }

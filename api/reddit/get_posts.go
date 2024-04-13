@@ -53,7 +53,7 @@ func (reddit *Reddit) GetPosts(ctx context.Context, params GetPostsParam) (posts
 		return posts, errs.Fail("reddit: unexpected status code when executing GetPosts",
 			slog.Group("request", "url", url, "params", params),
 			slog.Group("response", "status_code", res.StatusCode, "body", formatLogBody(res, body)),
-		)
+		).Code(res.StatusCode)
 	}
 
 	err = json.NewDecoder(res.Body).Decode(&posts)
