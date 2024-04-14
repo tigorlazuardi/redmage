@@ -46,6 +46,7 @@ func (sl *OpenObserveHandler) Handle(ctx context.Context, record slog.Record) er
 		sl.sendDebounceFunc = time.AfterFunc(sl.opts.BufferTimeout, func() {
 			sl.mu.Lock()
 			defer sl.mu.Unlock()
+			sl.sendDebounceFunc = nil
 			if sl.buffer.Len() < 1 {
 				return
 			}
