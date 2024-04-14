@@ -188,6 +188,7 @@ func (api *API) createDeviceImageWriters(post reddit.Post, devices []queries.Dev
 			}
 			return nil, nil, errs.Wrapw(err, "failed to open temp image file",
 				"device_name", device.Name,
+				"device_slug", device.Slug,
 				"filename", filename,
 			)
 		}

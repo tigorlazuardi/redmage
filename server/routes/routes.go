@@ -35,6 +35,7 @@ func (routes *Routes) registerV1APIRoutes(router chi.Router) {
 	router.Use(chimiddleware.SetHeader("Content-Type", "application/json"))
 
 	router.Get("/subreddits", routes.SubredditsListAPI)
+	router.Get("/devices", routes.APIDeviceList)
 }
 
 func (routes *Routes) registerWWWRoutes(router chi.Router) {

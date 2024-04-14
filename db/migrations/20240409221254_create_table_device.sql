@@ -2,6 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE devices(
     id INTEGER PRIMARY KEY,
+    slug VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
     resolution_x DOUBLE NOT NULL,
     resolution_y DOUBLE NOT NULL,
@@ -16,7 +17,7 @@ CREATE TABLE devices(
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE INDEX idx_devices_name ON devices(name);
+CREATE UNIQUE INDEX idx_devices_name ON devices(slug);
 
 CREATE TRIGGER update_devices_timestamp AFTER UPDATE ON devices FOR EACH ROW
 BEGIN

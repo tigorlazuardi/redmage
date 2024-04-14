@@ -240,12 +240,12 @@ func (post *Post) GetThumbnailRelativePath() string {
 }
 
 func (post *Post) GetImageRelativePath(device queries.Device) string {
-	return path.Join(device.Name, post.GetSubreddit(), post.GetImageFilename())
+	return path.Join(device.Slug, post.GetSubreddit(), post.GetImageFilename())
 }
 
 func (post *Post) GetWindowsWallpaperImageRelativePath(device queries.Device) string {
 	filename := fmt.Sprintf("%s_%s", post.GetSubreddit(), post.GetImageFilename())
-	return path.Join(device.Name, filename)
+	return path.Join(device.Slug, filename)
 }
 
 func (post *Post) GetImageFilename() string {
