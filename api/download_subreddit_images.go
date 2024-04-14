@@ -147,7 +147,7 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, de
 		return nil
 	}
 	if !errors.Is(errStat, os.ErrNotExist) {
-		return errs.Wrapw(err, "failed to check thumbail existence", "path", thumbnailPath)
+		return errs.Wrapw(err, "failed to check thumbnail existence", "path", thumbnailPath)
 	}
 
 	thumbnailSource, err := imaging.Open(tmpImageFile.filename)

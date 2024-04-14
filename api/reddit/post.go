@@ -235,6 +235,19 @@ func (post *Post) GetThumbnailTargetPath(cfg *config.Config) string {
 	return path.Join(baseDownloadDir, "_thumbnails", post.GetSubreddit(), post.GetImageFilename())
 }
 
+func (post *Post) GetThumbnailRelativePath() string {
+	return path.Join("_thumbnails", post.GetSubreddit(), post.GetImageFilename())
+}
+
+func (post *Post) GetImageRelativePath(device queries.Device) string {
+	return path.Join(device.Name, post.GetSubreddit(), post.GetImageFilename())
+}
+
+func (post *Post) GetWindowsWallpaperImageRelativePath(device queries.Device) string {
+	filename := fmt.Sprintf("%s_%s", post.GetSubreddit(), post.GetImageFilename())
+	return path.Join(device.Name, filename)
+}
+
 func (post *Post) GetImageFilename() string {
 	if !post.IsImagePost() {
 		return ""
