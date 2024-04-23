@@ -4,10 +4,13 @@ go 1.22.1
 
 require (
 	github.com/a-h/templ v0.2.648
+	github.com/aarondl/opt v0.0.0-20240108180805-338d04d857dc
 	github.com/adrg/xdg v0.4.0
 	github.com/alecthomas/units v0.0.0-20231202071711-9a357b53e9c9
 	github.com/fatih/color v1.16.0
 	github.com/go-chi/chi/v5 v5.0.12
+	github.com/google/go-cmp v0.6.0
+	github.com/jaswdr/faker/v2 v2.2.0
 	github.com/joho/godotenv v1.5.1
 	github.com/knadh/koanf/parsers/json v0.1.0
 	github.com/knadh/koanf/parsers/yaml v0.1.0
@@ -19,19 +22,23 @@ require (
 	github.com/knadh/koanf/v2 v2.1.1
 	github.com/mattn/go-colorable v0.1.13
 	github.com/mattn/go-isatty v0.0.20
-	github.com/mattn/go-sqlite3 v1.14.6
+	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/pressly/goose/v3 v3.19.2
 	github.com/robfig/cron/v3 v3.0.0
 	github.com/simukti/sqldb-logger v0.0.0-20230108155151-646c1a075551
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
+	github.com/stephenafamo/bob v0.25.0
 	github.com/teivah/broadcast v0.1.0
 )
 
 require (
+	github.com/aarondl/json v0.0.0-20221020222930-8b0db17ef1bf // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.0 // indirect
+	github.com/qdm12/reprint v0.0.0-20200326205758-722754a53494 // indirect
 	github.com/samber/lo v1.38.1 // indirect
+	github.com/stephenafamo/scan v0.4.2 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.25.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.1.0 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
@@ -53,18 +60,17 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.0.0-alpha.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/knadh/koanf/maps v0.1.1 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/mfridman/interpolate v0.0.2 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
-	github.com/riandyrn/otelchi v0.6.0 // indirect
+	github.com/riandyrn/otelchi v0.6.0
 	github.com/samber/slog-multi v1.0.2
 	github.com/sethvargo/go-retry v0.2.4 // indirect
-	go.opentelemetry.io/otel v1.25.0 // indirect
+	go.opentelemetry.io/otel v1.25.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.25.0
 	go.opentelemetry.io/otel/metric v1.25.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.25.0
-	go.opentelemetry.io/otel/trace v1.25.0 // indirect
+	go.opentelemetry.io/otel/trace v1.25.0
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20231219180239-dc181d75b848 // indirect
 	golang.org/x/sync v0.6.0 // indirect

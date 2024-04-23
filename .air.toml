@@ -9,7 +9,7 @@ cmd = "go build -o ./tmp/main ."
 delay = 1000
 exclude_dir = ["assets", "tmp", "vendor", "testdata", "node_modules"]
 exclude_file = []
-exclude_regex = ["_test.go", "db/queries/.*\\.go", "_templ.go"]
+exclude_regex = ["_test.go", "db/queries/.*\\.go", "_templ.go", "models/.*\\.go"]
 exclude_unchanged = false
 follow_symlink = false
 full_bin = ""
@@ -21,12 +21,7 @@ log = "build-errors.log"
 poll = false
 poll_interval = 0
 post_cmd = []
-pre_cmd = [
-    "mkdir -p public",
-    "tailwindcss -i views/style.css -o public/style.css",
-    "templ generate",
-    "sqlc generate",
-]
+pre_cmd = [ "make prepare" ]
 rerun = false
 rerun_delay = 500
 send_interrupt = true

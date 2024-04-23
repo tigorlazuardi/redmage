@@ -38,11 +38,16 @@ build-dependencies:
 		curl -o public/htmx-response-targets-1.9.11.min.js https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.11/ext/response-targets.min.js
 	fi
 
-build: build-dependencies
-	mkdir -p public
-	tailwindcss -i src/styles.css -o public/styles.css
-	templ generate
+build: build-dependencies prepare
 	go build -o redmage
+
+prepare: gen
+	mkdir -p public
+	tailwindcss -i views/styles.css -o public/styles.css
+	templ generate
+
+gen:
+	@go run github.com/stephenafamo/bob/gen/bobgen-sqlite@latest
 
 migrate-new:
 	@read -p "Name new migration: " name

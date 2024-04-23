@@ -1,0 +1,9 @@
+tags:
+  - json
+
+wipe: true
+
+sqlite:
+  dsn: "data.db"
+  except:
+    goose_db_version:

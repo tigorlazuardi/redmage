@@ -29,3 +29,5 @@ public/htmx*.js
 /tmp
 db/queries/**/*.go
 *.db
+
+models/
