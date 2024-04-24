@@ -17,7 +17,7 @@ func (api *API) DevicesUpdate(ctx context.Context, id int, update *models.Device
 	if err != nil {
 		var sqliteErr sqlite3.Error
 		if errors.As(err, &sqliteErr) {
-			if sqliteErr.Code == sqlite3.ErrNo(sqlite3.ErrConstraintUnique) {
+			if sqliteErr.Code == sqlite3.ErrConstraint {
 				return errs.Wrapw(err, "a device with the same slug id already exists").Code(409)
 			}
 		}
