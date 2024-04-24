@@ -31,10 +31,16 @@ func parseApiDeviceListQueries(req *http.Request) (params api.DevicesListParams)
 	params.All, _ = strconv.ParseBool(req.FormValue("all"))
 	params.Offset, _ = strconv.ParseInt(req.FormValue("offset"), 10, 64)
 	params.Limit, _ = strconv.ParseInt(req.FormValue("limit"), 10, 64)
-	params.Query = req.FormValue("q")
+	params.Q = req.FormValue("q")
+	params.OrderBy = req.FormValue("order")
+	params.Sort = req.FormValue("sort")
 
 	if params.Limit < 1 {
 		params.Limit = 10
+	}
+
+	if params.OrderBy == "" {
+		params.OrderBy = "name"
 	}
 
 	return params

@@ -3,13 +3,30 @@ package errs
 import "errors"
 
 func FindCodeOrDefault(err error, def int) int {
-	for unwrap := errors.Unwrap(err); unwrap != nil; err = unwrap {
+	unwrap := errors.Unwrap(err)
+	for unwrap != nil {
 		if coder, ok := err.(interface{ GetCode() int }); ok {
 			code := coder.GetCode()
 			if code != 0 {
-				def = code
+				return code
+			}
+		}
+		unwrap = errors.Unwrap(unwrap)
+	}
+
+	return def
+}
+
+func FindMessage(err error) string {
+	unwrap := errors.Unwrap(err)
+	for unwrap != nil {
+		if messager, ok := err.(interface{ GetMessage() string }); ok {
+			message := messager.GetMessage()
+			if message != "" {
+				return message
 			}
 		}
 	}
-	return def
+
+	return err.Error()
 }

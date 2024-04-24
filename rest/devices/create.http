@@ -1,0 +1,13 @@
+POST http://localhost:8080/api/v1/devices HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Content-Length: 155
+
+{
+    "name": "Laptop",
+    "slug": "laptop",
+    "resolution_x": 1920,
+    "resolution_y": 1080,
+    "nsfw": 1,
+    "aspect_ratio_tolerance": 0.2
+}

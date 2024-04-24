@@ -19,6 +19,8 @@ type Routes struct {
 }
 
 func (routes *Routes) Register(router chi.Router) {
+	router.Use(chimiddleware.Compress(5, "text/html", "text/css", "application/javascript", "application/json"))
+
 	router.HandleFunc("/ping", routes.HealthCheck)
 	router.HandleFunc("/health", routes.HealthCheck)
 	if routes.Config.Bool("http.hotreload") {
@@ -37,10 +39,10 @@ func (routes *Routes) registerV1APIRoutes(router chi.Router) {
 	router.Get("/subreddits", routes.SubredditsListAPI)
 	router.Get("/devices", routes.APIDeviceList)
 	router.Post("/devices", routes.APIDeviceCreate)
+	router.Patch("/devices/{id}", routes.APIDeviceUpdate)
 }
 
 func (routes *Routes) registerWWWRoutes(router chi.Router) {
-	router.Use(chimiddleware.Compress(5, "text/html", "text/css", "application/javascript"))
 	router.Mount("/public", http.StripPrefix("/public", http.FileServer(http.FS(routes.PublicDir))))
 
 	router.Group(func(r chi.Router) {
