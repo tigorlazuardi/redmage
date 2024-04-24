@@ -3,54 +3,68 @@ package api
 import (
 	"context"
 
-	"github.com/tigorlazuardi/redmage/db/queries"
+	"github.com/stephenafamo/bob"
+	"github.com/stephenafamo/bob/dialect/sqlite/dialect"
+	"github.com/stephenafamo/bob/dialect/sqlite/sm"
+	"github.com/tigorlazuardi/redmage/models"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 )
 
 type ListSubredditsParams struct {
-	Name   string `json:"name"`
-	Limit  int64  `json:"limit"`
-	Offset int64  `json:"offset"`
+	Name    string `json:"name"`
+	Limit   int64  `json:"limit"`
+	Offset  int64  `json:"offset"`
+	OrderBy string `json:"order_by"`
+	Sort    string `json:"sort"`
+}
+
+func (l ListSubredditsParams) Query() (expr []bob.Mod[*dialect.SelectQuery]) {
+	if l.Name != "" {
+		expr = append(expr, models.SelectWhere.Subreddits.Name.Like("%"+l.Name+"%"))
+	}
+	if l.Limit > 0 {
+		expr = append(expr, sm.Limit(l.Limit))
+	}
+	if l.Offset > 0 {
+		expr = append(expr, sm.Offset(l.Offset))
+	}
+	if l.OrderBy != "" {
+		if l.Sort == "desc" {
+			expr = append(expr, sm.OrderBy(l.OrderBy).Desc())
+		} else {
+			expr = append(expr, sm.OrderBy(l.OrderBy).Asc())
+		}
+	}
+
+	return expr
+}
+
+func (l ListSubredditsParams) CountQuery() (expr []bob.Mod[*dialect.SelectQuery]) {
+	if l.Name != "" {
+		expr = append(expr, models.SelectWhere.Subreddits.Name.Like("%"+l.Name+"%"))
+	}
+
+	return expr
 }
 
 type ListSubredditsResult struct {
 	Total int64
-	Data  []queries.Subreddit
+	Data  models.SubredditSlice
 }
 
 func (api *API) ListSubreddits(ctx context.Context, arg ListSubredditsParams) (result ListSubredditsResult, err error) {
 	ctx, span := tracer.Start(ctx, "api.ListSubreddits")
 	defer span.End()
-	if arg.Name != "" {
-		result.Data, err = api.queries.SubredditsSearch(ctx, queries.SubredditsSearchParams{
-			Name:   "%" + arg.Name + "%",
-			Limit:  arg.Limit,
-			Offset: arg.Offset,
-		})
-		if err != nil {
-			return result, errs.Wrapw(err, "failed to search subreddit", "query", arg)
-		}
-		result.Total, err = api.queries.SubredditsSearchCount(ctx, queries.SubredditsSearchCountParams{
-			Name:   "%" + arg.Name + "%",
-			Limit:  arg.Limit,
-			Offset: arg.Offset,
-		})
-		if err != nil {
-			return result, errs.Wrapw(err, "failed to count subreddit search", "query", arg)
-		}
-		return result, err
+
+	result.Data, err = models.Subreddits.Query(ctx, api.exec, arg.Query()...).All()
+	if err != nil {
+		return result, errs.Wrapw(err, "failed to list subreddits", "query", arg)
 	}
 
-	result.Data, err = api.queries.SubredditsList(ctx, queries.SubredditsListParams{
-		Limit:  arg.Limit,
-		Offset: arg.Offset,
-	})
+	result.Total, err = models.Subreddits.Query(ctx, api.exec, arg.CountQuery()...).Count()
 	if err != nil {
-		return result, errs.Wrapw(err, "failed to list subreddit", "query", arg)
+		return result, errs.Wrapw(err, "failed to count subreddits", "query", arg)
 	}
-	result.Total, err = api.queries.SubredditsListCount(ctx)
-	if err != nil {
-		return result, errs.Wrapw(err, "failed to count subreddit list", "query", arg)
-	}
-	return result, err
+
+	return result, nil
 }

@@ -43,7 +43,7 @@ build: build-dependencies prepare
 
 prepare: gen
 	mkdir -p public
-	tailwindcss -i views/styles.css -o public/styles.css
+	tailwindcss -i views/style.css -o public/style.css
 	templ generate
 
 gen:

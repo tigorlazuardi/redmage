@@ -40,6 +40,7 @@ func (routes *Routes) registerV1APIRoutes(router chi.Router) {
 }
 
 func (routes *Routes) registerWWWRoutes(router chi.Router) {
+	router.Use(chimiddleware.Compress(5, "text/html", "text/css", "application/javascript"))
 	router.Mount("/public", http.StripPrefix("/public", http.FileServer(http.FS(routes.PublicDir))))
 
 	router.Group(func(r chi.Router) {

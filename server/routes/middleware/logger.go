@@ -26,7 +26,7 @@ func (ch *ChiEntry) Write(status int, bytes int, header http.Header, elapsed tim
 	message := fmt.Sprintf("%s %s %d %s", ch.request.Method, ch.request.URL, status, elasedStr)
 
 	requestLog := slog.Attr{Key: "request", Value: ch.extractRequestLog()}
-	responseLog := slog.Group("response", "status", status, "headers", flatHeader(header), "bytes", bytes)
+	responseLog := slog.Group("response", "status", status, "headers", flat(header), "bytes", bytes)
 	roundtripLog := slog.String("elapsed", elasedStr)
 
 	group := slog.Group("http", requestLog, responseLog, roundtripLog)
@@ -57,13 +57,13 @@ func (ch *ChiEntry) extractRequestLog() slog.Value {
 	)
 	queries := ch.request.URL.Query()
 	if len(queries) > 0 {
-		values = append(values, slog.Any("query", queries))
+		values = append(values, slog.Any("query", flat(queries)))
 	}
-	values = append(values, slog.Any("headers", flatHeader(ch.request.Header)))
+	values = append(values, slog.Any("headers", flat(ch.request.Header)))
 	return slog.GroupValue(values...)
 }
 
-func flatHeader(header http.Header) map[string]string {
+func flat(header map[string][]string) map[string]string {
 	m := make(map[string]string, len(header))
 
 	for k := range header {

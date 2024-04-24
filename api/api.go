@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/robfig/cron/v3"
+	"github.com/stephenafamo/bob"
 	"github.com/teivah/broadcast"
 	"github.com/tigorlazuardi/redmage/api/bmessage"
 	"github.com/tigorlazuardi/redmage/api/reddit"
@@ -18,6 +19,7 @@ import (
 type API struct {
 	queries *queries.Queries
 	db      *sql.DB
+	exec    bob.Executor
 
 	scheduler   *cron.Cron
 	scheduleMap map[cron.EntryID]queries.Subreddit
@@ -43,6 +45,7 @@ func New(deps Dependencies) *API {
 	return &API{
 		queries:            deps.Queries,
 		db:                 deps.DB,
+		exec:               bob.New(deps.DB),
 		scheduler:          cron.New(),
 		scheduleMap:        make(map[cron.EntryID]queries.Subreddit, 8),
 		downloadBroadcast:  broadcast.NewRelay[bmessage.ImageDownloadMessage](),
