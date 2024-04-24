@@ -1,9 +1,10 @@
 PATCH http://localhost:8080/api/v1/devices/1 HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
-Content-Length: 55
+Content-Length: 78
 
 {
+    "slug": "sync-l",
     "aspect_ratio_tolerance": 0.2,
     "nsfw": 1
 }

@@ -30,3 +30,11 @@ func FindMessage(err error) string {
 
 	return err.Error()
 }
+
+func HTTPMessage(err error) (code int, message string) {
+	code = FindCodeOrDefault(err, 500)
+	if code >= 500 {
+		return code, err.Error()
+	}
+	return code, FindMessage(err)
+}

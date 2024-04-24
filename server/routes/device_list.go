@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/tigorlazuardi/redmage/api"
+	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 )
 
@@ -17,8 +19,9 @@ func (routes *Routes) APIDeviceList(rw http.ResponseWriter, r *http.Request) {
 
 	result, err := routes.API.DevicesList(ctx, query)
 	if err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		_ = json.NewEncoder(rw).Encode(map[string]string{"error": err.Error()})
+		code, message := errs.HTTPMessage(err)
+		rw.WriteHeader(code)
+		_ = json.NewEncoder(rw).Encode(map[string]string{"error": message})
 		return
 	}
 
@@ -33,7 +36,7 @@ func parseApiDeviceListQueries(req *http.Request) (params api.DevicesListParams)
 	params.Limit, _ = strconv.ParseInt(req.FormValue("limit"), 10, 64)
 	params.Q = req.FormValue("q")
 	params.OrderBy = req.FormValue("order")
-	params.Sort = req.FormValue("sort")
+	params.Sort = strings.ToLower(req.FormValue("sort"))
 
 	if params.Limit < 1 {
 		params.Limit = 10

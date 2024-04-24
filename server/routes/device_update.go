@@ -61,8 +61,9 @@ func (routes *Routes) APIDeviceUpdate(rw http.ResponseWriter, r *http.Request) {
 		WindowsWallpaperMode: omit.FromPtr(body.WindowsWallpaperMode),
 	})
 	if err != nil {
-		rw.WriteHeader(errs.FindCodeOrDefault(err, http.StatusInternalServerError))
-		_ = json.NewEncoder(rw).Encode(map[string]string{"error": errs.FindMessage(err)})
+		code, message := errs.HTTPMessage(err)
+		rw.WriteHeader(code)
+		_ = json.NewEncoder(rw).Encode(map[string]string{"error": message})
 		return
 	}
 
