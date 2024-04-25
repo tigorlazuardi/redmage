@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
@@ -56,6 +57,7 @@ var watermillLogger = &log.WatermillLogger{}
 func New(deps Dependencies) *API {
 	ackDeadline := deps.Config.Duration("download.pubsub.ack.deadline")
 	subscriber, err := watermillSql.NewSubscriber(deps.PubsubDB, watermillSql.SubscriberConfig{
+		ConsumerGroup:    "redmage",
 		AckDeadline:      &ackDeadline,
 		SchemaAdapter:    watermillSqlite.DefaultSQLiteSchema{},
 		OffsetsAdapter:   watermillSqlite.DefaultSQLiteOffsetsAdapter{},
@@ -93,7 +95,7 @@ func New(deps Dependencies) *API {
 	if err := api.StartScheduler(ctx); err != nil {
 		panic(err)
 	}
-	api.StartSubredditDownloadPubsub(ch)
+	go api.StartSubredditDownloadPubsub(ch)
 	return api
 }
 
@@ -119,7 +121,8 @@ func (api *API) StartScheduler(ctx context.Context) error {
 
 func (api *API) scheduleSubreddit(subreddit *models.Subreddit) error {
 	id, err := api.scheduler.AddFunc(subreddit.Schedule, func() {
-		_ = api.publisher.Publish(downloadTopic, message.NewMessage(watermill.NewUUID(), []byte(subreddit.Name)))
+		payload, _ := json.Marshal(subreddit)
+		_ = api.publisher.Publish(downloadTopic, message.NewMessage(watermill.NewUUID(), payload))
 	})
 	if err != nil {
 		return errs.Wrap(err)

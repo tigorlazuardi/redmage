@@ -1,6 +1,6 @@
 {
   inputs = {
-    templ.url = "github:a-h/templ/v0.2.648";
+    templ.url = "github:a-h/templ/v0.2.663";
     nixpkgs.url = "nixpkgs/nixpkgs-unstable";
   };
 

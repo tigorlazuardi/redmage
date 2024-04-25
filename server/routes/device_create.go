@@ -48,6 +48,7 @@ func (routes *Routes) APIDeviceCreate(rw http.ResponseWriter, r *http.Request) {
 		WindowsWallpaperMode: omit.From(body.WindowsWallpaperMode),
 	})
 	if err != nil {
+		log.New(ctx).Err(err).Error("failed to create device", "body", body)
 		code, message := errs.HTTPMessage(err)
 		rw.WriteHeader(code)
 		_ = json.NewEncoder(rw).Encode(map[string]string{"error": message})

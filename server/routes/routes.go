@@ -36,7 +36,10 @@ func (routes *Routes) registerV1APIRoutes(router chi.Router) {
 	router.Use(chimiddleware.RequestLogger(middleware.ChiLogger{}))
 	router.Use(chimiddleware.SetHeader("Content-Type", "application/json"))
 
+	router.Post("/subreddits/start", routes.SubredditStartDownloadAPI)
 	router.Get("/subreddits", routes.SubredditsListAPI)
+	router.Post("/subreddits", routes.SubredditsCreateAPI)
+
 	router.Get("/devices", routes.APIDeviceList)
 	router.Post("/devices", routes.APIDeviceCreate)
 	router.Patch("/devices/{id}", routes.APIDeviceUpdate)

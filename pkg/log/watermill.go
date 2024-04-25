@@ -16,7 +16,7 @@ func (wa *WatermillLogger) Error(msg string, err error, fields watermill.LogFiel
 }
 
 func (wa *WatermillLogger) Info(msg string, fields watermill.LogFields) {
-	New(context.Background()).With(wa.with...).With(intoAttrs(fields)...).Info(msg)
+	New(context.Background()).With(wa.with...).With(intoAttrs(fields)...).Debug(msg)
 }
 
 func (wa *WatermillLogger) Debug(msg string, fields watermill.LogFields) {

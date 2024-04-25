@@ -17,11 +17,25 @@ import (
 var Migrations fs.FS
 
 func Open(cfg *config.Config) (*sql.DB, error) {
+	driver := cfg.String("db.driver")
 	dsn := cfg.String("db.string")
 	db, err := OpenSilent(cfg)
 	if err != nil {
 		return db, err
 	}
+	if cfg.Bool("db.automigrate") {
+		goose.SetLogger(&gooseLogger{})
+		goose.SetBaseFS(Migrations)
+
+		if err := goose.SetDialect(driver); err != nil {
+			return db, errs.Wrapw(err, "failed to set goose dialect", "dialect", driver)
+		}
+
+		if err := goose.Up(db, "db/migrations"); err != nil {
+			return db, errs.Wrapw(err, "failed to migrate database", "dialect", driver)
+		}
+	}
+
 	db = sqldblogger.OpenDriver(dsn, db.Driver(), sqlLogger{},
 		sqldblogger.WithSQLQueryAsMessage(true),
 	)
@@ -38,17 +52,5 @@ func OpenSilent(cfg *config.Config) (*sql.DB, error) {
 		return db, errs.Wrapw(err, "failed to open database", "driver", driver)
 	}
 
-	if cfg.Bool("db.automigrate") {
-		goose.SetLogger(&gooseLogger{})
-		goose.SetBaseFS(Migrations)
-
-		if err := goose.SetDialect(driver); err != nil {
-			return db, errs.Wrapw(err, "failed to set goose dialect", "dialect", driver)
-		}
-
-		if err := goose.Up(db, "db/migrations"); err != nil {
-			return db, errs.Wrapw(err, "failed to migrate database", "dialect", driver)
-		}
-	}
 	return db, err
 }

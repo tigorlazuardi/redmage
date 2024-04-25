@@ -1,0 +1,10 @@
+POST http://localhost:8080/api/v1/subreddits HTTP/1.1
+Host: localhost:8080
+Content-Length: 69
+
+{
+    "name": "awoo",
+    "enable": 1,
+    "schedule": "@daily",
+    "countback": 10
+}

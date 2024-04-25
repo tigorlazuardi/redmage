@@ -39,7 +39,7 @@ func createProvider(ctx context.Context, cfg *config.Config) (*sdktrace.TracerPr
 		sdktrace.WithSampler(sdktrace.TraceIDRatioBased(cfg.Float64("telemetry.trace.ratio"))),
 	}
 
-	if cfg.Bool("telemetry.openobserve.trace.enable") {
+	if cfg.Bool("telemetry.openobserve.enable") && cfg.Bool("telemetry.openobserve.trace.enable") {
 		url := cfg.String("telemetry.openobserve.trace.url")
 		o2exporter, err := otlptracehttp.New(ctx,
 			otlptracehttp.WithEndpointURL(url),
