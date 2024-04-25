@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/tigorlazuardi/redmage/config"
-	"github.com/tigorlazuardi/redmage/db/queries"
+	"github.com/tigorlazuardi/redmage/models"
 )
 
 type Listing struct {
@@ -17,6 +17,17 @@ type Listing struct {
 
 func (l *Listing) GetPosts() []Post {
 	return l.Data.Children
+}
+
+// GetLastAfter returns the last post namee for pagination.
+//
+// Returns empty string if there is no more posts to look up.
+func (l *Listing) GetLastAfter() string {
+	posts := l.GetPosts()
+	if len(posts) == 0 {
+		return ""
+	}
+	return posts[len(posts)-1].GetName()
 }
 
 type (
@@ -219,12 +230,16 @@ func (post *Post) GetImageAspectRatio() float64 {
 	return float64(width) / float64(height)
 }
 
-func (post *Post) GetImageTargetPath(cfg *config.Config, device queries.Device) string {
+func (post *Post) GetName() string {
+	return post.Data.Name
+}
+
+func (post *Post) GetImageTargetPath(cfg *config.Config, device *models.Device) string {
 	baseDownloadDir := cfg.String("download.directory")
 	return path.Join(baseDownloadDir, device.Name, post.GetSubreddit(), post.GetImageFilename())
 }
 
-func (post *Post) GetWindowsWallpaperImageTargetPath(cfg *config.Config, device queries.Device) string {
+func (post *Post) GetWindowsWallpaperImageTargetPath(cfg *config.Config, device *models.Device) string {
 	baseDownloadDir := cfg.String("download.directory")
 	filename := fmt.Sprintf("%s_%s", post.GetSubreddit(), post.GetImageFilename())
 	return path.Join(baseDownloadDir, device.Name, filename)
@@ -239,11 +254,11 @@ func (post *Post) GetThumbnailRelativePath() string {
 	return path.Join("_thumbnails", post.GetSubreddit(), post.GetImageFilename())
 }
 
-func (post *Post) GetImageRelativePath(device queries.Device) string {
+func (post *Post) GetImageRelativePath(device *models.Device) string {
 	return path.Join(device.Slug, post.GetSubreddit(), post.GetImageFilename())
 }
 
-func (post *Post) GetWindowsWallpaperImageRelativePath(device queries.Device) string {
+func (post *Post) GetWindowsWallpaperImageRelativePath(device *models.Device) string {
 	filename := fmt.Sprintf("%s_%s", post.GetSubreddit(), post.GetImageFilename())
 	return path.Join(device.Slug, filename)
 }

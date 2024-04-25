@@ -55,3 +55,6 @@ migrate-new:
 	
 migrate-redo:
 	@goose redo
+
+migrate-up:
+	@goose up

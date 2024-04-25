@@ -19,7 +19,6 @@
           modd
           nodePackages_latest.nodejs
           goose
-          sqlc
           air
         ];
       };

@@ -22,6 +22,8 @@ var DefaultConfig = map[string]any{
 	"download.timeout.idle":           "5s",
 	"download.timeout.idlespeed":      "10KB",
 
+	"download.pubsub.ack.deadline": "3h",
+
 	"http.port":             "8080",
 	"http.host":             "0.0.0.0",
 	"http.shutdown_timeout": "5s",

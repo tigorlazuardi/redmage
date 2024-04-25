@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
 
 	"github.com/robfig/cron/v3"
 	"github.com/stephenafamo/bob"
@@ -11,18 +12,21 @@ import (
 	"github.com/tigorlazuardi/redmage/api/bmessage"
 	"github.com/tigorlazuardi/redmage/api/reddit"
 	"github.com/tigorlazuardi/redmage/config"
-	"github.com/tigorlazuardi/redmage/db/queries"
+	"github.com/tigorlazuardi/redmage/models"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
+
+	"github.com/ThreeDotsLabs/watermill"
+	watermillSql "github.com/ThreeDotsLabs/watermill-sql/v3/pkg/sql"
+	"github.com/ThreeDotsLabs/watermill/message"
 )
 
 type API struct {
-	queries *queries.Queries
-	db      *sql.DB
-	exec    bob.Executor
+	db   *sql.DB
+	exec bob.Executor
 
 	scheduler   *cron.Cron
-	scheduleMap map[cron.EntryID]queries.Subreddit
+	scheduleMap map[cron.EntryID]*models.Subreddit
 
 	downloadBroadcast *broadcast.Relay[bmessage.ImageDownloadMessage]
 
@@ -32,32 +36,54 @@ type API struct {
 	subredditSemaphore chan struct{}
 
 	reddit *reddit.Reddit
+
+	subscriber message.Subscriber
+	publisher  message.Publisher
 }
 
 type Dependencies struct {
-	Queries *queries.Queries
-	DB      *sql.DB
-	Config  *config.Config
-	Reddit  *reddit.Reddit
+	DB     *sql.DB
+	Config *config.Config
+	Reddit *reddit.Reddit
 }
 
+const downloadTopic = "subreddit.download"
+
 func New(deps Dependencies) *API {
+	ackDeadline := deps.Config.Duration("download.pubsub.ack.deadline")
+	subscriber, err := watermillSql.NewSubscriber(deps.DB, watermillSql.SubscriberConfig{
+		AckDeadline:      &ackDeadline,
+		SchemaAdapter:    watermillSql.DefaultPostgreSQLSchema{},
+		OffsetsAdapter:   watermillSql.DefaultPostgreSQLOffsetsAdapter{},
+		InitializeSchema: true,
+	}, watermill.NewStdLoggerWithOut(os.Stderr, true, true))
+	if err != nil {
+		panic(err)
+	}
+	publisher, err := watermillSql.NewPublisher(deps.DB, watermillSql.PublisherConfig{
+		SchemaAdapter:        watermillSql.DefaultPostgreSQLSchema{},
+		AutoInitializeSchema: true,
+	}, watermill.NewStdLoggerWithOut(os.Stderr, true, true))
+	if err != nil {
+		panic(err)
+	}
 	return &API{
-		queries:            deps.Queries,
 		db:                 deps.DB,
 		exec:               bob.New(deps.DB),
 		scheduler:          cron.New(),
-		scheduleMap:        make(map[cron.EntryID]queries.Subreddit, 8),
+		scheduleMap:        make(map[cron.EntryID]*models.Subreddit, 8),
 		downloadBroadcast:  broadcast.NewRelay[bmessage.ImageDownloadMessage](),
 		config:             deps.Config,
 		imageSemaphore:     make(chan struct{}, deps.Config.Int("download.concurrency.images")),
 		subredditSemaphore: make(chan struct{}, deps.Config.Int("download.concurrency.subreddits")),
 		reddit:             deps.Reddit,
+		subscriber:         subscriber,
+		publisher:          publisher,
 	}
 }
 
 func (api *API) StartScheduler(ctx context.Context) error {
-	subreddits, err := api.queries.SubredditsGetAll(ctx)
+	subreddits, err := models.Subreddits.Query(ctx, api.exec, nil).All()
 	if err != nil {
 		return errs.Wrapw(err, "failed to get all subreddits")
 	}
@@ -76,13 +102,12 @@ func (api *API) StartScheduler(ctx context.Context) error {
 	return nil
 }
 
-func (api *API) scheduleSubreddit(subreddit queries.Subreddit) error {
+func (api *API) scheduleSubreddit(subreddit *models.Subreddit) error {
 	id, err := api.scheduler.AddFunc(subreddit.Schedule, func() {
 	})
 	if err != nil {
 		return errs.Wrap(err)
 	}
-
 	api.scheduleMap[id] = subreddit
 
 	return nil

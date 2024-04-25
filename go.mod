@@ -3,6 +3,7 @@ module github.com/tigorlazuardi/redmage
 go 1.22.1
 
 require (
+	github.com/ThreeDotsLabs/watermill v1.3.5
 	github.com/a-h/templ v0.2.648
 	github.com/aarondl/opt v0.0.0-20240108180805-338d04d857dc
 	github.com/adrg/xdg v0.4.0
@@ -33,9 +34,14 @@ require (
 )
 
 require (
+	github.com/ThreeDotsLabs/watermill-sql/v3 v3.0.1 // indirect
 	github.com/aarondl/json v0.0.0-20221020222930-8b0db17ef1bf // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.0 // indirect
+	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
+	github.com/oklog/ulid v1.3.1 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/qdm12/reprint v0.0.0-20200326205758-722754a53494 // indirect
 	github.com/samber/lo v1.38.1 // indirect
 	github.com/stephenafamo/scan v0.4.2 // indirect

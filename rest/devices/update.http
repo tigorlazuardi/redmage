@@ -4,7 +4,7 @@ Content-Type: application/json
 Content-Length: 78
 
 {
-    "slug": "sync-l",
+    "slug": "laptop",
     "aspect_ratio_tolerance": 0.2,
     "nsfw": 1
 }

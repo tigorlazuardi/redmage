@@ -29,8 +29,6 @@ type ImageDownloadReader struct {
 	deltastart time.Time
 	deltavalue atomic.Int64
 
-	end time.Time
-
 	exit chan struct{}
 
 	mu sync.Mutex

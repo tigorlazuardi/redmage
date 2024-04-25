@@ -15,17 +15,18 @@ import (
 
 	"github.com/disintegration/imaging"
 	"github.com/tigorlazuardi/redmage/api/reddit"
-	"github.com/tigorlazuardi/redmage/db/queries"
+	"github.com/tigorlazuardi/redmage/models"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/pkg/telemetry"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+	"golang.org/x/sync/errgroup"
 )
 
 type DownloadSubredditParams struct {
 	Countback     int
-	Devices       []queries.Device
+	Devices       models.DeviceSlice
 	SubredditType reddit.SubredditType
 }
 
@@ -51,15 +52,19 @@ func (api *API) DownloadSubredditImages(ctx context.Context, subredditName strin
 
 	countback := params.Countback
 
-	for page := 1; countback > 0; page += 1 {
-		limit := countback
-		if limit > 100 {
-			limit = 100
+	var (
+		list reddit.Listing
+		err  error
+	)
+	for countback > 0 {
+		limit := 100
+		if limit > countback {
+			limit = countback
 		}
-		list, err := api.reddit.GetPosts(ctx, reddit.GetPostsParam{
+		list, err = api.reddit.GetPosts(ctx, reddit.GetPostsParam{
 			Subreddit:     subredditName,
 			Limit:         limit,
-			Page:          page,
+			After:         list.GetLastAfter(),
 			SubredditType: params.SubredditType,
 		})
 		if err != nil {
@@ -73,6 +78,9 @@ func (api *API) DownloadSubredditImages(ctx context.Context, subredditName strin
 				log.New(ctx).Err(err).Error("failed to download image")
 			}
 		}(ctx, list)
+		if len(list.GetPosts()) == 0 {
+			break
+		}
 		countback -= len(list.GetPosts())
 	}
 
@@ -91,7 +99,7 @@ func (api *API) downloadSubredditListImage(ctx context.Context, list reddit.List
 		if !post.IsImagePost() {
 			continue
 		}
-		devices := getDevicesThatAcceptPost(post, params.Devices)
+		devices := api.getDevicesThatAcceptPost(ctx, post, params.Devices)
 		if len(devices) == 0 {
 			continue
 		}
@@ -114,7 +122,7 @@ func (api *API) downloadSubredditListImage(ctx context.Context, list reddit.List
 	return nil
 }
 
-func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, devices []queries.Device) error {
+func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, devices models.DeviceSlice) error {
 	ctx, span := tracer.Start(ctx, "*API.downloadSubredditImage")
 	defer span.End()
 
@@ -170,7 +178,7 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, de
 	return nil
 }
 
-func (api *API) createDeviceImageWriters(post reddit.Post, devices []queries.Device) (writer io.Writer, close func(), err error) {
+func (api *API) createDeviceImageWriters(post reddit.Post, devices models.DeviceSlice) (writer io.Writer, close func(), err error) {
 	// open file for each device
 	var files []*os.File
 	var writers []io.Writer
@@ -181,7 +189,7 @@ func (api *API) createDeviceImageWriters(post reddit.Post, devices []queries.Dev
 		} else {
 			filename = post.GetImageTargetPath(api.config, device)
 		}
-		file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+		file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o644)
 		if err != nil {
 			for _, f := range files {
 				_ = f.Close()
@@ -203,40 +211,67 @@ func (api *API) createDeviceImageWriters(post reddit.Post, devices []queries.Dev
 	}, nil
 }
 
-func getDevicesThatAcceptPost(post reddit.Post, devices []queries.Device) []queries.Device {
-	var devs []queries.Device
+func (api *API) getDevicesThatAcceptPost(ctx context.Context, post reddit.Post, devices models.DeviceSlice) (devs models.DeviceSlice) {
+	var mu sync.Mutex
+	errgrp, ctx := errgroup.WithContext(ctx)
 	for _, device := range devices {
 		if shouldDownloadPostForDevice(post, device) {
-			devs = append(devices, device)
+			device := device
+			errgrp.Go(func() error {
+				if !api.isImageExists(ctx, post, device) {
+					mu.Lock()
+					defer mu.Unlock()
+					devs = append(devices, device)
+				}
+				return nil
+			})
 		}
 	}
+	_ = errgrp.Wait()
 	return devs
 }
 
-func shouldDownloadPostForDevice(post reddit.Post, device queries.Device) bool {
-	if post.IsNSFW() && device.Nsfw == 0 {
+func (api *API) isImageExists(ctx context.Context, post reddit.Post, device *models.Device) (found bool) {
+	ctx, span := tracer.Start(ctx, "*API.IsImageExists")
+	defer span.End()
+
+	// Image does not exist in target image.
+	if _, err := os.Stat(post.GetImageTargetPath(api.config, device)); err != nil {
+		return false
+	}
+
+	_, err := models.Images.Query(ctx, api.exec,
+		models.SelectWhere.Images.DeviceID.EQ(device.ID),
+		models.SelectWhere.Images.PostID.EQ(post.GetID()),
+	).One()
+
+	return err == nil
+}
+
+func shouldDownloadPostForDevice(post reddit.Post, device *models.Device) bool {
+	if post.IsNSFW() && device.NSFW == 0 {
 		return false
 	}
 	if math.Abs(deviceAspectRatio(device)-post.GetImageAspectRatio()) > device.AspectRatioTolerance { // outside of aspect ratio tolerance
 		return false
 	}
 	width, height := post.GetImageSize()
-	if device.MaxX > 0 && width > device.MaxX {
+	if device.MaxX > 0 && width > int64(device.MaxX) {
 		return false
 	}
-	if device.MaxY > 0 && height > device.MaxY {
+	if device.MaxY > 0 && height > int64(device.MaxY) {
 		return false
 	}
-	if device.MinX > 0 && width < device.MinX {
+	if device.MinX > 0 && width < int64(device.MinX) {
 		return false
 	}
-	if device.MinY > 0 && height < device.MinY {
+	if device.MinY > 0 && height < int64(device.MinY) {
 		return false
 	}
 	return true
 }
 
-func deviceAspectRatio(device queries.Device) float64 {
+func deviceAspectRatio(device *models.Device) float64 {
 	return float64(device.ResolutionX) / float64(device.ResolutionY)
 }
 
@@ -269,10 +304,10 @@ func (api *API) copyImageToTempDir(ctx context.Context, img reddit.PostImage) (t
 	split := strings.Split(url.Path, "/")
 	imageFilename := split[len(split)-1]
 	tmpDirname := path.Join(os.TempDir(), "redmage")
-	_ = os.MkdirAll(tmpDirname, 0644)
+	_ = os.MkdirAll(tmpDirname, 0o644)
 	tmpFilename := path.Join(tmpDirname, imageFilename)
 
-	file, err := os.OpenFile(tmpFilename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(tmpFilename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o644)
 	if err != nil {
 		return nil, errs.Wrapw(err, "failed to open temp image file",
 			"temp_file_path", tmpFilename,

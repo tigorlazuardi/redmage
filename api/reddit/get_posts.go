@@ -31,12 +31,12 @@ func (s SubredditType) Code() string {
 type GetPostsParam struct {
 	Subreddit     string
 	Limit         int
-	Page          int
+	After         string
 	SubredditType SubredditType
 }
 
 func (reddit *Reddit) GetPosts(ctx context.Context, params GetPostsParam) (posts Listing, err error) {
-	url := fmt.Sprintf("https://reddit.com/%s/%s.json?limit=%d&page=%d", params.SubredditType.Code(), params.Subreddit, params.Limit, params.Page)
+	url := fmt.Sprintf("https://reddit.com/%s/%s.json?limit=%d&after=%s", params.SubredditType.Code(), params.Subreddit, params.Limit, params.After)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
 		return posts, errs.Wrapw(err, "reddit: failed to create http request instance", "url", url, "params", params)

@@ -9,7 +9,6 @@ import (
 	"github.com/tigorlazuardi/redmage/api"
 	"github.com/tigorlazuardi/redmage/api/reddit"
 	"github.com/tigorlazuardi/redmage/db"
-	"github.com/tigorlazuardi/redmage/db/queries"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/pkg/telemetry"
 	"github.com/tigorlazuardi/redmage/server"
@@ -35,18 +34,15 @@ var serveCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		queries := queries.New(db)
-
 		red := &reddit.Reddit{
 			Client: http.DefaultClient,
 			Config: cfg,
 		}
 
 		api := api.New(api.Dependencies{
-			Queries: queries,
-			DB:      db,
-			Config:  cfg,
-			Reddit:  red,
+			DB:     db,
+			Config: cfg,
+			Reddit: red,
 		})
 
 		server := server.New(cfg, api, PublicDir)

@@ -8,6 +8,7 @@ CREATE TABLE images(
     post_id VARCHAR(50) NOT NULL,
     post_url VARCHAR(255) NOT NULL,
     post_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    post_name VARCHAR(255) NOT NULL,
     poster VARCHAR(50) NOT NULL,
     poster_url VARCHAR(255) NOT NULL,
     image_relative_path VARCHAR(255) NOT NULL,
