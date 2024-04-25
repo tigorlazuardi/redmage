@@ -28,21 +28,27 @@ var serveCmd = &cobra.Command{
 		}
 		defer tele.Close()
 
-		db, err := db.Open(cfg)
+		database, err := db.Open(cfg)
 		if err != nil {
 			log.New(cmd.Context()).Err(err).Error("failed to connect database")
 			os.Exit(1)
 		}
 
+		pubsubDatabase, err := db.OpenSilent(cfg)
+		if err != nil {
+			log.New(cmd.Context()).Err(err).Error("failed to connect database")
+			os.Exit(1)
+		}
 		red := &reddit.Reddit{
 			Client: http.DefaultClient,
 			Config: cfg,
 		}
 
 		api := api.New(api.Dependencies{
-			DB:     db,
-			Config: cfg,
-			Reddit: red,
+			DB:       database,
+			PubsubDB: pubsubDatabase,
+			Config:   cfg,
+			Reddit:   red,
 		})
 
 		server := server.New(cfg, api, PublicDir)

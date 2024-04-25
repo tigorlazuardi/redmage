@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"os/signal"
 
 	"github.com/robfig/cron/v3"
 	"github.com/stephenafamo/bob"
@@ -19,6 +20,7 @@ import (
 	"github.com/ThreeDotsLabs/watermill"
 	watermillSql "github.com/ThreeDotsLabs/watermill-sql/v3/pkg/sql"
 	"github.com/ThreeDotsLabs/watermill/message"
+	watermillSqlite "github.com/walterwanderley/watermill-sqlite"
 )
 
 type API struct {
@@ -42,32 +44,41 @@ type API struct {
 }
 
 type Dependencies struct {
-	DB     *sql.DB
-	Config *config.Config
-	Reddit *reddit.Reddit
+	DB       *sql.DB
+	PubsubDB *sql.DB
+	Config   *config.Config
+	Reddit   *reddit.Reddit
 }
 
-const downloadTopic = "subreddit.download"
+const downloadTopic = "subreddit_download"
+
+var watermillLogger = watermill.NewStdLoggerWithOut(os.Stderr, false, false)
 
 func New(deps Dependencies) *API {
 	ackDeadline := deps.Config.Duration("download.pubsub.ack.deadline")
-	subscriber, err := watermillSql.NewSubscriber(deps.DB, watermillSql.SubscriberConfig{
+	subscriber, err := watermillSql.NewSubscriber(deps.PubsubDB, watermillSql.SubscriberConfig{
 		AckDeadline:      &ackDeadline,
-		SchemaAdapter:    watermillSql.DefaultPostgreSQLSchema{},
-		OffsetsAdapter:   watermillSql.DefaultPostgreSQLOffsetsAdapter{},
+		SchemaAdapter:    watermillSqlite.DefaultSQLiteSchema{},
+		OffsetsAdapter:   watermillSqlite.DefaultSQLiteOffsetsAdapter{},
 		InitializeSchema: true,
-	}, watermill.NewStdLoggerWithOut(os.Stderr, true, true))
+	}, watermillLogger)
 	if err != nil {
 		panic(err)
 	}
-	publisher, err := watermillSql.NewPublisher(deps.DB, watermillSql.PublisherConfig{
-		SchemaAdapter:        watermillSql.DefaultPostgreSQLSchema{},
+	publisher, err := watermillSql.NewPublisher(deps.PubsubDB, watermillSql.PublisherConfig{
+		SchemaAdapter:        watermillSqlite.DefaultSQLiteSchema{},
 		AutoInitializeSchema: true,
-	}, watermill.NewStdLoggerWithOut(os.Stderr, true, true))
+	}, watermillLogger)
 	if err != nil {
 		panic(err)
 	}
-	return &API{
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancel()
+	ch, err := subscriber.Subscribe(ctx, downloadTopic)
+	if err != nil {
+		panic(err)
+	}
+	api := &API{
 		db:                 deps.DB,
 		exec:               bob.New(deps.DB),
 		scheduler:          cron.New(),
@@ -80,6 +91,9 @@ func New(deps Dependencies) *API {
 		subscriber:         subscriber,
 		publisher:          publisher,
 	}
+
+	api.startSubredditDownloadPubsub(ch)
+	return api
 }
 
 func (api *API) StartScheduler(ctx context.Context) error {

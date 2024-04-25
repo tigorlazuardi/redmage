@@ -4,6 +4,7 @@ go 1.22.1
 
 require (
 	github.com/ThreeDotsLabs/watermill v1.3.5
+	github.com/ThreeDotsLabs/watermill-sql/v3 v3.0.1
 	github.com/a-h/templ v0.2.648
 	github.com/aarondl/opt v0.0.0-20240108180805-338d04d857dc
 	github.com/adrg/xdg v0.4.0
@@ -31,10 +32,10 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stephenafamo/bob v0.25.0
 	github.com/teivah/broadcast v0.1.0
+	github.com/walterwanderley/watermill-sqlite v0.0.0-20240320170051-3fffaf9a8167
 )
 
 require (
-	github.com/ThreeDotsLabs/watermill-sql/v3 v3.0.1 // indirect
 	github.com/aarondl/json v0.0.0-20221020222930-8b0db17ef1bf // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -79,7 +80,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.25.0
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20231219180239-dc181d75b848 // indirect
-	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sync v0.6.0
 	golang.org/x/sys v0.18.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

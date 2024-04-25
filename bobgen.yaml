@@ -7,3 +7,5 @@ sqlite:
   dsn: "data.db"
   except:
     goose_db_version:
+    watermill_offset_subreddit_download:
+    watermill_subreddit_download:

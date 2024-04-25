@@ -17,6 +17,18 @@ import (
 var Migrations fs.FS
 
 func Open(cfg *config.Config) (*sql.DB, error) {
+	dsn := cfg.String("db.string")
+	db, err := OpenSilent(cfg)
+	if err != nil {
+		return db, err
+	}
+	db = sqldblogger.OpenDriver(dsn, db.Driver(), sqlLogger{},
+		sqldblogger.WithSQLQueryAsMessage(true),
+	)
+	return db, err
+}
+
+func OpenSilent(cfg *config.Config) (*sql.DB, error) {
 	driver := cfg.String("db.driver")
 	dsn := cfg.String("db.string")
 	db, err := otelsql.Open(driver, dsn, otelsql.WithAttributes(
@@ -38,9 +50,5 @@ func Open(cfg *config.Config) (*sql.DB, error) {
 			return db, errs.Wrapw(err, "failed to migrate database", "dialect", driver)
 		}
 	}
-
-	db = sqldblogger.OpenDriver(dsn, db.Driver(), sqlLogger{},
-		sqldblogger.WithSQLQueryAsMessage(true),
-	)
 	return db, err
 }
