@@ -17,7 +17,6 @@ import (
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 
-	"github.com/ThreeDotsLabs/watermill"
 	watermillSql "github.com/ThreeDotsLabs/watermill-sql/v3/pkg/sql"
 	"github.com/ThreeDotsLabs/watermill/message"
 	watermillSqlite "github.com/walterwanderley/watermill-sqlite"
@@ -52,7 +51,7 @@ type Dependencies struct {
 
 const downloadTopic = "subreddit_download"
 
-var watermillLogger = watermill.NewStdLoggerWithOut(os.Stderr, false, false)
+var watermillLogger = &log.WatermillLogger{}
 
 func New(deps Dependencies) *API {
 	ackDeadline := deps.Config.Duration("download.pubsub.ack.deadline")
