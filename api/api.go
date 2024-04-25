@@ -17,6 +17,7 @@ import (
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 
+	"github.com/ThreeDotsLabs/watermill"
 	watermillSql "github.com/ThreeDotsLabs/watermill-sql/v3/pkg/sql"
 	"github.com/ThreeDotsLabs/watermill/message"
 	watermillSqlite "github.com/walterwanderley/watermill-sqlite"
@@ -89,12 +90,15 @@ func New(deps Dependencies) *API {
 		publisher:          publisher,
 	}
 
-	api.startSubredditDownloadPubsub(ch)
+	if err := api.StartScheduler(ctx); err != nil {
+		panic(err)
+	}
+	api.StartSubredditDownloadPubsub(ch)
 	return api
 }
 
 func (api *API) StartScheduler(ctx context.Context) error {
-	subreddits, err := models.Subreddits.Query(ctx, api.db, nil).All()
+	subreddits, err := models.Subreddits.Query(ctx, api.db, models.SelectWhere.Subreddits.Enable.EQ(1)).All()
 	if err != nil {
 		return errs.Wrapw(err, "failed to get all subreddits")
 	}
@@ -115,6 +119,7 @@ func (api *API) StartScheduler(ctx context.Context) error {
 
 func (api *API) scheduleSubreddit(subreddit *models.Subreddit) error {
 	id, err := api.scheduler.AddFunc(subreddit.Schedule, func() {
+		_ = api.publisher.Publish(downloadTopic, message.NewMessage(watermill.NewUUID(), []byte(subreddit.Name)))
 	})
 	if err != nil {
 		return errs.Wrap(err)

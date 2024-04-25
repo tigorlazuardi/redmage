@@ -11,7 +11,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 )
 
-func (api *API) startSubredditDownloadPubsub(messages <-chan *message.Message) {
+func (api *API) StartSubredditDownloadPubsub(messages <-chan *message.Message) {
 	for msg := range messages {
 		api.subredditSemaphore <- struct{}{}
 		go func(msg *message.Message) {
