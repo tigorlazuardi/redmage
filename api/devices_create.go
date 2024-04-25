@@ -15,7 +15,7 @@ func (api *API) DevicesCreate(ctx context.Context, params *DeviceCreateParams) (
 	ctx, span := tracer.Start(ctx, "*API.DevicesCreate")
 	defer span.End()
 
-	device, err := models.Devices.Insert(ctx, api.exec, params)
+	device, err := models.Devices.Insert(ctx, api.db, params)
 	if err != nil {
 		var sqliteErr sqlite3.Error
 		if errors.As(err, &sqliteErr) {

@@ -13,7 +13,7 @@ func (api *API) DevicesUpdate(ctx context.Context, id int, update *models.Device
 	ctx, span := tracer.Start(ctx, "*API.DevicesUpdate")
 	defer span.End()
 
-	err = models.Devices.Update(ctx, api.exec, update, &models.Device{ID: int32(id)})
+	err = models.Devices.Update(ctx, api.db, update, &models.Device{ID: int32(id)})
 	if err != nil {
 		var sqliteErr sqlite3.Error
 		if errors.As(err, &sqliteErr) {

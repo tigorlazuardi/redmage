@@ -26,13 +26,13 @@ func (api *API) startSubredditDownloadPubsub(messages <-chan *message.Message) {
 			subredditName := string(msg.Payload)
 			span.SetAttributes(attribute.String("subreddit", subredditName))
 
-			subreddit, err := models.Subreddits.Query(ctx, api.exec, models.SelectWhere.Subreddits.Name.EQ(subredditName)).One()
+			subreddit, err := models.Subreddits.Query(ctx, api.db, models.SelectWhere.Subreddits.Name.EQ(subredditName)).One()
 			if err != nil {
 				log.New(ctx).Err(err).Error("failed to find subreddit", "subreddit", subredditName)
 				return
 			}
 
-			devices, err := models.Devices.Query(ctx, api.exec).All()
+			devices, err := models.Devices.Query(ctx, api.db).All()
 			if err != nil {
 				log.New(ctx).Err(err).Error("failed to query devices")
 				return

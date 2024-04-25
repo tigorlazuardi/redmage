@@ -240,7 +240,7 @@ func (api *API) isImageExists(ctx context.Context, post reddit.Post, device *mod
 		return false
 	}
 
-	_, err := models.Images.Query(ctx, api.exec,
+	_, err := models.Images.Query(ctx, api.db,
 		models.SelectWhere.Images.DeviceID.EQ(device.ID),
 		models.SelectWhere.Images.PostID.EQ(post.GetID()),
 	).One()

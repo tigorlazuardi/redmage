@@ -23,8 +23,7 @@ import (
 )
 
 type API struct {
-	db   *sql.DB
-	exec bob.Executor
+	db bob.Executor
 
 	scheduler   *cron.Cron
 	scheduleMap map[cron.EntryID]*models.Subreddit
@@ -78,8 +77,7 @@ func New(deps Dependencies) *API {
 		panic(err)
 	}
 	api := &API{
-		db:                 deps.DB,
-		exec:               bob.New(deps.DB),
+		db:                 bob.New(deps.DB),
 		scheduler:          cron.New(),
 		scheduleMap:        make(map[cron.EntryID]*models.Subreddit, 8),
 		downloadBroadcast:  broadcast.NewRelay[bmessage.ImageDownloadMessage](),
@@ -96,7 +94,7 @@ func New(deps Dependencies) *API {
 }
 
 func (api *API) StartScheduler(ctx context.Context) error {
-	subreddits, err := models.Subreddits.Query(ctx, api.exec, nil).All()
+	subreddits, err := models.Subreddits.Query(ctx, api.db, nil).All()
 	if err != nil {
 		return errs.Wrapw(err, "failed to get all subreddits")
 	}

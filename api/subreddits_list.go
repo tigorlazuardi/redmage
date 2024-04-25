@@ -56,12 +56,12 @@ func (api *API) ListSubreddits(ctx context.Context, arg ListSubredditsParams) (r
 	ctx, span := tracer.Start(ctx, "api.ListSubreddits")
 	defer span.End()
 
-	result.Data, err = models.Subreddits.Query(ctx, api.exec, arg.Query()...).All()
+	result.Data, err = models.Subreddits.Query(ctx, api.db, arg.Query()...).All()
 	if err != nil {
 		return result, errs.Wrapw(err, "failed to list subreddits", "query", arg)
 	}
 
-	result.Total, err = models.Subreddits.Query(ctx, api.exec, arg.CountQuery()...).Count()
+	result.Total, err = models.Subreddits.Query(ctx, api.db, arg.CountQuery()...).Count()
 	if err != nil {
 		return result, errs.Wrapw(err, "failed to count subreddits", "query", arg)
 	}

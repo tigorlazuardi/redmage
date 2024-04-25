@@ -68,12 +68,12 @@ func (api *API) DevicesList(ctx context.Context, params DevicesListParams) (resu
 	ctx, span := tracer.Start(ctx, "*API.DevicesList")
 	defer span.End()
 
-	result.Devices, err = models.Devices.Query(ctx, api.exec, params.Query()...).All()
+	result.Devices, err = models.Devices.Query(ctx, api.db, params.Query()...).All()
 	if err != nil {
 		return result, errs.Wrapw(err, "failed to query devices", "params", params)
 	}
 
-	result.Total, err = models.Devices.Query(ctx, api.exec, params.CountQuery()...).Count()
+	result.Total, err = models.Devices.Query(ctx, api.db, params.CountQuery()...).Count()
 	if err != nil {
 		return result, errs.Wrapw(err, "failed to count devices", "params", params)
 	}
