@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/robfig/cron/v3"
+	"github.com/tigorlazuardi/redmage/api"
+	"github.com/tigorlazuardi/redmage/api/reddit"
 	"github.com/tigorlazuardi/redmage/models"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
@@ -33,7 +35,19 @@ func (routes *Routes) SubredditsCreateAPI(rw http.ResponseWriter, req *http.Requ
 		return
 	}
 
-	//  TODO: check if the subreddit actually exists on reddit
+	actual, err := routes.API.SubredditCheck(ctx, api.SubredditCheckParam{
+		Subreddit:     body.Name,
+		SubredditType: reddit.SubredditType(body.Subtype),
+	})
+	if err != nil {
+		log.New(ctx).Err(err).Error("subreddit check returns error")
+		code, message := errs.HTTPMessage(err)
+		rw.WriteHeader(code)
+		_ = enc.Encode(map[string]string{"error": message})
+		return
+	}
+
+	body.Name = actual
 
 	sub, err := routes.API.SubredditsCreate(ctx, body)
 	if err != nil {
