@@ -18,10 +18,15 @@ type DevicesListParams struct {
 	Offset  int64
 	OrderBy string
 	Sort    string
+	Active  bool
 }
 
 func (dlp DevicesListParams) Query() (expr []bob.Mod[*dialect.SelectQuery]) {
 	expr = append(expr, dlp.CountQuery()...)
+	if dlp.Active {
+		expr = append(expr, models.SelectWhere.Devices.Enable.EQ(1))
+	}
+
 	if dlp.All {
 		return expr
 	}
@@ -47,6 +52,10 @@ func (dlp DevicesListParams) Query() (expr []bob.Mod[*dialect.SelectQuery]) {
 }
 
 func (dlp DevicesListParams) CountQuery() (expr []bob.Mod[*dialect.SelectQuery]) {
+	if dlp.Active {
+		expr = append(expr, models.SelectWhere.Devices.Enable.EQ(1))
+	}
+
 	if dlp.Q != "" {
 		arg := sqlite.Arg("%" + dlp.Q + "%")
 		expr = append(expr,

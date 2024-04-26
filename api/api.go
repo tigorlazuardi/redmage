@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"os"
-	"os/signal"
 
 	"github.com/robfig/cron/v3"
 	"github.com/stephenafamo/bob"
@@ -73,9 +71,7 @@ func New(deps Dependencies) *API {
 	if err != nil {
 		panic(err)
 	}
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer cancel()
-	ch, err := subscriber.Subscribe(ctx, downloadTopic)
+	ch, err := subscriber.Subscribe(context.Background(), downloadTopic)
 	if err != nil {
 		panic(err)
 	}
@@ -92,7 +88,7 @@ func New(deps Dependencies) *API {
 		publisher:          publisher,
 	}
 
-	if err := api.StartScheduler(ctx); err != nil {
+	if err := api.StartScheduler(context.Background()); err != nil {
 		panic(err)
 	}
 	go api.StartSubredditDownloadPubsub(ch)
@@ -100,7 +96,7 @@ func New(deps Dependencies) *API {
 }
 
 func (api *API) StartScheduler(ctx context.Context) error {
-	subreddits, err := models.Subreddits.Query(ctx, api.db, models.SelectWhere.Subreddits.Enable.EQ(1)).All()
+	subreddits, err := models.Subreddits.Query(ctx, api.db, models.SelectWhere.Subreddits.EnableSchedule.EQ(1)).All()
 	if err != nil {
 		return errs.Wrapw(err, "failed to get all subreddits")
 	}

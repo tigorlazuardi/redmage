@@ -31,3 +31,5 @@ db/queries/**/*.go
 *.db
 
 models/
+
+/out

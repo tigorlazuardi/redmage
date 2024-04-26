@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/tigorlazuardi/redmage/config"
@@ -244,18 +245,45 @@ func (post *Post) GetName() string {
 
 func (post *Post) GetImageTargetPath(cfg *config.Config, device *models.Device) string {
 	baseDownloadDir := cfg.String("download.directory")
-	return path.Join(baseDownloadDir, device.Name, post.GetSubreddit(), post.GetImageFilename())
+	p := path.Join(baseDownloadDir, device.Slug, post.GetSubreddit(), post.GetImageFilename())
+	abs, _ := filepath.Abs(p)
+	return abs
+}
+
+func (post *Post) GetImageTargetDir(cfg *config.Config, device *models.Device) string {
+	baseDownloadDir := cfg.String("download.directory")
+	p := path.Join(baseDownloadDir, device.Slug, post.GetSubreddit())
+	abs, _ := filepath.Abs(p)
+	return abs
 }
 
 func (post *Post) GetWindowsWallpaperImageTargetPath(cfg *config.Config, device *models.Device) string {
 	baseDownloadDir := cfg.String("download.directory")
 	filename := fmt.Sprintf("%s_%s", post.GetSubreddit(), post.GetImageFilename())
-	return path.Join(baseDownloadDir, device.Name, filename)
+	p := path.Join(baseDownloadDir, device.Slug, filename)
+	abs, _ := filepath.Abs(p)
+	return abs
+}
+
+func (post *Post) GetWindowsWallpaperImageTargetDir(cfg *config.Config, device *models.Device) string {
+	baseDownloadDir := cfg.String("download.directory")
+	p := path.Join(baseDownloadDir, device.Slug)
+	abs, _ := filepath.Abs(p)
+	return abs
 }
 
 func (post *Post) GetThumbnailTargetPath(cfg *config.Config) string {
 	baseDownloadDir := cfg.String("download.directory")
-	return path.Join(baseDownloadDir, "_thumbnails", post.GetSubreddit(), post.GetImageFilename())
+	p := path.Join(baseDownloadDir, "_thumbnails", post.GetSubreddit(), post.GetImageFilename())
+	abs, _ := filepath.Abs(p)
+	return abs
+}
+
+func (post *Post) GetThumbnailTargetDir(cfg *config.Config) string {
+	baseDownloadDir := cfg.String("download.directory")
+	p := path.Join(baseDownloadDir, "_thumbnails", post.GetSubreddit())
+	abs, _ := filepath.Abs(p)
+	return abs
 }
 
 func (post *Post) GetThumbnailRelativePath() string {

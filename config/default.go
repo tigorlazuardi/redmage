@@ -17,11 +17,12 @@ var DefaultConfig = map[string]any{
 
 	"download.concurrency.images":     5,
 	"download.concurrency.subreddits": 3,
-	"download.directory":              "",
-	"download.timeout.headers":        "10s",
-	"download.timeout.idle":           "5s",
-	"download.timeout.idlespeed":      "10KB",
-	"download.useragent":              "redmage",
+
+	"download.directory":         "",
+	"download.timeout.headers":   "10s",
+	"download.timeout.idle":      "5s",
+	"download.timeout.idlespeed": "10KB",
+	"download.useragent":         "redmage",
 
 	"download.pubsub.ack.deadline": "3h",
 

@@ -35,7 +35,10 @@ func (builder *ConfigBuilder) BuildHandle() (*Config, error) {
 func (builder *ConfigBuilder) LoadDefault() *ConfigBuilder {
 	provider := confmap.Provider(DefaultConfig, ".")
 
-	_ = builder.koanf.Load(provider, nil)
+	err := builder.koanf.Load(provider, nil)
+	if err != nil {
+		panic(err)
+	}
 	return builder
 }
 

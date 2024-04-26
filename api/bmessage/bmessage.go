@@ -1,6 +1,8 @@
 package bmessage
 
 import (
+	"encoding/json"
+
 	"github.com/alecthomas/units"
 )
 
@@ -47,12 +49,32 @@ const (
 )
 
 type ImageDownloadMessage struct {
-	Event         DownloadEvent
-	Metadata      ImageMetadata
-	ContentLength units.MetricBytes
-	Downloaded    units.MetricBytes
-	Subreddit     string
-	PostURL       string
-	PostID        string
-	Error         error
+	Event         DownloadEvent     `json:"event"`
+	Metadata      ImageMetadata     `json:"metadata"`
+	ContentLength units.MetricBytes `json:"content_length"`
+	Downloaded    units.MetricBytes `json:"downloaded"`
+	Subreddit     string            `json:"subreddit"`
+	PostURL       string            `json:"post_url"`
+	PostID        string            `json:"post_id"`
+	Error         error             `json:"error"`
+}
+
+func (im ImageDownloadMessage) MarshalJSON() ([]byte, error) {
+	type Alias ImageDownloadMessage
+	type W struct {
+		Alias
+		Error string `json:"error"`
+	}
+
+	errMsg := ""
+	if im.Error != nil {
+		errMsg = im.Error.Error()
+	}
+
+	w := W{
+		Alias: Alias(im),
+		Error: errMsg,
+	}
+
+	return json.Marshal(w)
 }

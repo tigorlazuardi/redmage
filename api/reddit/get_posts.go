@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 )
@@ -72,6 +73,10 @@ func (reddit *Reddit) GetPosts(ctx context.Context, params GetPostsParam) (posts
 		return posts, errs.Wrapw(err, "reddit: failed to execute http request", "url", url, "params", params)
 	}
 	defer res.Body.Close()
+	if res.StatusCode == http.StatusTooManyRequests {
+		retryAfter, _ := time.ParseDuration(res.Header.Get("Retry-After"))
+		return posts, errs.Fail("reddit: too many requests", "retry_after", retryAfter.String())
+	}
 
 	if res.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(res.Body)

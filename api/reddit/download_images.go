@@ -2,6 +2,7 @@ package reddit
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -67,8 +68,6 @@ func (reddit *Reddit) downloadImage(ctx context.Context, post Post, kind bmessag
 		url = post.GetThumbnailURL()
 		width, height = post.GetThumbnailSize()
 	}
-	ctx, cancel := context.WithTimeout(ctx, reddit.Config.Duration("download.timeout.headers"))
-	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, errs.Wrapw(err, "reddit: failed to create request", "url", url)
@@ -91,6 +90,9 @@ func (reddit *Reddit) downloadImage(ctx context.Context, post Post, kind bmessag
 	idr := &ImageDownloadReader{
 		OnProgress: func(downloaded int64, contentLength int64, err error) {
 			var event bmessage.DownloadEvent
+			if errors.Is(err, io.EOF) {
+				err = nil
+			}
 			if err != nil {
 				event = bmessage.DownloadError
 			} else {

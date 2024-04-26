@@ -33,6 +33,11 @@ BEGIN
     UPDATE images SET updated_at = CURRENT_TIMESTAMP WHERE id = old.id;
 END;
 
+CREATE TRIGGER update_subreddits_timestamp_on_insert AFTER INSERT ON images FOR EACH ROW
+BEGIN
+    UPDATE subreddits SET updated_at = CURRENT_TIMESTAMP WHERE id = new.subreddit_id;
+END;
+
 CREATE INDEX idx_subreddit_id ON images(subreddit_id);
 CREATE INDEX idx_nsfw ON images(nsfw);
 -- +goose StatementEnd

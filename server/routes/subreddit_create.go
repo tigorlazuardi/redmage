@@ -70,10 +70,10 @@ func validateSubredditsCreate(body *models.Subreddit) error {
 	if body.Name == "" {
 		return errors.New("name is required")
 	}
-	if body.Enable > 1 {
-		body.Enable = 1
-	} else if body.Enable < 0 {
-		body.Enable = 0
+	if body.EnableSchedule > 1 {
+		body.EnableSchedule = 1
+	} else if body.EnableSchedule < 0 {
+		body.EnableSchedule = 0
 	}
 	if body.Subtype > 1 {
 		body.Subtype = 1

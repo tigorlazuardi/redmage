@@ -61,6 +61,7 @@ func (api *API) DownloadSubredditImages(ctx context.Context, subredditName strin
 		if limit > countback {
 			limit = countback
 		}
+		log.New(ctx).Info("getting posts", "subreddit_name", subredditName, "limit", limit, "countback", countback)
 		list, err = api.reddit.GetPosts(ctx, reddit.GetPostsParam{
 			Subreddit:     subredditName,
 			Limit:         limit,
@@ -158,6 +159,8 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, de
 		return errs.Wrapw(err, "failed to check thumbnail existence", "path", thumbnailPath)
 	}
 
+	_ = os.MkdirAll(post.GetThumbnailTargetDir(api.config), 0o777)
+
 	thumbnailSource, err := imaging.Open(tmpImageFile.filename)
 	if err != nil {
 		return errs.Wrapw(err, "failed to open temp thumbnail file", "filename", tmpImageFile.filename)
@@ -175,6 +178,8 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, de
 		return errs.Wrapw(err, "failed to encode thumbnail file to jpeg", "filename", thumbnailPath)
 	}
 
+	// TODO: create entry to database
+
 	return nil
 }
 
@@ -186,15 +191,24 @@ func (api *API) createDeviceImageWriters(post reddit.Post, devices models.Device
 		var filename string
 		if device.WindowsWallpaperMode == 1 {
 			filename = post.GetWindowsWallpaperImageTargetPath(api.config, device)
+			dir := post.GetWindowsWallpaperImageTargetDir(api.config, device)
+			_ = os.MkdirAll(dir, 0o777)
 		} else {
 			filename = post.GetImageTargetPath(api.config, device)
+			dir := post.GetImageTargetDir(api.config, device)
+			if err := os.MkdirAll(dir, 0o777); err != nil {
+				for _, f := range files {
+					_ = f.Close()
+				}
+				return nil, nil, errs.Wrapw(err, "failed to create target image dir")
+			}
 		}
 		file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o644)
 		if err != nil {
 			for _, f := range files {
 				_ = f.Close()
 			}
-			return nil, nil, errs.Wrapw(err, "failed to open temp image file",
+			return nil, nil, errs.Wrapw(err, "failed to open target image file",
 				"device_name", device.Name,
 				"device_slug", device.Slug,
 				"filename", filename,
@@ -304,10 +318,13 @@ func (api *API) copyImageToTempDir(ctx context.Context, img reddit.PostImage) (t
 	split := strings.Split(url.Path, "/")
 	imageFilename := split[len(split)-1]
 	tmpDirname := path.Join(os.TempDir(), "redmage")
-	_ = os.MkdirAll(tmpDirname, 0o644)
+	err = os.MkdirAll(tmpDirname, 0777)
+	if err != nil {
+		return nil, errs.Wrapw(err, "failed to create temporary dir", "dir_name", tmpDirname)
+	}
 	tmpFilename := path.Join(tmpDirname, imageFilename)
 
-	file, err := os.OpenFile(tmpFilename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o644)
+	file, err := os.OpenFile(tmpFilename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o777)
 	if err != nil {
 		return nil, errs.Wrapw(err, "failed to open temp image file",
 			"temp_file_path", tmpFilename,
@@ -315,9 +332,21 @@ func (api *API) copyImageToTempDir(ctx context.Context, img reddit.PostImage) (t
 		)
 	}
 
+	// File must be closed by end of function because kernel stuffs.
+	//
+	// A fresh fd must be used to properly get the new data.
+	defer file.Close()
+
 	_, err = io.Copy(file, img.File)
 	if err != nil {
-		_ = file.Close()
+		return nil, errs.Wrapw(err, "failed to download image to temp file",
+			"temp_file_path", tmpFilename,
+			"image_url", img.URL,
+		)
+	}
+
+	filew, err := os.OpenFile(tmpFilename, os.O_RDONLY, 0o777)
+	if err != nil {
 		return nil, errs.Wrapw(err, "failed to download image to temp file",
 			"temp_file_path", tmpFilename,
 			"image_url", img.URL,
@@ -325,7 +354,7 @@ func (api *API) copyImageToTempDir(ctx context.Context, img reddit.PostImage) (t
 	}
 
 	return &tempFile{
-		file:     file,
+		file:     filew,
 		filename: tmpFilename,
 	}, err
 }

@@ -16,11 +16,11 @@ func (api *API) SubredditsCreate(ctx context.Context, params *models.Subreddit) 
 	defer span.End()
 
 	set := &models.SubredditSetter{
-		Name:      omit.From(params.Name),
-		Enable:    omit.From(params.Enable),
-		Subtype:   omit.From(params.Subtype),
-		Schedule:  omit.From(params.Schedule),
-		Countback: omit.From(params.Countback),
+		Name:           omit.From(params.Name),
+		EnableSchedule: omit.From(params.EnableSchedule),
+		Subtype:        omit.From(params.Subtype),
+		Schedule:       omit.From(params.Schedule),
+		Countback:      omit.From(params.Countback),
 	}
 
 	subreddit, err = models.Subreddits.Insert(ctx, api.db, set)

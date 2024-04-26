@@ -46,6 +46,7 @@ func (routes *Routes) APIDeviceCreate(rw http.ResponseWriter, r *http.Request) {
 		MaxY:                 omit.From(body.MaxY),
 		NSFW:                 omit.From(body.NSFW),
 		WindowsWallpaperMode: omit.From(body.WindowsWallpaperMode),
+		Enable:               omit.From(body.Enable),
 	})
 	if err != nil {
 		log.New(ctx).Err(err).Error("failed to create device", "body", body)
