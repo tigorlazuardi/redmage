@@ -35,6 +35,8 @@ func (po *PostImage) Close() error {
 //
 // If downloading image or thumbnail fails
 func (reddit *Reddit) DownloadImage(ctx context.Context, post Post, broadcaster DownloadStatusBroadcaster) (image PostImage, err error) {
+	ctx, span := tracer.Start(ctx, "*Reddit.DownloadImage")
+	defer span.End()
 	imageUrl := post.GetImageURL()
 	image.URL = imageUrl
 
@@ -43,6 +45,8 @@ func (reddit *Reddit) DownloadImage(ctx context.Context, post Post, broadcaster 
 }
 
 func (reddit *Reddit) DownloadThumbnail(ctx context.Context, post Post, broadcaster DownloadStatusBroadcaster) (image PostImage, err error) {
+	ctx, span := tracer.Start(ctx, "*Reddit.DownloadThumbnail")
+	defer span.End()
 	imageUrl := post.GetThumbnailURL()
 	image.URL = imageUrl
 

@@ -14,6 +14,24 @@ import (
 
 type SubredditType int
 
+func (su *SubredditType) UnmarshalJSON(b []byte) error {
+	switch string(b) {
+	case "null":
+		return nil
+	case `"user"`, `"u"`, "1":
+		*su = SubredditTypeUser
+		return nil
+	case `"r"`, `"subreddit"`, "0":
+		*su = SubredditTypeSub
+		return nil
+	}
+	return errs.
+		Fail("subreddit type not recognized. Valid values are 'user', 'u', 'r', 'subreddit', 0, 1, and null",
+			"got", string(b),
+		).
+		Code(http.StatusBadRequest)
+}
+
 const (
 	SubredditTypeSub SubredditType = iota
 	SubredditTypeUser
@@ -28,6 +46,10 @@ func (s SubredditType) Code() string {
 	}
 }
 
+func (s SubredditType) String() string {
+	return s.Code()
+}
+
 type GetPostsParam struct {
 	Subreddit     string
 	Limit         int
@@ -36,6 +58,9 @@ type GetPostsParam struct {
 }
 
 func (reddit *Reddit) GetPosts(ctx context.Context, params GetPostsParam) (posts Listing, err error) {
+	ctx, span := tracer.Start(ctx, "*Reddit.GetPosts")
+	defer span.End()
+
 	url := fmt.Sprintf("https://reddit.com/%s/%s.json?limit=%d&after=%s", params.SubredditType.Code(), params.Subreddit, params.Limit, params.After)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {

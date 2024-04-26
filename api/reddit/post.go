@@ -19,6 +19,14 @@ func (l *Listing) GetPosts() []Post {
 	return l.Data.Children
 }
 
+func (l *Listing) GetSubreddit() string {
+	length := len(l.Data.Children)
+	if length == 0 {
+		return ""
+	}
+	return l.Data.Children[length-1].Data.Subreddit
+}
+
 // GetLastAfter returns the last post namee for pagination.
 //
 // Returns empty string if there is no more posts to look up.
@@ -143,7 +151,7 @@ type PostData struct {
 	ContentCategories          any                      `json:"content_categories"`
 	IsSelf                     bool                     `json:"is_self"`
 	SubredditType              string                   `json:"subreddit_type"`
-	Created                    int                      `json:"created"`
+	Created                    float64                  `json:"created"`
 	LinkFlairType              string                   `json:"link_flair_type"`
 	Wls                        int                      `json:"wls"`
 	RemovedByCategory          any                      `json:"removed_by_category"`
@@ -197,7 +205,7 @@ type PostData struct {
 	Stickied                   bool                     `json:"stickied"`
 	URL                        string                   `json:"url"`
 	SubredditSubscribers       int                      `json:"subreddit_subscribers"`
-	CreatedUtc                 int                      `json:"created_utc"`
+	CreatedUtc                 float64                  `json:"created_utc"`
 	NumCrossposts              int                      `json:"num_crossposts"`
 	Media                      any                      `json:"media"`
 	IsVideo                    bool                     `json:"is_video"`

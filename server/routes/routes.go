@@ -39,6 +39,7 @@ func (routes *Routes) registerV1APIRoutes(router chi.Router) {
 	router.Post("/subreddits/start", routes.SubredditStartDownloadAPI)
 	router.Get("/subreddits", routes.SubredditsListAPI)
 	router.Post("/subreddits", routes.SubredditsCreateAPI)
+	router.Post("/subreddits/check", routes.SubredditsCheckAPI)
 
 	router.Get("/devices", routes.APIDeviceList)
 	router.Post("/devices", routes.APIDeviceCreate)

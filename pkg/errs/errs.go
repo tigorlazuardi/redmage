@@ -71,33 +71,22 @@ func (er *Err) LogValue() slog.Value {
 }
 
 func (er *Err) Error() string {
-	var (
-		s      = strings.Builder{}
-		source = er.origin
-		msg    = source.Error()
-		unwrap = errors.Unwrap(source)
-	)
-	if unwrap == nil {
-		if er.message != "" {
-			s.WriteString(er.message)
-			s.WriteString(": ")
-		}
-		s.WriteString(msg)
-		return s.String()
+	s := strings.Builder{}
+	if er.message != "" {
+		s.WriteString(er.message)
 	}
-	for unwrap := errors.Unwrap(source); unwrap != nil; source = unwrap {
-		originMsg := unwrap.Error()
-		var write string
-		if cut, found := strings.CutSuffix(msg, originMsg); found {
-			write = cut
-		} else {
-			write = msg
+	for unwrap := errors.Unwrap(er); unwrap != nil; {
+		if e, ok := unwrap.(Error); ok && e.GetMessage() != "" {
+			s.WriteString(e.GetMessage())
+			s.WriteString(": ")
+			continue
 		}
-		msg = originMsg
-		if write != "" {
-			s.WriteString(write)
+		s.WriteString(unwrap.Error())
+		next := errors.Unwrap(unwrap)
+		if next != nil {
 			s.WriteString(": ")
 		}
+		unwrap = next
 	}
 	return s.String()
 }

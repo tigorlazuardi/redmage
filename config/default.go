@@ -21,6 +21,7 @@ var DefaultConfig = map[string]any{
 	"download.timeout.headers":        "10s",
 	"download.timeout.idle":           "5s",
 	"download.timeout.idlespeed":      "10KB",
+	"download.useragent":              "redmage",
 
 	"download.pubsub.ack.deadline": "3h",
 

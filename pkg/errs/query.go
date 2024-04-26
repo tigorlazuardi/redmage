@@ -1,26 +1,39 @@
 package errs
 
-import "errors"
+import (
+	"errors"
+)
 
 func FindCodeOrDefault(err error, def int) int {
-	unwrap := errors.Unwrap(err)
-	for unwrap != nil {
-		if coder, ok := err.(interface{ GetCode() int }); ok {
+	if coder, ok := err.(interface{ GetCode() int }); ok {
+		code := coder.GetCode()
+		if code != 0 {
+			return code
+		}
+	}
+
+	for unwrap := errors.Unwrap(err); unwrap != nil; unwrap = errors.Unwrap(unwrap) {
+		if coder, ok := unwrap.(interface{ GetCode() int }); ok {
 			code := coder.GetCode()
 			if code != 0 {
 				return code
 			}
 		}
-		unwrap = errors.Unwrap(unwrap)
 	}
 
 	return def
 }
 
 func FindMessage(err error) string {
-	unwrap := errors.Unwrap(err)
-	for unwrap != nil {
-		if messager, ok := err.(interface{ GetMessage() string }); ok {
+	if messager, ok := err.(interface{ GetMessage() string }); ok {
+		message := messager.GetMessage()
+		if message != "" {
+			return message
+		}
+	}
+
+	for unwrap := errors.Unwrap(err); unwrap != nil; unwrap = errors.Unwrap(unwrap) {
+		if messager, ok := unwrap.(interface{ GetMessage() string }); ok {
 			message := messager.GetMessage()
 			if message != "" {
 				return message
@@ -36,5 +49,6 @@ func HTTPMessage(err error) (code int, message string) {
 	if code >= 500 {
 		return code, err.Error()
 	}
-	return code, FindMessage(err)
+	message = FindMessage(err)
+	return code, message
 }
