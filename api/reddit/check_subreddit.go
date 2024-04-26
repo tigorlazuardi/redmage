@@ -68,7 +68,7 @@ func (reddit *Reddit) CheckSubreddit(ctx context.Context, params CheckSubredditP
 			"params", params,
 			"url", url,
 			"response.location", resp.Request.URL.String(),
-		).Code(http.StatusTooManyRequests)
+		).Code(http.StatusFailedDependency)
 	}
 
 	if resp.Request.URL.Path == "/subreddits/search.json" {
