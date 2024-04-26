@@ -44,6 +44,8 @@ func (routes *Routes) registerV1APIRoutes(router chi.Router) {
 	router.Get("/devices", routes.APIDeviceList)
 	router.Post("/devices", routes.APIDeviceCreate)
 	router.Patch("/devices/{id}", routes.APIDeviceUpdate)
+
+	router.Get("/events", routes.EventsAPI)
 }
 
 func (routes *Routes) registerWWWRoutes(router chi.Router) {
