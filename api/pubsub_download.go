@@ -68,7 +68,7 @@ func (api *API) PubsubStartDownloadSubreddit(ctx context.Context, params PubsubS
 	subreddit, err := models.Subreddits.Query(ctx, api.db, models.SelectWhere.Subreddits.Name.EQ(params.Subreddit)).One()
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
-			return errs.Wrapw(err, "subreddit not found", "params", params).Code(http.StatusNotFound)
+			return errs.Wrapw(err, "subreddit not registered", "params", params).Code(http.StatusNotFound)
 		}
 		return errs.Wrapw(err, "failed to verify subreddit existence", "params", params)
 	}
