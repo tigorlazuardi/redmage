@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"fmt"
-
 	"github.com/adrg/xdg"
 	"github.com/joho/godotenv"
 	"github.com/tigorlazuardi/redmage/config"
@@ -28,9 +26,6 @@ func initConfig() {
 		LoadEnv().
 		LoadFlags(RootCmd.PersistentFlags()).
 		Build()
-
-	fmt.Println("download.concurrency.subreddits", cfg.Get("download.concurrency.subreddits"))
-	fmt.Println("download.concurrency.images", cfg.Get("download.concurrency.images"))
 
 	handler := log.NewHandler(cfg)
 	log.SetDefault(handler)

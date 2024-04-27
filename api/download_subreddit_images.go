@@ -5,14 +5,15 @@ import (
 	"errors"
 	"image/jpeg"
 	"io"
-	"math"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/aarondl/opt/omit"
 	"github.com/disintegration/imaging"
 	"github.com/tigorlazuardi/redmage/api/reddit"
 	"github.com/tigorlazuardi/redmage/models"
@@ -21,7 +22,6 @@ import (
 	"github.com/tigorlazuardi/redmage/pkg/telemetry"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-	"golang.org/x/sync/errgroup"
 )
 
 type DownloadSubredditParams struct {
@@ -35,22 +35,22 @@ var (
 	ErrDownloadDirNotSet = errors.New("api: download directory not set")
 )
 
-func (api *API) DownloadSubredditImages(ctx context.Context, subredditName string, params DownloadSubredditParams) error {
+func (api *API) DownloadSubredditImages(ctx context.Context, subreddit *models.Subreddit, devices models.DeviceSlice) error {
 	downloadDir := api.config.String("download.directory")
 	if downloadDir == "" {
 		return errs.Wrapw(ErrDownloadDirNotSet, "download directory must be set before images can be downloaded").Code(http.StatusBadRequest)
 	}
 
-	if len(params.Devices) == 0 {
+	if len(devices) == 0 {
 		return errs.Wrapw(ErrNoDevices, "downloading images requires at least one device configured").Code(http.StatusBadRequest)
 	}
 
-	ctx, span := tracer.Start(ctx, "*API.DownloadSubredditImages", trace.WithAttributes(attribute.String("subreddit", subredditName)))
+	ctx, span := tracer.Start(ctx, "*API.DownloadSubredditImages", trace.WithAttributes(attribute.String("subreddit", subreddit.Name)))
 	defer span.End()
 
 	wg := sync.WaitGroup{}
 
-	countback := params.Countback
+	countback := int(subreddit.Countback)
 
 	var (
 		list reddit.Listing
@@ -61,20 +61,20 @@ func (api *API) DownloadSubredditImages(ctx context.Context, subredditName strin
 		if limit > countback {
 			limit = countback
 		}
-		log.New(ctx).Info("getting posts", "subreddit_name", subredditName, "limit", limit, "countback", countback)
+		log.New(ctx).Debug("getting posts", "subreddit", subreddit, "current_countback", countback, "current_limit", limit)
 		list, err = api.reddit.GetPosts(ctx, reddit.GetPostsParam{
-			Subreddit:     subredditName,
+			Subreddit:     subreddit.Name,
 			Limit:         limit,
 			After:         list.GetLastAfter(),
-			SubredditType: params.SubredditType,
+			SubredditType: reddit.SubredditType(subreddit.Subtype),
 		})
 		if err != nil {
-			return errs.Wrapw(err, "failed to get posts", "subreddit_name", subredditName, "params", params)
+			return errs.Wrapw(err, "failed to get posts", "subreddit", subreddit)
 		}
 		wg.Add(1)
 		go func(ctx context.Context, posts reddit.Listing) {
 			defer wg.Done()
-			err := api.downloadSubredditListImage(ctx, list, params)
+			err := api.downloadSubredditListImage(ctx, list, subreddit, devices)
 			if err != nil {
 				log.New(ctx).Err(err).Error("failed to download image")
 			}
@@ -90,7 +90,7 @@ func (api *API) DownloadSubredditImages(ctx context.Context, subredditName strin
 	return nil
 }
 
-func (api *API) downloadSubredditListImage(ctx context.Context, list reddit.Listing, params DownloadSubredditParams) error {
+func (api *API) downloadSubredditListImage(ctx context.Context, list reddit.Listing, subreddit *models.Subreddit, devices models.DeviceSlice) error {
 	ctx, span := tracer.Start(ctx, "*API.downloadSubredditListImage")
 	defer span.End()
 
@@ -100,10 +100,11 @@ func (api *API) downloadSubredditListImage(ctx context.Context, list reddit.List
 		if !post.IsImagePost() {
 			continue
 		}
-		devices := api.getDevicesThatAcceptPost(ctx, post, params.Devices)
+		devices := api.getDevicesThatAcceptPost(ctx, post, devices)
 		if len(devices) == 0 {
 			continue
 		}
+		log.New(ctx).Debug("downloading image", "post_id", post.GetID(), "post_url", post.GetImageURL(), "devices", devices)
 		wg.Add(1)
 		api.imageSemaphore <- struct{}{}
 		go func(ctx context.Context, post reddit.Post) {
@@ -112,7 +113,7 @@ func (api *API) downloadSubredditListImage(ctx context.Context, list reddit.List
 				wg.Done()
 			}()
 
-			if err := api.downloadSubredditImage(ctx, post, devices); err != nil {
+			if err := api.downloadSubredditImage(ctx, post, subreddit, devices); err != nil {
 				log.New(ctx).Err(err).Error("failed to download subreddit image")
 			}
 		}(ctx, post)
@@ -123,7 +124,7 @@ func (api *API) downloadSubredditListImage(ctx context.Context, list reddit.List
 	return nil
 }
 
-func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, devices models.DeviceSlice) error {
+func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, subreddit *models.Subreddit, devices models.DeviceSlice) error {
 	ctx, span := tracer.Start(ctx, "*API.downloadSubredditImage")
 	defer span.End()
 
@@ -140,15 +141,6 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, de
 	}
 	defer tmpImageFile.Close()
 
-	w, close, err := api.createDeviceImageWriters(post, devices)
-	if err != nil {
-		return errs.Wrapw(err, "failed to create image files")
-	}
-	defer close()
-	_, err = io.Copy(w, tmpImageFile)
-	if err != nil {
-		return errs.Wrapw(err, "failed to save image files")
-	}
 	thumbnailPath := post.GetThumbnailTargetPath(api.config)
 	_, errStat := os.Stat(thumbnailPath)
 	if errStat == nil {
@@ -163,7 +155,11 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, de
 
 	thumbnailSource, err := imaging.Open(tmpImageFile.filename)
 	if err != nil {
-		return errs.Wrapw(err, "failed to open temp thumbnail file", "filename", tmpImageFile.filename)
+		return errs.Wrapw(err, "failed to open temp thumbnail file",
+			"filename", tmpImageFile.filename,
+			"post_url", post.GetPermalink(),
+			"image_url", post.GetImageURL(),
+		)
 	}
 
 	thumbnail := imaging.Resize(thumbnailSource, 256, 0, imaging.Lanczos)
@@ -178,7 +174,46 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, de
 		return errs.Wrapw(err, "failed to encode thumbnail file to jpeg", "filename", thumbnailPath)
 	}
 
-	// TODO: create entry to database
+	w, close, err := api.createDeviceImageWriters(post, devices)
+	if err != nil {
+		return errs.Wrapw(err, "failed to create image files")
+	}
+	log.New(ctx).Debug("saving image files", "post_id", post.GetID(), "post_url", post.GetImageURL(), "devices", devices)
+	defer close()
+	_, err = io.Copy(w, tmpImageFile)
+	if err != nil {
+		return errs.Wrapw(err, "failed to save image files")
+	}
+
+	var many []*models.ImageSetter
+	for _, device := range devices {
+		var nsfw int32
+		if post.IsNSFW() {
+			nsfw = 1
+		}
+		many = append(many, &models.ImageSetter{
+			SubredditID:           omit.From(subreddit.ID),
+			DeviceID:              omit.From(device.ID),
+			Title:                 omit.From(post.GetTitle()),
+			PostID:                omit.From(post.GetID()),
+			PostURL:               omit.From(post.GetImageURL()),
+			PostCreated:           omit.From(post.GetCreated().Format(time.RFC3339)),
+			PostName:              omit.From(post.GetName()),
+			Poster:                omit.From(post.GetAuthor()),
+			PosterURL:             omit.From(post.GetAuthorURL()),
+			ImageRelativePath:     omit.From(post.GetImageRelativePath(device)),
+			ThumbnailRelativePath: omit.From(post.GetThumbnailRelativePath()),
+			ImageOriginalURL:      omit.From(post.GetImageURL()),
+			ThumbnailOriginalURL:  omit.From(post.GetThumbnailURL()),
+			NSFW:                  omit.From(nsfw),
+		})
+	}
+
+	log.New(ctx).Debug("inserting images to database", "images", many)
+	_, err = models.Images.InsertMany(ctx, api.db, many...)
+	if err != nil {
+		return errs.Wrapw(err, "failed to insert images to database", "params", many)
+	}
 
 	return nil
 }
@@ -226,22 +261,11 @@ func (api *API) createDeviceImageWriters(post reddit.Post, devices models.Device
 }
 
 func (api *API) getDevicesThatAcceptPost(ctx context.Context, post reddit.Post, devices models.DeviceSlice) (devs models.DeviceSlice) {
-	var mu sync.Mutex
-	errgrp, ctx := errgroup.WithContext(ctx)
 	for _, device := range devices {
-		if shouldDownloadPostForDevice(post, device) {
-			device := device
-			errgrp.Go(func() error {
-				if !api.isImageExists(ctx, post, device) {
-					mu.Lock()
-					defer mu.Unlock()
-					devs = append(devices, device)
-				}
-				return nil
-			})
+		if shouldDownloadPostForDevice(post, device) && !api.isImageExists(ctx, post, device) {
+			devs = append(devs, device)
 		}
 	}
-	_ = errgrp.Wait()
 	return devs
 }
 
@@ -249,27 +273,58 @@ func (api *API) isImageExists(ctx context.Context, post reddit.Post, device *mod
 	ctx, span := tracer.Start(ctx, "*API.IsImageExists")
 	defer span.End()
 
-	// Image does not exist in target image.
-	if _, err := os.Stat(post.GetImageTargetPath(api.config, device)); err != nil {
-		return false
-	}
-
 	_, err := models.Images.Query(ctx, api.db,
 		models.SelectWhere.Images.DeviceID.EQ(device.ID),
 		models.SelectWhere.Images.PostID.EQ(post.GetID()),
 	).One()
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return false
+		}
+	}
 
-	return err == nil
+	// Image does not exist in target path.
+	if _, err := os.Stat(post.GetImageTargetPath(api.config, device)); err != nil {
+		return false
+	}
+
+	return true
 }
 
 func shouldDownloadPostForDevice(post reddit.Post, device *models.Device) bool {
 	if post.IsNSFW() && device.NSFW == 0 {
 		return false
 	}
-	if math.Abs(deviceAspectRatio(device)-post.GetImageAspectRatio()) > device.AspectRatioTolerance { // outside of aspect ratio tolerance
+	devAspectRatio := deviceAspectRatio(device)
+	rangeStart := devAspectRatio - device.AspectRatioTolerance
+	rangeEnd := devAspectRatio + device.AspectRatioTolerance
+
+	imgAspectRatio := post.GetImageAspectRatio()
+
+	width, height := post.GetImageSize()
+	log.New(context.Background()).Debug("checking image aspect ratio",
+		"device", device.Slug,
+		"device_height", device.ResolutionY,
+		"device_width", device.ResolutionX,
+		"device_aspect_ratio", devAspectRatio,
+		"image_aspect_ratio", imgAspectRatio,
+		"range_start", rangeStart,
+		"range_end", rangeEnd,
+		"success_fulfill_download_range_start", (imgAspectRatio > rangeStart),
+		"success_fulfill_download_range_end", (imgAspectRatio < rangeEnd),
+		"url", post.GetImageURL(),
+		"image.width", width,
+		"image.height", height,
+	)
+
+	if imgAspectRatio < rangeStart {
 		return false
 	}
-	width, height := post.GetImageSize()
+
+	if imgAspectRatio > rangeEnd {
+		return false
+	}
+
 	if device.MaxX > 0 && width > int64(device.MaxX) {
 		return false
 	}

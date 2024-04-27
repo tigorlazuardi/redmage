@@ -2,7 +2,6 @@ package cli
 
 import (
 	"io/fs"
-	"net/http"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -30,23 +29,29 @@ var serveCmd = &cobra.Command{
 
 		database, err := db.Open(cfg)
 		if err != nil {
-			log.New(cmd.Context()).Err(err).Error("failed to connect database")
+			log.New(cmd.Context()).Err(err).Error("failed to open connection to database")
 			os.Exit(1)
 		}
 
-		pubsubDatabase, err := db.OpenSilent(cfg)
+		pubsubDb, err := db.OpenPubsub(cfg)
+		if err != nil {
+			log.New(cmd.Context()).Err(err).Error("failed to open connection to pubsub database")
+			os.Exit(1)
+		}
+
+		loggedDb := db.ApplyLogger(cfg, database)
 		if err != nil {
 			log.New(cmd.Context()).Err(err).Error("failed to connect database")
 			os.Exit(1)
 		}
 		red := &reddit.Reddit{
-			Client: http.DefaultClient,
+			Client: reddit.NewRedditHTTPClient(cfg),
 			Config: cfg,
 		}
 
 		api := api.New(api.Dependencies{
-			DB:       database,
-			PubsubDB: pubsubDatabase,
+			DB:       loggedDb,
+			PubsubDB: pubsubDb,
 			Config:   cfg,
 			Reddit:   red,
 		})

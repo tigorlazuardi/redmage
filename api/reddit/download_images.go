@@ -76,6 +76,12 @@ func (reddit *Reddit) downloadImage(ctx context.Context, post Post, kind bmessag
 	if err != nil {
 		return nil, errs.Wrapw(err, "reddit: failed to execute request", "url", url)
 	}
+	if resp.StatusCode >= 400 {
+		return nil, errs.Fail("unexpected status code when trying to download images",
+			"url", url,
+			"status_code", resp.StatusCode,
+		)
+	}
 	idleSpeedStr := reddit.Config.String("download.timeout.idlespeed")
 	metricSpeed, _ := units.ParseMetricBytes(idleSpeedStr)
 	if metricSpeed == 0 {
@@ -116,7 +122,7 @@ func (reddit *Reddit) downloadImage(ctx context.Context, post Post, kind bmessag
 				ContentLength: units.MetricBytes(resp.ContentLength),
 				Downloaded:    units.MetricBytes(downloaded),
 				Subreddit:     post.GetSubreddit(),
-				PostURL:       post.GetPermalink(),
+				PostURL:       post.GetPostURL(),
 				PostID:        post.GetID(),
 				Error:         closeErr,
 			})
@@ -138,7 +144,7 @@ func (reddit *Reddit) downloadImage(ctx context.Context, post Post, kind bmessag
 				Kind:   kind,
 			},
 			Subreddit: post.GetSubreddit(),
-			PostURL:   post.GetPermalink(),
+			PostURL:   post.GetPostURL(),
 			PostID:    post.GetID(),
 		})
 		_, err := io.Copy(writer, resp.Body)

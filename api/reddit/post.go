@@ -6,6 +6,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/tigorlazuardi/redmage/config"
 	"github.com/tigorlazuardi/redmage/models"
@@ -145,7 +146,7 @@ type PostData struct {
 	IsCreatedFromAdsUI         bool                     `json:"is_created_from_ads_ui"`
 	AuthorPremium              bool                     `json:"author_premium"`
 	Thumbnail                  string                   `json:"thumbnail"`
-	Edited                     bool                     `json:"edited"`
+	Edited                     any                      `json:"edited"`
 	AuthorFlairCSSClass        string                   `json:"author_flair_css_class"`
 	AuthorFlairRichtext        []AuthorFlairRichtext    `json:"author_flair_richtext"`
 	Gildings                   Gildings                 `json:"gildings"`
@@ -229,6 +230,22 @@ func (post *Post) IsImagePost() bool {
 
 func (post *Post) GetImageURL() string {
 	return post.Data.URL
+}
+
+func (post *Post) GetCreated() time.Time {
+	return time.Unix(int64(post.Data.Created), 0)
+}
+
+func (post *Post) GetAuthor() string {
+	return post.Data.Author
+}
+
+func (post *Post) GetTitle() string {
+	return post.Data.Title
+}
+
+func (post *Post) GetAuthorURL() string {
+	return fmt.Sprintf("https://www.reddit.com/user/%s", post.Data.Author)
 }
 
 func (post *Post) GetImageAspectRatio() float64 {
@@ -334,6 +351,10 @@ func (post *Post) GetSubreddit() string {
 
 func (post *Post) GetPermalink() string {
 	return post.Data.Permalink
+}
+
+func (post *Post) GetPostURL() string {
+	return fmt.Sprintf("https://reddit.com/%s", post.Data.Permalink)
 }
 
 func (post *Post) GetID() string {

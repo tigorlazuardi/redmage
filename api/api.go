@@ -53,7 +53,7 @@ const downloadTopic = "subreddit_download"
 var watermillLogger = &log.WatermillLogger{}
 
 func New(deps Dependencies) *API {
-	ackDeadline := deps.Config.Duration("download.pubsub.ack.deadline")
+	ackDeadline := deps.Config.Duration("pubsub.ack.deadline")
 	subscriber, err := watermillSql.NewSubscriber(deps.PubsubDB, watermillSql.SubscriberConfig{
 		ConsumerGroup:    "redmage",
 		AckDeadline:      &ackDeadline,

@@ -1,10 +1,10 @@
 POST http://localhost:8080/api/v1/subreddits HTTP/1.1
 Host: localhost:8080
-Content-Length: 91
+Content-Length: 109
 
 {
-    "name": "awoo",
-    "enable": 1,
+    "name": "animemidriff",
+    "enable_schedule": 1,
     "schedule": "@daily",
-    "countback": 10
+    "countback": 300
 }

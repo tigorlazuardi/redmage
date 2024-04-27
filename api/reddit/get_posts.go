@@ -8,7 +8,6 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 )
@@ -68,14 +67,18 @@ func (reddit *Reddit) GetPosts(ctx context.Context, params GetPostsParam) (posts
 		return posts, errs.Wrapw(err, "reddit: failed to create http request instance", "url", url, "params", params)
 	}
 
+	req.Header.Set("User-Agent", reddit.Config.String("download.useragent"))
+
 	res, err := reddit.Client.Do(req)
 	if err != nil {
 		return posts, errs.Wrapw(err, "reddit: failed to execute http request", "url", url, "params", params)
 	}
 	defer res.Body.Close()
 	if res.StatusCode == http.StatusTooManyRequests {
-		retryAfter, _ := time.ParseDuration(res.Header.Get("Retry-After"))
-		return posts, errs.Fail("reddit: too many requests", "retry_after", retryAfter.String())
+		return posts, errs.Fail("reddit: too many requests",
+			"retry_after", res.Header.Get("Retry-After"),
+			"url", url,
+		)
 	}
 
 	if res.StatusCode != http.StatusOK {

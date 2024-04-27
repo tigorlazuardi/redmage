@@ -7,7 +7,6 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/tigorlazuardi/redmage/api/reddit"
 	"github.com/tigorlazuardi/redmage/models"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
@@ -18,11 +17,11 @@ import (
 
 func (api *API) StartSubredditDownloadPubsub(messages <-chan *message.Message) {
 	for msg := range messages {
-		log.New(context.Background()).Info("received pubsub message",
+		log.New(context.Background()).Debug("received pubsub message",
 			"message", msg,
 			"len", len(api.subredditSemaphore),
 			"cap", cap(api.subredditSemaphore),
-			"download.concurrency.subreddts", api.config.Int("download.concurrency.subreddits"),
+			"download.concurrency.subreddits", api.config.Int("download.concurrency.subreddits"),
 		)
 		api.subredditSemaphore <- struct{}{}
 		go func(msg *message.Message) {
@@ -50,11 +49,7 @@ func (api *API) StartSubredditDownloadPubsub(messages <-chan *message.Message) {
 				return
 			}
 
-			err = api.DownloadSubredditImages(ctx, subreddit.Name, DownloadSubredditParams{
-				Countback:     int(subreddit.Countback),
-				Devices:       devices,
-				SubredditType: reddit.SubredditType(subreddit.Subtype),
-			})
+			err = api.DownloadSubredditImages(ctx, subreddit, devices)
 			if err != nil {
 				log.New(ctx).Err(err).Error("failed to download subreddit images", "subreddit", subreddit)
 				return

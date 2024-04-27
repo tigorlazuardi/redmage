@@ -15,6 +15,19 @@ type ImageMetadata struct {
 
 type ImageKind int
 
+func (im ImageKind) String() string {
+	switch im {
+	case KindThumbnail:
+		return "Thumbnail"
+	default:
+		return "Image"
+	}
+}
+
+func (im ImageKind) MarshalJSON() ([]byte, error) {
+	return []byte(`"` + im.String() + `"`), nil
+}
+
 const (
 	KindImage ImageKind = iota
 	KindThumbnail

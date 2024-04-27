@@ -15,6 +15,10 @@ var DefaultConfig = map[string]any{
 	"db.string":      "data.db",
 	"db.automigrate": true,
 
+	"pubsub.db.driver":    "sqlite3",
+	"pubsub.db.string":    "pubsub.db",
+	"pubsub.ack.deadline": "3h",
+
 	"download.concurrency.images":     5,
 	"download.concurrency.subreddits": 3,
 
