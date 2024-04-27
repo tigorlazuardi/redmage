@@ -3,6 +3,7 @@ package routes
 import (
 	"io/fs"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
@@ -19,7 +20,7 @@ type Routes struct {
 }
 
 func (routes *Routes) Register(router chi.Router) {
-	router.Use(chimiddleware.Compress(5, "text/html", "text/css", "application/javascript", "application/json"))
+	router.Use(chimiddleware.Compress(5, "text/html", "text/css", "application/javascript", "application/json", "image/svg+xml", "image/x-icon"))
 
 	router.HandleFunc("/ping", routes.HealthCheck)
 	router.HandleFunc("/health", routes.HealthCheck)
@@ -45,11 +46,17 @@ func (routes *Routes) registerV1APIRoutes(router chi.Router) {
 	router.Post("/devices", routes.APIDeviceCreate)
 	router.Patch("/devices/{id}", routes.APIDeviceUpdate)
 
+	router.Get("/images", routes.ImagesListAPI)
+
 	router.Get("/events", routes.EventsAPI)
 }
 
 func (routes *Routes) registerWWWRoutes(router chi.Router) {
 	router.Mount("/public", http.StripPrefix("/public", http.FileServer(http.FS(routes.PublicDir))))
+
+	imagesDir := http.FS(os.DirFS(routes.Config.String("download.directory")))
+
+	router.Mount("/img", http.StripPrefix("/img", http.FileServer(imagesDir)))
 
 	router.Group(func(r chi.Router) {
 		r.Use(otelchi.Middleware("redmage"))

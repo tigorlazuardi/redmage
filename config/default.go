@@ -23,7 +23,7 @@ var DefaultConfig = map[string]any{
 
 	"pubsub.db.driver":    "sqlite3",
 	"pubsub.db.string":    "pubsub.db",
-	"pubsub.ack.deadline": "3h",
+	"pubsub.ack.deadline": "30m",
 
 	"download.concurrency.images":     5,
 	"download.concurrency.subreddits": 3,
@@ -33,8 +33,6 @@ var DefaultConfig = map[string]any{
 	"download.timeout.idle":      "5s",
 	"download.timeout.idlespeed": "10KB",
 	"download.useragent":         "redmage",
-
-	"download.pubsub.ack.deadline": "3h",
 
 	"http.port":             "8080",
 	"http.host":             "0.0.0.0",
