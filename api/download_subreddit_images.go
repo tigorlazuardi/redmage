@@ -196,7 +196,7 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, su
 			DeviceID:              omit.From(device.ID),
 			Title:                 omit.From(post.GetTitle()),
 			PostID:                omit.From(post.GetID()),
-			PostURL:               omit.From(post.GetImageURL()),
+			PostURL:               omit.From(post.GetPostURL()),
 			PostCreated:           omit.From(post.GetCreated().Format(time.RFC3339)),
 			PostName:              omit.From(post.GetName()),
 			Poster:                omit.From(post.GetAuthor()),
@@ -373,7 +373,7 @@ func (api *API) copyImageToTempDir(ctx context.Context, img reddit.PostImage) (t
 	split := strings.Split(url.Path, "/")
 	imageFilename := split[len(split)-1]
 	tmpDirname := path.Join(os.TempDir(), "redmage")
-	err = os.MkdirAll(tmpDirname, 0777)
+	err = os.MkdirAll(tmpDirname, 0o777)
 	if err != nil {
 		return nil, errs.Wrapw(err, "failed to create temporary dir", "dir_name", tmpDirname)
 	}

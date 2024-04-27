@@ -1,0 +1,51 @@
+package homeview
+
+import "github.com/tigorlazuardi/redmage/models"
+import "github.com/tigorlazuardi/redmage/api/reddit"
+import "fmt"
+
+type ImageCardOption uint
+
+func (o ImageCardOption) Has(opt ImageCardOption) bool {
+	return o&opt != 0
+}
+
+const (
+	HideTitle ImageCardOption = 1 << iota
+	HideDescription
+	HideSubreddit
+	HidePoster
+)
+
+templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
+	<div class="not-prose card bg-base-100 shadow-xl w-[250px]">
+		<figure>
+			<a
+				href={ templ.URL(fmt.Sprintf("/img/%s", data.ImageRelativePath)) }
+			>
+				<img
+					class="object-contain w-[250px] h-[250px]"
+					src={ fmt.Sprintf("/img/%s", data.ThumbnailRelativePath) }
+					alt={ data.Title }
+				/>
+			</a>
+		</figure>
+		<div class="card-body">
+			if !opts.Has(HideTitle) {
+				<a
+					href={ templ.URL(data.PostURL) }
+					class="card-title font-normal underline text-base text-primary-content"
+				>{ data.Title }</a>
+			}
+			<a class="text-primary-content underline" href={ templ.URL(data.PosterURL) }>{ data.Poster }</a>
+			if data.R.Subreddit != nil {
+				if !opts.Has(HideSubreddit) {
+					<a
+						class="text-primary-content underline text-base"
+						href={ templ.URL(fmt.Sprintf("https://reddit.com/%s/%s", reddit.SubredditType(data.R.Subreddit.Subtype), data.R.Subreddit.Name)) }
+					>{ data.R.Subreddit.Name } </a>
+				}
+			}
+		</div>
+	</div>
+}

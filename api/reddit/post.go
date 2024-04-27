@@ -354,7 +354,7 @@ func (post *Post) GetPermalink() string {
 }
 
 func (post *Post) GetPostURL() string {
-	return fmt.Sprintf("https://reddit.com/%s", post.Data.Permalink)
+	return fmt.Sprintf("https://reddit.com%s", post.Data.Permalink)
 }
 
 func (post *Post) GetID() string {
