@@ -1,5 +1,11 @@
 package config
 
+import (
+	"path"
+
+	"github.com/adrg/xdg"
+)
+
 var DefaultConfig = map[string]any{
 	"flags.containerized": false,
 
@@ -22,7 +28,7 @@ var DefaultConfig = map[string]any{
 	"download.concurrency.images":     5,
 	"download.concurrency.subreddits": 3,
 
-	"download.directory":         "",
+	"download.directory":         path.Join(xdg.UserDirs.Pictures, "redmage"),
 	"download.timeout.headers":   "10s",
 	"download.timeout.idle":      "5s",
 	"download.timeout.idlespeed": "10KB",
