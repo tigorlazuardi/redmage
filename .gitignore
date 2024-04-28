@@ -30,6 +30,8 @@ public/htmx*.js
 db/queries/**/*.go
 *.db
 
+public/*.min.js
+
 models/
 
 /out

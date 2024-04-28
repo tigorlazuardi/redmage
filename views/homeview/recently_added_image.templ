@@ -3,6 +3,7 @@ package homeview
 import "github.com/tigorlazuardi/redmage/models"
 import "github.com/tigorlazuardi/redmage/api/reddit"
 import "fmt"
+import "github.com/tigorlazuardi/redmage/views/utils"
 
 type ImageCardOption uint
 
@@ -38,6 +39,9 @@ templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
 				>{ data.Title }</a>
 			}
 			<a class="text-primary-content underline" href={ templ.URL(data.PosterURL) }>{ data.Poster }</a>
+			<div>
+				@utils.RelativeTimeNode(fmt.Sprintf("relative-time-%s", data.PostName), data.CreatedAt)
+			</div>
 			<div class="card-actions justify-between">
 				if data.R.Subreddit != nil {
 					if !opts.Has(HideSubreddit) {

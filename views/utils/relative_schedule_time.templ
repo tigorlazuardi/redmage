@@ -1,0 +1,40 @@
+package utils
+
+import "strings"
+
+// RelativeTimeText updates the text content of the element to be a relative time text.
+//
+// Every second it updates the text content to be the relative time text of the input string.
+
+script RelativeFromTimeText(id string, time string) {
+    const el = document.getElementById(id)
+
+    const timeText = dayjs(time).fromNow()
+    el.textContent = timeText
+
+    const interval = setInterval(() => {
+        const timeText = dayjs(time).fromNow()
+        el.textContent = timeText
+    }, 1000)
+
+    const obs = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            for (const removed of mutation.removedNodes) {
+                if (el === removed) {
+                    clearInterval(interval)
+                    obs.disconnect()
+                }
+            }
+        }
+    })
+
+    obs.observe(el.parentNode, { childList: true })
+}
+
+templ RelativeTimeNode(id string, time string, class ...string) {
+	<span
+		id={ id }
+		class={ strings.Join(class, " ") }
+	>{ time }</span>
+	@RelativeFromTimeText(id, time)
+}

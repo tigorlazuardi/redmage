@@ -2,13 +2,8 @@ package homeview
 
 import "github.com/tigorlazuardi/redmage/views/components"
 import "github.com/tigorlazuardi/redmage/views"
-import "github.com/tigorlazuardi/redmage/api"
-
-type Data struct {
-	SubredditsList      api.ListSubredditsResult
-	RecentlyAddedImages api.ImageListResult
-	Error               error
-}
+import "github.com/tigorlazuardi/redmage/views/utils"
+import "time"
 
 templ Home(c *views.Context, data Data) {
 	@components.Doctype() {
@@ -29,12 +24,18 @@ templ home(_ *views.Context, data Data) {
 	<div class="prose">
 		<section class="mb-4 mx-auto">
 			<h1>Recently Added</h1>
-			@RecentlyAddedImageList(data.RecentlyAddedImages.Images, 0)
+			for _, deviceMapValue := range data.RecentlyAddedImages {
+				<h2>{ deviceMapValue.device.Name }</h2>
+				for _, subreddit := range deviceMapValue.subreddits {
+					<h4>{ subreddit.subreddit.Name }</h4>
+					@RecentlyAddedImageList(subreddit.images, 0)
+				}
+			}
 		</section>
 		<section>
 			<h1>Subreddits</h1>
 			for _, subreddit := range data.SubredditsList.Data {
-				<h3>{ subreddit.Name } - { subreddit.Schedule }</h3>
+				<h3>{ subreddit.Name } - { utils.NextScheduleTime(subreddit.Schedule).Format(time.RubyDate) }</h3>
 			}
 		</section>
 	</div>

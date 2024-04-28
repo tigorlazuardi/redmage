@@ -37,6 +37,16 @@ build-dependencies:
 		echo "Htmx response targets not found, installing it"
 		curl -o public/htmx-response-targets-1.9.11.min.js https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.11/ext/response-targets.min.js
 	fi
+	@if [ ! -f "public/dayjs-1.11.10.min.js" ]; then
+		mkdir -p public
+		echo "Dayjs not found, installing it"
+		curl -o public/dayjs-1.11.10.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js
+	fi
+	@if [ ! -f "public/dayjs-relativeTime-1.11.10.min.js" ]; then
+		mkdir -p public
+		echo "Dayjs Relative Time not found, installing it"
+		curl -o public/dayjs-relativeTime-1.11.10.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/relativeTime.min.js
+	fi
 
 build: build-dependencies prepare
 	go build -o redmage
