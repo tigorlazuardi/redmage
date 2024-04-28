@@ -18,13 +18,13 @@ const (
 )
 
 templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
-	<div class="not-prose card bg-base-100 shadow-xl w-[250px]">
+	<div class="not-prose card card-bordered bg-base-100 shadow-xl w-[256px] min-w-[256px]">
 		<figure>
 			<a
 				href={ templ.URL(fmt.Sprintf("/img/%s", data.ImageRelativePath)) }
 			>
 				<img
-					class="object-contain w-[250px] h-[250px]"
+					class="object-contain w-[256px] h-[256px]"
 					src={ fmt.Sprintf("/img/%s", data.ThumbnailRelativePath) }
 					alt={ data.Title }
 				/>
@@ -34,18 +34,28 @@ templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
 			if !opts.Has(HideTitle) {
 				<a
 					href={ templ.URL(data.PostURL) }
-					class="card-title font-normal underline text-base text-primary-content"
+					class="card-title font-bold underline text-base text-primary-content"
 				>{ data.Title }</a>
 			}
 			<a class="text-primary-content underline" href={ templ.URL(data.PosterURL) }>{ data.Poster }</a>
-			if data.R.Subreddit != nil {
-				if !opts.Has(HideSubreddit) {
-					<a
-						class="text-primary-content underline text-base"
-						href={ templ.URL(fmt.Sprintf("https://reddit.com/%s/%s", reddit.SubredditType(data.R.Subreddit.Subtype), data.R.Subreddit.Name)) }
-					>{ data.R.Subreddit.Name } </a>
+			<div class="card-actions justify-between">
+				if data.R.Subreddit != nil {
+					if !opts.Has(HideSubreddit) {
+						<a
+							class="badge badge-outline"
+							href={ templ.URL(fmt.Sprintf("https://reddit.com/%s/%s", reddit.SubredditType(data.R.Subreddit.Subtype), data.R.Subreddit.Name)) }
+						>{ data.R.Subreddit.Name } </a>
+					}
 				}
-			}
+			</div>
 		</div>
+	</div>
+}
+
+templ RecentlyAddedImageList(images models.ImageSlice, opts ImageCardOption) {
+	<div class="w-[100vw] lg:w-[80vw] overflow-x-scroll flex gap-4 p-8 shadow-inner bg-base-300">
+		for _, data := range images {
+			@RecentlyAddedImageCard(data, opts)
+		}
 	</div>
 }

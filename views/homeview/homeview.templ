@@ -29,11 +29,7 @@ templ home(_ *views.Context, data Data) {
 	<div class="prose">
 		<section class="mb-4 mx-auto">
 			<h1>Recently Added</h1>
-			<div class="flex gap-4 flex-wrap pb-4 pr-8 w-[100vw] lg:w-[80vw] justify-around">
-				for _, image := range data.RecentlyAddedImages.Images {
-					@RecentlyAddedImageCard(image, 0)
-				}
-			</div>
+			@RecentlyAddedImageList(data.RecentlyAddedImages.Images, 0)
 		</section>
 		<section>
 			<h1>Subreddits</h1>
