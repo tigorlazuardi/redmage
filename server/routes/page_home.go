@@ -38,15 +38,17 @@ func (routes *Routes) PageHome(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.New(ctx).Err(err).Error("failed to list subreddits")
 		code, message := errs.HTTPMessage(err)
+		data := homeview.Data{Error: message}
 		rw.WriteHeader(code)
-		_ = json.NewEncoder(rw).Encode(map[string]string{"error": message})
+		if err := homeview.Home(vc, data).Render(ctx, rw); err != nil {
+			log.New(ctx).Err(err).Error("failed to render home view")
+		}
 		return
 	}
 
 	data := homeview.Data{
 		SubredditsList:      list,
 		RecentlyAddedImages: homeview.NewRecentlyAddedImages(imageList.Images),
-		Error:               err,
 	}
 
 	if err := homeview.Home(vc, data).Render(ctx, rw); err != nil {

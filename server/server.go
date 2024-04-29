@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io/fs"
+	"net"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -25,7 +26,10 @@ func (srv *Server) Start(exit <-chan struct{}) error {
 	errch := make(chan error, 1)
 	caller := caller.New(3)
 	go func() {
-		log.New(context.Background()).Caller(caller).Info("starting http server", "address", "http://"+srv.server.Addr)
+		log.New(context.Background()).Caller(caller).Info(
+			"starting http server", "address", "http://"+srv.server.Addr,
+			"outbound_ip", "http://"+GetOutboundIP().String()+":"+srv.config.String("http.port"),
+		)
 		errch <- srv.server.ListenAndServe()
 	}()
 
@@ -60,4 +64,17 @@ func New(cfg *config.Config, api *api.API, publicDir fs.FS) *Server {
 	}
 
 	return &Server{server: server, config: cfg}
+}
+
+// Get preferred outbound ip of this machine
+func GetOutboundIP() net.IP {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+
+	return localAddr.IP
 }

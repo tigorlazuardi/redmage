@@ -24,7 +24,7 @@ templ Navigation(c *views.Context) {
 			</header>
 			{ children... }
 		</div>
-		<nav class="drawer-side" hx-boost="true">
+		<nav class="drawer-side">
 			<label for="drawer-toggle" class="drawer-overlay"></label>
 			<div class="menu py-4 min-w-[15rem] min-h-full bg-base-200 text-base-content">
 				<div class="flex flex-col items-center min-w-[180px] max-w-[280px]">
@@ -87,7 +87,7 @@ templ Navbar(c *views.Context) {
 				<span class="font-bold">Redmage</span>
 			</div>
 			<div class="divider"></div>
-			<nav class="pt-4" hx-boost="true">
+			<nav class="pt-4">
 				<ul class="flex flex-col flex-wrap">
 					<a href="/" class={ classForNavItem(c, "/") }>
 						<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Home</li>

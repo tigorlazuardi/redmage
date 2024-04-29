@@ -11,7 +11,7 @@ import (
 type Data struct {
 	SubredditsList      api.ListSubredditsResult
 	RecentlyAddedImages RecentlyAddedImages
-	Error               error
+	Error               string
 }
 
 type RecentlyAddedImages = []RecentlyAddedImage

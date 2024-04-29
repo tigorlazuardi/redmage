@@ -57,7 +57,7 @@ templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
 }
 
 templ RecentlyAddedImageList(images models.ImageSlice, opts ImageCardOption) {
-	<div class="w-[100vw] lg:w-[80vw] overflow-x-scroll flex gap-4 p-8 shadow-inner bg-base-300">
+	<div class="w-[80vw] overflow-x-scroll flex gap-4 p-8 shadow-inner bg-base-300">
 		for _, data := range images {
 			@RecentlyAddedImageCard(data, opts)
 		}

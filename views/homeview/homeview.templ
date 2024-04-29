@@ -9,34 +9,40 @@ templ Home(c *views.Context, data Data) {
 	@components.Doctype() {
 		@components.Head(c, components.HeadTitle("Redmage - Home"))
 		@components.Body(c) {
-			@components.Container() {
-				if data.Error != nil {
-					@components.ErrorToast(data.Error.Error())
-				} else {
-					@home(c, data)
-				}
-			}
+			@HomeContent(c, data)
 		}
 	}
 }
 
-templ home(_ *views.Context, data Data) {
-	<div class="prose">
-		<section class="mb-4 mx-auto">
-			<h1>Recently Added</h1>
-			for _, recently := range data.RecentlyAddedImages {
-				<h2>{ recently.Device.Name }</h2>
-				for _, subreddit := range recently.Subreddits {
-					<h4>{ subreddit.Subreddit.Name }</h4>
-					@RecentlyAddedImageList(subreddit.Images, 0)
-				}
+// HomeContent returns the main content of the home page.
+//
+// Use this template if request is HX-Boosted.
+templ HomeContent(_ *views.Context, data Data) {
+	<main id="main" class="prose">
+		@components.Container() {
+			if data.Error != "" {
+				@components.ErrorToast(data.Error)
+			} else {
+				<section class="mb-4 mx-auto">
+					<h1>Recently Added</h1>
+					for _, recently := range data.RecentlyAddedImages {
+						<h2>{ recently.Device.Name }</h2>
+						for _, subreddit := range recently.Subreddits {
+							<h4>{ subreddit.Subreddit.Name }</h4>
+							@RecentlyAddedImageList(subreddit.Images, 0)
+						}
+					}
+				</section>
+				<section>
+					<h1>Subreddits</h1>
+					for _, subreddit := range data.SubredditsList.Data {
+						<h3>
+							{ subreddit.Name } - 
+							@utils.RelativeTimeNode(subreddit.Name, utils.NextScheduleTime(subreddit.Schedule).Format(time.RFC3339))
+						</h3>
+					}
+				</section>
 			}
-		</section>
-		<section>
-			<h1>Subreddits</h1>
-			for _, subreddit := range data.SubredditsList.Data {
-				<h3>{ subreddit.Name } - { utils.NextScheduleTime(subreddit.Schedule).Format(time.RubyDate) }</h3>
-			}
-		</section>
-	</div>
+		}
+	</main>
 }

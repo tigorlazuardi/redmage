@@ -6,7 +6,7 @@ import "strings"
 //
 // Every second it updates the text content to be the relative time text of the input string.
 
-script RelativeFromTimeText(id string, time string) {
+script RelativeFromTimeText(id string, time string, inter int) {
     const el = document.getElementById(id)
 
     const timeText = dayjs(time).fromNow()
@@ -14,6 +14,31 @@ script RelativeFromTimeText(id string, time string) {
 
     const interval = setInterval(() => {
         const timeText = dayjs(time).fromNow()
+        el.textContent = timeText
+    }, inter)
+
+    const obs = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            for (const removed of mutation.removedNodes) {
+                if (el === removed) {
+                    clearInterval(interval)
+                    obs.disconnect()
+                }
+            }
+        }
+    })
+
+    obs.observe(el.parentNode, { childList: true })
+}
+
+script RelativeTimeToNowText(id, time string, inter int) {
+    const el = document.getElementById(id)
+
+    const timeText = dayjs(time).toNow()
+    el.textContent = timeText
+
+    const interval = setInterval(() => {
+        const timeText = dayjs(time).toNow()
         el.textContent = timeText
     }, 1000)
 
@@ -36,5 +61,13 @@ templ RelativeTimeNode(id string, time string, class ...string) {
 		id={ id }
 		class={ strings.Join(class, " ") }
 	>{ time }</span>
-	@RelativeFromTimeText(id, time)
+	@RelativeFromTimeText(id, time, 10000)
+}
+
+templ RelativeTimeToNowNode(id, time string, class ...string) {
+	<span
+		id={ id }
+		class={ strings.Join(class, " ") }
+	>{ time }</span>
+	@RelativeTimeToNowText(id, time, 10000)
 }
