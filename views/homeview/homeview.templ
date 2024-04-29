@@ -24,29 +24,22 @@ templ HomeContent(c *views.Context, data Data) {
 				@components.ErrorToast(data.Error)
 			} else {
 				<section class="mb-4 mx-auto">
-					<div class="flex content-center gap-8">
+					<div
+						class="flex content-center gap-8"
+						hx-get="/"
+						hx-target="main"
+						hx-select="main"
+						hx-swap="outerHTML"
+						hx-trigger="change"
+						hx-include="this"
+						hx-push-url="true"
+					>
 						<h1>
 							Recently Added -
 							{ strconv.FormatInt(data.TotalImages, 10) } Images
 						</h1>
-						<select
-							hx-trigger="change"
-							hx-get="/"
-							name="created_at"
-							hx-params="*"
-							class="select select-ghost"
-							hx-target="body"
-							hx-push-url="true"
-						>
-							@recentlyRangeOption(c, "-10800", "3 Hours")
-							@recentlyRangeOption(c, "-21600", "6 Hours")
-							@recentlyRangeOption(c, "-43200", "12 Hours")
-							@recentlyRangeOption(c, "-86400", "1 Day")
-							@recentlyRangeOption(c, "-172800", "2 Days")
-							@recentlyRangeOption(c, "-259200", "3 Days")
-							@recentlyRangeOption(c, "-604800", "7 Days")
-							@recentlyRangeOption(c, "-2592000", "30 Days")
-						</select>
+						@recentRangeInput(c)
+						@nsfwToggle(c, data)
 					</div>
 					for _, recently := range data.RecentlyAddedImages {
 						<div class="divider"></div>
@@ -71,6 +64,22 @@ templ HomeContent(c *views.Context, data Data) {
 	</main>
 }
 
+templ recentRangeInput(c *views.Context) {
+	<select
+		name="created_at"
+		class="select select-ghost select-bordered"
+	>
+		@recentlyRangeOption(c, "-10800", "3 Hours")
+		@recentlyRangeOption(c, "-21600", "6 Hours")
+		@recentlyRangeOption(c, "-43200", "12 Hours")
+		@recentlyRangeOption(c, "-86400", "1 Day")
+		@recentlyRangeOption(c, "-172800", "2 Days")
+		@recentlyRangeOption(c, "-259200", "3 Days")
+		@recentlyRangeOption(c, "-604800", "7 Days")
+		@recentlyRangeOption(c, "-2592000", "30 Days")
+	</select>
+}
+
 templ recentlyRangeOption(c *views.Context, value, text string) {
 	if c.Request.URL.Query().Get("created_at") == "" && value == "-86400" {
 		<option selected="selected" value={ value }>{ text }</option>
@@ -79,4 +88,19 @@ templ recentlyRangeOption(c *views.Context, value, text string) {
 	} else {
 		<option value={ value }>{ text }</option>
 	}
+}
+
+templ nsfwToggle(c *views.Context, data Data) {
+	<select
+		name="sfw"
+		class="select select-ghost select-bordered"
+	>
+		if (c.Request.URL.Query().Get("sfw") == "1") || data.SFW {
+			<option value="0">NSFW - ON</option>
+			<option selected="selected" value="1">NSFW - Off</option>
+		} else {
+			<option selected="selected" value="0">NSFW - ON</option>
+			<option value="1">NSFW - Off</option>
+		}
+	</select>
 }
