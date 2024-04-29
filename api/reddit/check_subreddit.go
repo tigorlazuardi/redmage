@@ -65,14 +65,6 @@ func (reddit *Reddit) CheckSubreddit(ctx context.Context, params CheckSubredditP
 			"response.location", resp.Request.URL.String(),
 		).Code(http.StatusTooManyRequests)
 	}
-	if resp.StatusCode >= 400 {
-		msg := fmt.Sprintf("unexpected %d status code from reddit", resp.StatusCode)
-		return actual, errs.Fail(msg,
-			"params", params,
-			"url", url,
-			"response.location", resp.Request.URL.String(),
-		).Code(http.StatusFailedDependency)
-	}
 
 	if resp.Request.URL.Path == "/subreddits/search.json" {
 		return actual, errs.Fail("subreddit not found",

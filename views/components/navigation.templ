@@ -9,7 +9,7 @@ templ Navigation(c *views.Context) {
 		<div class="drawer-content">
 			<header class="navbar bg-base-200 lg:hidden">
 				<div class="flex-none">
-					<label for="drawer-toggle" class="btn btn-square btn-ghost drawer-button" onclick="console.log(this)">
+					<label for="drawer-toggle" class="btn btn-square btn-ghost drawer-button">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
 					</label>
 				</div>
@@ -80,27 +80,47 @@ templ navLogo() {
 }
 
 templ Navbar(c *views.Context) {
-	<header class="hidden lg:inline-block bg-base-200 min-w-[200px] w-[15vw] max-w-[300px] min-h-screen">
-		<div class="flex flex-col items-center min-w-[180px] max-w-[280px] mx-auto">
-			@navLogo()
-			<span class="font-bold">Redmage</span>
+	<header class="hidden lg:inline-block bg-base-200 min-w-[200px] w-[15vw] max-w-[300px]">
+		<div class="sticky top-0 flex flex-col min-h-screen">
+			<div class="flex flex-col items-center min-w-[180px] max-w-[280px] mx-auto">
+				@navLogo()
+				<span class="font-bold">Redmage</span>
+			</div>
+			<div class="divider"></div>
+			<nav class="pt-4" hx-boost="true">
+				<ul class="flex flex-col flex-wrap">
+					<a href="/" class={ classForNavItem(c, "/") }>
+						<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Home</li>
+					</a>
+					<a href="/about" class={ classForNavItem(c, "/about") }>
+						<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">About</li>
+					</a>
+					<a href="/config" class={ classForNavItem(c, "/config") }>
+						<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Config</li>
+					</a>
+					<a href="/browse" class={ classForNavItem(c, "/browse") }>
+						<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Browse</li>
+					</a>
+				</ul>
+			</nav>
+			<div class="flex-grow"></div>
+			@SelectThemeInput()
 		</div>
-		<div class="divider"></div>
-		<nav class="pt-4" hx-boost="true">
-			<ul class="flex flex-col flex-wrap">
-				<a href="/" class={ classForNavItem(c, "/") }>
-					<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Home</li>
-				</a>
-				<a href="/about" class={ classForNavItem(c, "/about") }>
-					<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">About</li>
-				</a>
-				<a href="/config" class={ classForNavItem(c, "/config") }>
-					<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Config</li>
-				</a>
-				<a href="/browse" class={ classForNavItem(c, "/browse") }>
-					<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Browse</li>
-				</a>
-			</ul>
-		</nav>
 	</header>
+}
+
+templ SelectThemeInput() {
+	<select class="select select-ghost select-bordered w-full" data-choose-theme>
+		<option value="light">Light (Default)</option>
+		<option value="dark">Dark</option>
+		<option value="cupcake">Cupcake</option>
+		<option value="bumblebee">Bumblebee</option>
+		<option value="emerald">Emerald</option>
+		<option value="corporate">Corporate</option>
+		<option value="synthwave">Synthwave</option>
+		<option value="retru">Retro</option>
+		<option value="cyberpunk">Cyberpunk</option>
+		<option value="valentine">Valentine</option>
+		<option value="halloween">Halloween</option>
+	</select>
 }

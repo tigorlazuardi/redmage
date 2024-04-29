@@ -13,6 +13,7 @@ templ Head(vc *views.Context, extras ...templ.Component) {
 		<script src="/public/dayjs-1.11.10.min.js"></script>
 		<script src="/public/dayjs-relativeTime-1.11.10.min.js"></script>
 		<script>dayjs.extend(window.dayjs_plugin_relativeTime)</script>
+		<script src="/public/theme-change-2.0.2.min.js"></script>
 		if vc.Config.Bool("http.hotreload") {
 			<script src="/public/hot_reload.js"></script>
 		}
@@ -25,4 +26,3 @@ templ Head(vc *views.Context, extras ...templ.Component) {
 templ HeadTitle(name string) {
 	<title>{ name }</title>
 }
-

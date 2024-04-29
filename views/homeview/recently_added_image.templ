@@ -35,10 +35,10 @@ templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
 			if !opts.Has(HideTitle) {
 				<a
 					href={ templ.URL(data.PostURL) }
-					class="card-title font-bold underline text-base text-primary-content"
+					class="card-title font-bold underline text-base text-primary"
 				>{ data.Title }</a>
 			}
-			<a class="text-primary-content underline" href={ templ.URL(data.PosterURL) }>{ data.Poster }</a>
+			<a class="text-primary underline" href={ templ.URL(data.PosterURL) }>{ data.Poster }</a>
 			<div>
 				@utils.RelativeTimeNode(fmt.Sprintf("relative-time-%s", data.PostName), data.CreatedAt)
 			</div>
@@ -46,7 +46,7 @@ templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
 				if data.R.Subreddit != nil {
 					if !opts.Has(HideSubreddit) {
 						<a
-							class="badge badge-outline"
+							class="badge badge-outline badge-primary"
 							href={ templ.URL(fmt.Sprintf("https://reddit.com/%s/%s", reddit.SubredditType(data.R.Subreddit.Subtype), data.R.Subreddit.Name)) }
 						>{ data.R.Subreddit.Name } </a>
 					}

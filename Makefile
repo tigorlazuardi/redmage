@@ -47,6 +47,11 @@ build-dependencies:
 		echo "Dayjs Relative Time not found, installing it"
 		curl -o public/dayjs-relativeTime-1.11.10.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/relativeTime.min.js
 	fi
+	@if [ ! -f "public/theme-change-2.0.2.min.js" ];  then
+		mkdir -p public
+		echo "Theme change not found, installing it"
+		curl -o public/theme-change-2.0.2.min.js https://cdn.jsdelivr.net/npm/theme-change@2.0.2/index.js
+	fi
 
 build: build-dependencies prepare
 	go build -o redmage
