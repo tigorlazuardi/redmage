@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/tigorlazuardi/redmage/pkg/caller"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 )
 
@@ -21,6 +22,8 @@ type CheckSubredditParams struct {
 func (reddit *Reddit) CheckSubreddit(ctx context.Context, params CheckSubredditParams) (actual string, err error) {
 	ctx, span := tracer.Start(ctx, "*Reddit.CheckSubreddit")
 	defer span.End()
+
+	ctx = caller.WithContext(ctx, caller.New(2))
 
 	url := fmt.Sprintf("https://reddit.com/%s/%s.json?limit=1", params.SubredditType, params.Subreddit)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)

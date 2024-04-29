@@ -24,11 +24,11 @@ templ home(_ *views.Context, data Data) {
 	<div class="prose">
 		<section class="mb-4 mx-auto">
 			<h1>Recently Added</h1>
-			for _, deviceMapValue := range data.RecentlyAddedImages {
-				<h2>{ deviceMapValue.device.Name }</h2>
-				for _, subreddit := range deviceMapValue.subreddits {
-					<h4>{ subreddit.subreddit.Name }</h4>
-					@RecentlyAddedImageList(subreddit.images, 0)
+			for _, recently := range data.RecentlyAddedImages {
+				<h2>{ recently.Device.Name }</h2>
+				for _, subreddit := range recently.Subreddits {
+					<h4>{ subreddit.Subreddit.Name }</h4>
+					@RecentlyAddedImageList(subreddit.Images, 0)
 				}
 			}
 		</section>

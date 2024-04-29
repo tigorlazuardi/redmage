@@ -1,6 +1,7 @@
 package caller
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"runtime"
@@ -69,4 +70,15 @@ func From(pc uintptr) Caller {
 	c.PC = pc
 	c.Frame, _ = runtime.CallersFrames([]uintptr{pc}).Next()
 	return c
+}
+
+type contextKey struct{}
+
+func WithContext(ctx context.Context, caller Caller) context.Context {
+	return context.WithValue(ctx, contextKey{}, caller)
+}
+
+func FromContext(ctx context.Context) (Caller, bool) {
+	call, ok := ctx.Value(contextKey{}).(Caller)
+	return call, ok
 }

@@ -273,6 +273,9 @@ func (entry *Entry) getCaller() caller.Caller {
 	if entry.caller.PC != 0 {
 		return entry.caller
 	}
+	if call, ok := caller.FromContext(entry.ctx); ok {
+		return call
+	}
 	return caller.New(4)
 }
 
