@@ -2,6 +2,7 @@ package reddit
 
 import (
 	"fmt"
+	"html"
 	"net/url"
 	"path"
 	"path/filepath"
@@ -241,7 +242,7 @@ func (post *Post) GetAuthor() string {
 }
 
 func (post *Post) GetTitle() string {
-	return post.Data.Title
+	return html.UnescapeString(post.Data.Title)
 }
 
 func (post *Post) GetAuthorURL() string {
