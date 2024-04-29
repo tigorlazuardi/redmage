@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/aarondl/opt/omit"
 	"github.com/go-chi/chi/v5"
@@ -59,6 +60,7 @@ func (routes *Routes) APIDeviceUpdate(rw http.ResponseWriter, r *http.Request) {
 		MaxY:                 omit.FromPtr(body.MaxY),
 		NSFW:                 omit.FromPtr(body.NSFW),
 		WindowsWallpaperMode: omit.FromPtr(body.WindowsWallpaperMode),
+		UpdatedAt:            omit.From(time.Now().Unix()),
 	})
 	if err != nil {
 		code, message := errs.HTTPMessage(err)

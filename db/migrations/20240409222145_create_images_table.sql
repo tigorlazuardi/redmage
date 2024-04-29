@@ -7,7 +7,7 @@ CREATE TABLE images(
     title VARCHAR(255) NOT NULL,
     post_id VARCHAR(50) NOT NULL,
     post_url VARCHAR(255) NOT NULL,
-    post_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    post_created BIGINT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     post_name VARCHAR(255) NOT NULL,
     poster VARCHAR(50) NOT NULL,
     poster_url VARCHAR(255) NOT NULL,
@@ -16,8 +16,8 @@ CREATE TABLE images(
     image_original_url VARCHAR(255) NOT NULL,
     thumbnail_original_url VARCHAR(255) NOT NULL DEFAULT '',
     nsfw INTEGER NOT NULL DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_at BIGINT DEFAULT 0 NOT NULL,
+    updated_at BIGINT DEFAULT 0 NOT NULL,
     CONSTRAINT fk_subreddit_id
         FOREIGN KEY (subreddit_id)
         REFERENCES subreddits(id)
@@ -28,18 +28,10 @@ CREATE TABLE images(
         ON DELETE CASCADE
 );
 
-CREATE TRIGGER update_images_timestamp AFTER UPDATE ON images FOR EACH ROW
-BEGIN
-    UPDATE images SET updated_at = CURRENT_TIMESTAMP WHERE id = old.id;
-END;
-
-CREATE TRIGGER update_subreddits_timestamp_on_insert AFTER INSERT ON images FOR EACH ROW
-BEGIN
-    UPDATE subreddits SET updated_at = CURRENT_TIMESTAMP WHERE id = new.subreddit_id;
-END;
-
-CREATE INDEX idx_subreddit_id ON images(subreddit_id);
-CREATE INDEX idx_nsfw ON images(nsfw);
+CREATE INDEX idx_subreddit_id_images ON images(subreddit_id);
+CREATE INDEX idx_nsfw_images ON images(nsfw);
+CREATE INDEX idx_images_created_at ON images(created_at DESC);
+CREATE INDEX idx_unique_device_images_id ON images(device_id, post_id DESC);
 -- +goose StatementEnd
 
 -- +goose Down

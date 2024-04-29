@@ -23,6 +23,7 @@ templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
 		<figure>
 			<a
 				href={ templ.URL(fmt.Sprintf("/img/%s", data.ImageRelativePath)) }
+				target="_blank"
 			>
 				<img
 					class="object-contain w-[256px] h-[256px]"
@@ -57,7 +58,7 @@ templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
 }
 
 templ RecentlyAddedImageList(images models.ImageSlice, opts ImageCardOption) {
-	<div class="w-[80vw] overflow-x-scroll flex gap-4 p-8 shadow-inner bg-base-300">
+	<div class="overflow-x-auto flex gap-4 p-6 shadow-inner bg-base-300 rounded-2xl w-[85vw] md:w-full">
 		for _, data := range images {
 			@RecentlyAddedImageCard(data, opts)
 		}

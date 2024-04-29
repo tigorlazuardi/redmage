@@ -186,6 +186,7 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, su
 	}
 
 	var many []*models.ImageSetter
+	now := time.Now()
 	for _, device := range devices {
 		var nsfw int32
 		if post.IsNSFW() {
@@ -197,7 +198,7 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, su
 			Title:                 omit.From(post.GetTitle()),
 			PostID:                omit.From(post.GetID()),
 			PostURL:               omit.From(post.GetPostURL()),
-			PostCreated:           omit.From(post.GetCreated().Format(time.RFC3339)),
+			PostCreated:           omit.From(post.GetCreated().Unix()),
 			PostName:              omit.From(post.GetName()),
 			Poster:                omit.From(post.GetAuthor()),
 			PosterURL:             omit.From(post.GetAuthorURL()),
@@ -206,6 +207,8 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, su
 			ImageOriginalURL:      omit.From(post.GetImageURL()),
 			ThumbnailOriginalURL:  omit.From(post.GetThumbnailURL()),
 			NSFW:                  omit.From(nsfw),
+			CreatedAt:             omit.From(now.Unix()),
+			UpdatedAt:             omit.From(now.Unix()),
 		})
 	}
 

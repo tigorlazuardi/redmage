@@ -1,8 +1,10 @@
 package homeview
 
 import (
+	"fmt"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/tigorlazuardi/redmage/api"
 	"github.com/tigorlazuardi/redmage/models"
@@ -11,15 +13,12 @@ import (
 type Data struct {
 	SubredditsList      api.ListSubredditsResult
 	RecentlyAddedImages RecentlyAddedImages
+	TotalImages         int64
 	Error               string
+	Now                 time.Time
 }
 
 type RecentlyAddedImages = []RecentlyAddedImage
-
-type subredditMapValue struct {
-	subreddit *models.Subreddit
-	images    []*models.Image
-}
 
 type RecentlyAddedImage struct {
 	Device     *models.Device
@@ -33,6 +32,9 @@ type Subreddit struct {
 
 func NewRecentlyAddedImages(images models.ImageSlice) RecentlyAddedImages {
 	r := make(RecentlyAddedImages, 0, len(images))
+
+	var count int
+
 	for _, image := range images {
 		if image.R.Device == nil || image.R.Subreddit == nil {
 			continue
@@ -46,6 +48,7 @@ func NewRecentlyAddedImages(images models.ImageSlice) RecentlyAddedImages {
 					if subreddit.Subreddit.ID == image.R.Subreddit.ID {
 						subredditFound = true
 						r[i].Subreddits[j].Images = append(r[i].Subreddits[j].Images, image)
+						count++
 					}
 				}
 				if !subredditFound {
@@ -53,10 +56,12 @@ func NewRecentlyAddedImages(images models.ImageSlice) RecentlyAddedImages {
 						Subreddit: image.R.Subreddit,
 						Images:    models.ImageSlice{image},
 					})
+					count++
 				}
 			}
 		}
 		if !deviceFound {
+			count++
 			r = append(r, RecentlyAddedImage{
 				Device: image.R.Device,
 				Subreddits: []Subreddit{
@@ -82,6 +87,8 @@ func NewRecentlyAddedImages(images models.ImageSlice) RecentlyAddedImages {
 		rightName := strings.ToLower(right.Device.Name)
 		return strings.Compare(leftName, rightName)
 	})
+
+	fmt.Println("image count", count)
 
 	return r
 }

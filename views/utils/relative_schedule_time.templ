@@ -1,19 +1,21 @@
 package utils
 
 import "strings"
+import "strconv"
 
 // RelativeTimeText updates the text content of the element to be a relative time text.
 //
 // Every second it updates the text content to be the relative time text of the input string.
 
-script RelativeFromTimeText(id string, time string, inter int) {
+script RelativeFromTimeText(id string, time int64, inter int) {
     const el = document.getElementById(id)
-
-    const timeText = dayjs(time).fromNow()
+    el.parentNode.dataset.tip = dayjs.unix(time).tz(dayjs.tz.guess()).format('ddd, D MMM YYYY HH:mm:ss Z')
+    
+    const timeText = dayjs.unix(time).fromNow()
     el.textContent = timeText
 
     const interval = setInterval(() => {
-        const timeText = dayjs(time).fromNow()
+        const timeText = dayjs.unix(time).fromNow()
         el.textContent = timeText
     }, inter)
 
@@ -31,43 +33,12 @@ script RelativeFromTimeText(id string, time string, inter int) {
     obs.observe(el.parentNode, { childList: true })
 }
 
-script RelativeTimeToNowText(id, time string, inter int) {
-    const el = document.getElementById(id)
-
-    const timeText = dayjs(time).toNow()
-    el.textContent = timeText
-
-    const interval = setInterval(() => {
-        const timeText = dayjs(time).toNow()
-        el.textContent = timeText
-    }, 1000)
-
-    const obs = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-            for (const removed of mutation.removedNodes) {
-                if (el === removed) {
-                    clearInterval(interval)
-                    obs.disconnect()
-                }
-            }
-        }
-    })
-
-    obs.observe(el.parentNode, { childList: true })
-}
-
-templ RelativeTimeNode(id string, time string, class ...string) {
-	<span
-		id={ id }
-		class={ strings.Join(class, " ") }
-	>{ time }</span>
+templ RelativeTimeNode(id string, time int64, class ...string) {
+	<div class="tooltip z-10" data-tip={ strconv.FormatInt(time, 10) }>
+		<span
+			id={ id }
+			class={ strings.Join(class, " ") }
+		>{ strconv.FormatInt(time, 10) }</span>
+	</div>
 	@RelativeFromTimeText(id, time, 10000)
-}
-
-templ RelativeTimeToNowNode(id, time string, class ...string) {
-	<span
-		id={ id }
-		class={ strings.Join(class, " ") }
-	>{ time }</span>
-	@RelativeTimeToNowText(id, time, 10000)
 }

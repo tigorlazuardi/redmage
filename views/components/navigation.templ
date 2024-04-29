@@ -88,25 +88,29 @@ templ Navbar(c *views.Context) {
 			</div>
 			<div class="divider"></div>
 			<nav class="pt-4">
-				<ul class="flex flex-col flex-wrap">
-					<a href="/" class={ classForNavItem(c, "/") }>
-						<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Home</li>
-					</a>
-					<a href="/about" class={ classForNavItem(c, "/about") }>
-						<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">About</li>
-					</a>
-					<a href="/config" class={ classForNavItem(c, "/config") }>
-						<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Config</li>
-					</a>
-					<a href="/browse" class={ classForNavItem(c, "/browse") }>
-						<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Browse</li>
-					</a>
-				</ul>
+				@navList(c)
 			</nav>
 			<div class="flex-grow"></div>
 			@SelectThemeInput()
 		</div>
 	</header>
+}
+
+templ navList(c *views.Context) {
+	<ul class="flex flex-col flex-wrap">
+		<a href="/" class={ classForNavItem(c, "/") }>
+			<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Home</li>
+		</a>
+		<a href="/about" class={ classForNavItem(c, "/about") }>
+			<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">About</li>
+		</a>
+		<a href="/config" class={ classForNavItem(c, "/config") }>
+			<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Config</li>
+		</a>
+		<a href="/subreddits" class={ classForNavItem(c, "/subreddits") }>
+			<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Subreddits</li>
+		</a>
+	</ul>
 }
 
 templ SelectThemeInput() {

@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/aarondl/opt/omit"
 	"github.com/tigorlazuardi/redmage/models"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
@@ -19,7 +18,7 @@ func (routes *Routes) APIDeviceCreate(rw http.ResponseWriter, r *http.Request) {
 	ctx, span := tracer.Start(r.Context(), "*Routes.APIDeviceCreate")
 	defer func() { telemetry.EndWithStatus(span, err) }()
 
-	var body models.Device
+	var body *models.Device
 
 	if err = json.NewDecoder(r.Body).Decode(&body); err != nil {
 		log.New(ctx).Err(err).Error("failed to decode json body")
@@ -34,20 +33,7 @@ func (routes *Routes) APIDeviceCreate(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	device, err := routes.API.DevicesCreate(ctx, &models.DeviceSetter{
-		Slug:                 omit.From(body.Slug),
-		Name:                 omit.From(body.Name),
-		ResolutionX:          omit.From(body.ResolutionX),
-		ResolutionY:          omit.From(body.ResolutionY),
-		AspectRatioTolerance: omit.From(body.AspectRatioTolerance),
-		MinX:                 omit.From(body.MinX),
-		MinY:                 omit.From(body.MinY),
-		MaxX:                 omit.From(body.MaxX),
-		MaxY:                 omit.From(body.MaxY),
-		NSFW:                 omit.From(body.NSFW),
-		WindowsWallpaperMode: omit.From(body.WindowsWallpaperMode),
-		Enable:               omit.From(body.Enable),
-	})
+	device, err := routes.API.DevicesCreate(ctx, body)
 	if err != nil {
 		log.New(ctx).Err(err).Error("failed to create device", "body", body)
 		code, message := errs.HTTPMessage(err)
@@ -64,7 +50,7 @@ func (routes *Routes) APIDeviceCreate(rw http.ResponseWriter, r *http.Request) {
 
 var slugRegex = regexp.MustCompile(`^[a-z0-9-]+$`)
 
-func validateCreateDevice(params models.Device) error {
+func validateCreateDevice(params *models.Device) error {
 	if params.Name == "" {
 		return errors.New("name is required")
 	}

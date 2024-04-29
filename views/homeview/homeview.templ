@@ -3,7 +3,7 @@ package homeview
 import "github.com/tigorlazuardi/redmage/views/components"
 import "github.com/tigorlazuardi/redmage/views"
 import "github.com/tigorlazuardi/redmage/views/utils"
-import "time"
+import "strconv"
 
 templ Home(c *views.Context, data Data) {
 	@components.Doctype() {
@@ -17,18 +17,42 @@ templ Home(c *views.Context, data Data) {
 // HomeContent returns the main content of the home page.
 //
 // Use this template if request is HX-Boosted.
-templ HomeContent(_ *views.Context, data Data) {
-	<main id="main" class="prose">
+templ HomeContent(c *views.Context, data Data) {
+	<main id="main" class="prose min-w-full">
 		@components.Container() {
 			if data.Error != "" {
 				@components.ErrorToast(data.Error)
 			} else {
 				<section class="mb-4 mx-auto">
-					<h1>Recently Added</h1>
+					<div class="flex content-center gap-8">
+						<h1>
+							Recently Added -
+							{ strconv.FormatInt(data.TotalImages, 10) } Images
+						</h1>
+						<select
+							hx-trigger="change"
+							hx-get="/"
+							name="created_at"
+							hx-params="*"
+							class="select select-ghost"
+							hx-target="body"
+							hx-push-url="true"
+						>
+							@recentlyRangeOption(c, "-10800", "3 Hours")
+							@recentlyRangeOption(c, "-21600", "6 Hours")
+							@recentlyRangeOption(c, "-43200", "12 Hours")
+							@recentlyRangeOption(c, "-86400", "1 Day")
+							@recentlyRangeOption(c, "-172800", "2 Days")
+							@recentlyRangeOption(c, "-259200", "3 Days")
+							@recentlyRangeOption(c, "-604800", "7 Days")
+							@recentlyRangeOption(c, "-2592000", "30 Days")
+						</select>
+					</div>
 					for _, recently := range data.RecentlyAddedImages {
-						<h2>{ recently.Device.Name }</h2>
+						<div class="divider"></div>
+						<h2 class="mt-4">{ recently.Device.Name }</h2>
 						for _, subreddit := range recently.Subreddits {
-							<h4>{ subreddit.Subreddit.Name }</h4>
+							<h4>{ subreddit.Subreddit.Name } - { strconv.Itoa(len(subreddit.Images)) } images</h4>
 							@RecentlyAddedImageList(subreddit.Images, 0)
 						}
 					}
@@ -38,11 +62,21 @@ templ HomeContent(_ *views.Context, data Data) {
 					for _, subreddit := range data.SubredditsList.Data {
 						<h3>
 							{ subreddit.Name } - 
-							@utils.RelativeTimeNode(subreddit.Name, utils.NextScheduleTime(subreddit.Schedule).Format(time.RFC3339))
+							@utils.RelativeTimeNode(subreddit.Name, utils.NextScheduleTime(subreddit.Schedule).Unix())
 						</h3>
 					}
 				</section>
 			}
 		}
 	</main>
+}
+
+templ recentlyRangeOption(c *views.Context, value, text string) {
+	if c.Request.URL.Query().Get("created_at") == "" && value == "-86400" {
+		<option selected="selected" value={ value }>{ text }</option>
+	} else if c.Request.URL.Query().Get("created_at") == value {
+		<option selected="selected" value={ value }>{ text }</option>
+	} else {
+		<option value={ value }>{ text }</option>
+	}
 }

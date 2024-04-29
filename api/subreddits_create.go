@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/aarondl/opt/omit"
 	"github.com/mattn/go-sqlite3"
@@ -15,12 +16,15 @@ func (api *API) SubredditsCreate(ctx context.Context, params *models.Subreddit) 
 	ctx, span := tracer.Start(ctx, "*API.SubredditsCreate")
 	defer span.End()
 
+	now := time.Now()
 	set := &models.SubredditSetter{
 		Name:           omit.From(params.Name),
 		EnableSchedule: omit.From(params.EnableSchedule),
 		Subtype:        omit.From(params.Subtype),
 		Schedule:       omit.From(params.Schedule),
 		Countback:      omit.From(params.Countback),
+		CreatedAt:      omit.From(now.Unix()),
+		UpdatedAt:      omit.From(now.Unix()),
 	}
 
 	subreddit, err = models.Subreddits.Insert(ctx, api.db, set)

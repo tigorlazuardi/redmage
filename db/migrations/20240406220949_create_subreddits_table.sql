@@ -5,10 +5,10 @@ CREATE TABLE subreddits (
     name VARCHAR(30) NOT NULL,
     enable_schedule INT NOT NULL DEFAULT 1,
     subtype INT NOT NULL DEFAULT 0,
-    schedule VARCHAR(20) NOT NULL DEFAULT '0 0 * * *',
+    schedule VARCHAR(20) NOT NULL DEFAULT '@daily',
     countback INT NOT NULL DEFAULT 100,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    created_at BIGINT DEFAULT 0 NOT NULL,
+    updated_at BIGINT DEFAULT 0 NOT NULL
 );
 
 CREATE UNIQUE INDEX idx_subreddits_name ON subreddits (name);

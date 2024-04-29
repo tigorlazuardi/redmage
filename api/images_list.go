@@ -48,6 +48,9 @@ func (ilp *ImageListParams) FillFromQuery(query Queryable) {
 	createdAtint, _ := strconv.ParseInt(query.Get("created_at"), 10, 64)
 	if createdAtint > 0 {
 		ilp.CreatedAt = time.Unix(createdAtint, 0)
+	} else if createdAtint < 0 {
+		// Negative value means relative to now.
+		ilp.CreatedAt = time.Now().Add(time.Duration(createdAtint) * time.Second)
 	}
 }
 
@@ -76,7 +79,7 @@ func (ilp ImageListParams) CountQuery() (expr []bob.Mod[*dialect.SelectQuery]) {
 	}
 
 	if !ilp.CreatedAt.IsZero() {
-		expr = append(expr, models.SelectWhere.Images.CreatedAt.GTE(ilp.CreatedAt.Format(time.RFC3339)))
+		expr = append(expr, models.SelectWhere.Images.CreatedAt.GTE(ilp.CreatedAt.Unix()))
 	}
 
 	return expr

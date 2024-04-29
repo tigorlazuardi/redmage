@@ -31,7 +31,9 @@ func (routes *Routes) PageHome(rw http.ResponseWriter, r *http.Request) {
 
 	imageListParams := api.ImageListParams{}
 	imageListParams.FillFromQuery(r.URL.Query())
-	imageListParams.CreatedAt = time.Now().Add(-time.Hour * 24) // images in the last 24 hours
+	if imageListParams.CreatedAt.IsZero() {
+		imageListParams.CreatedAt = time.Now().Add(-time.Hour * 24) // images in the last 24 hours
+	}
 	imageListParams.Limit = 0
 
 	imageList, err := routes.API.ImagesListWithDevicesAndSubreddits(ctx, imageListParams)
@@ -49,6 +51,8 @@ func (routes *Routes) PageHome(rw http.ResponseWriter, r *http.Request) {
 	data := homeview.Data{
 		SubredditsList:      list,
 		RecentlyAddedImages: homeview.NewRecentlyAddedImages(imageList.Images),
+		Now:                 time.Now(),
+		TotalImages:         imageList.Total,
 	}
 
 	if err := homeview.Home(vc, data).Render(ctx, rw); err != nil {

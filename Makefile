@@ -47,6 +47,16 @@ build-dependencies:
 		echo "Dayjs Relative Time not found, installing it"
 		curl -o public/dayjs-relativeTime-1.11.10.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/relativeTime.min.js
 	fi
+	@if [ ! -f "public/dayjs-utc-1.11.10.min.js" ]; then
+		mkdir -p public
+		echo "Dayjs UTC plugin not found, installing it"
+		curl -o public/dayjs-utc-1.11.10.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/utc.min.js
+	fi
+	@if [ ! -f "public/dayjs-timezone-1.11.10.min.js" ]; then
+		mkdir -p public
+		echo "Dayjs Timezone plugin not found, installing it"
+		curl -o public/dayjs-timezone-1.11.10.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/timezone.min.js
+	fi
 	@if [ ! -f "public/theme-change-2.0.2.min.js" ];  then
 		mkdir -p public
 		echo "Theme change not found, installing it"
@@ -70,6 +80,9 @@ migrate-new:
 	
 migrate-redo:
 	@goose redo
+	
+migrate-down:
+	@goose down
 
 migrate-up:
 	@goose up
