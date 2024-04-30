@@ -31,6 +31,11 @@ func (routes *Routes) APIDeviceUpdate(rw http.ResponseWriter, r *http.Request) {
 	ctx, span := tracer.Start(r.Context(), "*Routes.APIDeviceUpdate")
 	defer span.End()
 
+	var (
+		enc = json.NewEncoder(rw)
+		dec = json.NewDecoder(r.Body)
+	)
+
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		log.New(ctx).Err(err).Error("failed to parse id")
@@ -41,14 +46,14 @@ func (routes *Routes) APIDeviceUpdate(rw http.ResponseWriter, r *http.Request) {
 
 	var body deviceUpdate
 
-	if err = json.NewDecoder(r.Body).Decode(&body); err != nil {
+	if err = dec.Decode(&body); err != nil {
 		log.New(ctx).Err(err).Error("failed to decode json body")
 		rw.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(rw).Encode(map[string]string{"error": fmt.Sprintf("cannot decode json body: %s", err)})
 		return
 	}
 
-	err = routes.API.DevicesUpdate(ctx, id, &models.DeviceSetter{
+	device, err := routes.API.DevicesUpdate(ctx, id, &models.DeviceSetter{
 		Slug:                 omit.FromCond(body.Slug, body.Slug != ""),
 		Name:                 omit.FromCond(body.Name, body.Name != ""),
 		ResolutionX:          omit.FromCond(body.ResolutionX, body.ResolutionX != 0),
@@ -63,11 +68,12 @@ func (routes *Routes) APIDeviceUpdate(rw http.ResponseWriter, r *http.Request) {
 		UpdatedAt:            omit.From(time.Now().Unix()),
 	})
 	if err != nil {
+		log.New(ctx).Err(err).Error("failed to update device")
 		code, message := errs.HTTPMessage(err)
 		rw.WriteHeader(code)
-		_ = json.NewEncoder(rw).Encode(map[string]string{"error": message})
+		_ = enc.Encode(map[string]string{"error": message})
 		return
 	}
 
-	_ = json.NewEncoder(rw).Encode(map[string]string{"message": "ok"})
+	_ = enc.Encode(device)
 }

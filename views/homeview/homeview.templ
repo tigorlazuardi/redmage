@@ -41,6 +41,9 @@ templ HomeContent(c *views.Context, data Data) {
 						@recentRangeInput(c)
 						@nsfwToggle(c, data)
 					</div>
+					if data.TotalImages == 0 {
+						<h2 class="mt-4">There are no recently added images in the current time range.</h2>
+					}
 					for _, recently := range data.RecentlyAddedImages {
 						<div class="divider"></div>
 						<h2 class="mt-4">{ recently.Device.Name }</h2>
