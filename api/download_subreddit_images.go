@@ -5,10 +5,12 @@ import (
 	"errors"
 	"image/jpeg"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -185,20 +187,31 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, su
 	return api.saveImageToFSAndDatabase(ctx, tmpImageFile, subreddit, post, devices)
 }
 
+type stat interface {
+	Stat() (fs.FileInfo, error)
+}
+
 func (api *API) saveImageToFSAndDatabase(ctx context.Context, image io.ReadCloser, subreddit *models.Subreddit, post reddit.Post, devices models.DeviceSlice) (err error) {
 	ctx, span := tracer.Start(ctx, "*API.saveImageToFSAndDatabase")
 	defer span.End()
 	defer image.Close()
 
 	w, close, err := api.createDeviceImageWriters(post, devices)
+	defer close()
 	if err != nil {
 		return errs.Wrapw(err, "failed to create image files")
 	}
 	log.New(ctx).Debug("saving image files", "post_id", post.GetID(), "post_url", post.GetImageURL(), "devices", devices)
-	defer close()
-	_, err = io.Copy(w, image)
+	size, err := io.Copy(w, image)
 	if err != nil {
 		return errs.Wrapw(err, "failed to save image files")
+	}
+	if size == 0 {
+		if s, ok := image.(stat); ok {
+			if fi, err := s.Stat(); err == nil {
+				size = fi.Size()
+			}
+		}
 	}
 
 	var many []*models.ImageSetter
@@ -209,10 +222,6 @@ func (api *API) saveImageToFSAndDatabase(ctx context.Context, image io.ReadClose
 			nsfw = 1
 		}
 		width, height := post.GetImageSize()
-		var size int64
-		if fi, err := os.Stat(post.GetImageTargetPath(api.config, device)); err == nil {
-			size = fi.Size()
-		}
 
 		many = append(many, &models.ImageSetter{
 			Subreddit:             omit.From(subreddit.Name),
@@ -300,14 +309,14 @@ func (api *API) isImageEntryExists(ctx context.Context, post reddit.Post, device
 	ctx, span := tracer.Start(ctx, "*API.IsImageExists")
 	defer span.End()
 
-	_, errQuery := models.Images.Query(ctx, api.db,
+	exist, errQuery := models.Images.Query(ctx, api.db,
 		models.SelectWhere.Images.Device.EQ(device.Slug),
 		models.SelectWhere.Images.PostName.EQ(post.GetName()),
-	).One()
+	).Exists()
 
 	_, errStat := os.Stat(post.GetImageTargetPath(api.config, device))
 
-	return errQuery == nil && errStat == nil
+	return exist && errQuery == nil && errStat == nil
 }
 
 // findImageFileForDevice finds if any of the image file exists for given devices.
@@ -317,16 +326,39 @@ func (api *API) isImageEntryExists(ctx context.Context, post reddit.Post, device
 // Return nil if no image file exists for the devices.
 //
 // Ensure to close the file after use.
-func (api *API) findImageFileForDevices(ctx context.Context, post reddit.Post, devices models.DeviceSlice) (file *os.File) {
+func (api *API) findImageFileForDevices(ctx context.Context, post reddit.Post, devices models.DeviceSlice) (oldImageFile *os.File) {
 	for _, device := range devices {
-		_, err := os.Stat(post.GetImageTargetPath(api.config, device))
+		stat, err := os.Stat(post.GetImageTargetPath(api.config, device))
 		if err == nil {
-			file, err = os.Open(post.GetImageTargetPath(api.config, device))
+			oldImageFile, err = os.Open(post.GetImageTargetPath(api.config, device))
 			if err != nil {
 				log.New(ctx).Err(err).Error("failed to open image file", "filename", post.GetImageTargetPath(api.config, device))
 				return nil
 			}
-			return file
+			defer oldImageFile.Close()
+
+			tempFilename := filepath.Join(os.TempDir(), "redmage", stat.Name())
+
+			tempFileWrite, err := os.Create(tempFilename)
+			if err != nil {
+				log.New(ctx).Err(err).Error("failed to create temp file", "filename", post.GetImageTargetPath(api.config, device))
+				return nil
+			}
+			defer tempFileWrite.Close()
+
+			_, err = io.Copy(tempFileWrite, oldImageFile)
+			if err != nil {
+				log.New(ctx).Err(err).Error("failed to copy image file", "filename", post.GetImageTargetPath(api.config, device))
+				return nil
+			}
+
+			rf, err := os.Open(tempFilename)
+			if err != nil {
+				log.New(ctx).Err(err).Error("failed to open temp file", "filename", tempFileWrite.Name())
+				return nil
+			}
+
+			return rf
 		}
 	}
 

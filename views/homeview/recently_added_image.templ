@@ -1,9 +1,10 @@
 package homeview
 
 import "github.com/tigorlazuardi/redmage/models"
-import "github.com/tigorlazuardi/redmage/api/reddit"
 import "fmt"
 import "github.com/tigorlazuardi/redmage/views/utils"
+import "strconv"
+import "github.com/alecthomas/units"
 
 type ImageCardOption uint
 
@@ -19,14 +20,14 @@ const (
 )
 
 templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
-	<div class="not-prose card card-bordered bg-base-100 hover:bg-base-200 shadow-xl w-[256px] min-w-[256px] rounded-xl top-0 hover:-top-1 hover:drop-shadow-2xl transition-all">
+	<div class="not-prose card card-bordered bg-base-100 hover:bg-base-200 shadow-xl min-w-[256px] rounded-xl top-0 hover:-top-1 hover:drop-shadow-2xl transition-all">
 		<figure>
 			<a
 				href={ templ.URL(fmt.Sprintf("/img/%s", data.ImageRelativePath)) }
 				target="_blank"
 			>
 				<img
-					class="object-contain w-[256px] h-[256px]"
+					class="object-contain max-w-[256px] max-h-[256px]"
 					src={ fmt.Sprintf("/img/%s", data.ThumbnailRelativePath) }
 					alt={ data.PostTitle }
 				/>
@@ -40,18 +41,17 @@ templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
 				>{ truncateTitle(data.PostTitle) }</a>
 			}
 			<a class="text-primary underline" href={ templ.URL(data.PostAuthorURL) }>{ data.PostAuthor }</a>
-			<div>
-				@utils.RelativeTimeNode(fmt.Sprintf("relative-time-%s", data.PostName), data.CreatedAt)
+			<div class="flex-1"></div>
+			<div class="flex w-full justify-end">
+				@utils.RelativeTimeNode(fmt.Sprintf("relative-time-%s", data.PostName), data.CreatedAt, "text-sm")
 			</div>
-			<div class="card-actions justify-between">
-				if data.R.Subreddit != nil {
-					if !opts.Has(HideSubreddit) {
-						<a
-							class="badge badge-outline badge-primary"
-							href={ templ.URL(fmt.Sprintf("https://reddit.com/%s/%s", reddit.SubredditType(data.R.Subreddit.Subtype), data.R.Subreddit.Name)) }
-						>{ data.R.Subreddit.Name } </a>
-					}
-				}
+			<div class="grid grid-cols-2 gap-x-4">
+				<p class="text-xs">Width</p>
+				<p class="text-xs text-end">{ strconv.Itoa(int(data.ImageWidth)) } px</p>
+				<p class="text-xs">Height</p>
+				<p class="text-xs text-end">{ strconv.Itoa(int(data.ImageHeight)) } px</p>
+				<p class="text-xs">Size</p>
+				<p class="text-xs text-end">{ units.MetricBytes(data.ImageSize).Round(1).String() }</p>
 			</div>
 		</div>
 	</div>

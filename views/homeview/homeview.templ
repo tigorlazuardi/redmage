@@ -39,8 +39,7 @@ templ HomeContent(c *views.Context, data Data) {
 						hx-push-url="true"
 					>
 						<h1 class="mb-4">
-							Recently Added -
-							{ strconv.FormatInt(data.TotalImages, 10) } Images
+							Recently Added 						
 						</h1>
 						@recentRangeInput(c)
 						@nsfwToggle(c, data)
@@ -48,6 +47,10 @@ templ HomeContent(c *views.Context, data Data) {
 					<div id="recently-added-images">
 						if data.TotalImages == 0 {
 							<h2 class="mt-4">There are no recently added images in the current time range.</h2>
+						} else {
+							<h2 class="mt-4">
+								Added Images: { strconv.FormatInt(data.TotalImages, 10) }
+							</h2>
 						}
 						for _, recently := range data.RecentlyAddedImages {
 							<div class="divider"></div>
