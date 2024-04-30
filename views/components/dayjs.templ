@@ -1,0 +1,13 @@
+package components
+
+templ Dayjs() {
+	<script src="/public/dayjs-1.11.10.min.js"></script>
+	<script src="/public/dayjs-relativeTime-1.11.10.min.js"></script>
+	<script src="/public/dayjs-utc-1.11.10.min.js"></script>
+	<script src="/public/dayjs-timezone-1.11.10.min.js"></script>
+	<script>
+        dayjs.extend(window.dayjs_plugin_relativeTime)
+        dayjs.extend(window.dayjs_plugin_utc)
+        dayjs.extend(window.dayjs_plugin_timezone)
+	</script>
+}

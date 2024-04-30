@@ -64,5 +64,6 @@ func (routes *Routes) registerWWWRoutes(router chi.Router) {
 		r.Use(chimiddleware.RequestLogger(middleware.ChiLogger{}))
 		r.Use(chimiddleware.SetHeader("Content-Type", "text/html; charset=utf-8"))
 		r.Get("/", routes.PageHome)
+		r.Get("/subreddits", routes.PageSubreddits)
 	})
 }

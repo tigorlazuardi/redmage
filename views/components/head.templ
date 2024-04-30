@@ -10,15 +10,6 @@ templ Head(vc *views.Context, extras ...templ.Component) {
 		<link rel="icon" href="/public/favicon.svg"/>
 		<script src="/public/htmx-1.9.11.min.js"></script>
 		<script src="/public/htmx-response-targets-1.9.11.min.js"></script>
-		<script src="/public/dayjs-1.11.10.min.js"></script>
-		<script src="/public/dayjs-relativeTime-1.11.10.min.js"></script>
-		<script src="/public/dayjs-utc-1.11.10.min.js"></script>
-		<script src="/public/dayjs-timezone-1.11.10.min.js"></script>
-		<script>
-			dayjs.extend(window.dayjs_plugin_relativeTime)
-			dayjs.extend(window.dayjs_plugin_utc)
-			dayjs.extend(window.dayjs_plugin_timezone)
-		</script>
 		<script src="/public/theme-change-2.0.2.min.js"></script>
 		if vc.Config.Bool("http.hotreload") {
 			<script src="/public/hot_reload.js"></script>

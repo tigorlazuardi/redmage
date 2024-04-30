@@ -1,0 +1,29 @@
+package subredditsview
+
+import "github.com/tigorlazuardi/redmage/views"
+import "github.com/tigorlazuardi/redmage/views/components"
+
+templ Subreddit(c *views.Context, data Data) {
+	@components.Doctype() {
+		@components.Head(c, components.HeadTitle("Redmage - Subreddits"))
+		@components.Body(c) {
+			@SubredditContent(c, data)
+		}
+	}
+}
+
+templ SubredditContent(c *views.Context, data Data) {
+	<main class="prose min-w-full">
+		@components.Container() {
+			<h1>Subreddits</h1>
+			<div class="divider"></div>
+			if len(data.Subreddits) == 0 {
+				<h3>You have not added any subreddits yet.</h3>
+				<p>Click <a class="text-primary" href="/subreddits/add">here</a> to add a new subreddit.</p>
+			}
+			for _, subreddit := range data.Subreddits {
+				<p>{ subreddit.Name }</p>
+			}
+		}
+	</main>
+}

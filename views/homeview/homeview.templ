@@ -8,7 +8,10 @@ import "fmt"
 
 templ Home(c *views.Context, data Data) {
 	@components.Doctype() {
-		@components.Head(c, components.HeadTitle("Redmage - Home"))
+		@components.Head(c,
+			components.Dayjs(),
+			components.HeadTitle("Redmage - Home"),
+		)
 		@components.Body(c) {
 			@HomeContent(c, data)
 		}
@@ -19,7 +22,7 @@ templ Home(c *views.Context, data Data) {
 //
 // Use this template if request is HX-Boosted.
 templ HomeContent(c *views.Context, data Data) {
-	<main id="main" class="prose min-w-full">
+	<main class="prose min-w-full">
 		@components.Container() {
 			if data.Error != "" {
 				@components.ErrorToast(data.Error)
@@ -51,7 +54,7 @@ templ HomeContent(c *views.Context, data Data) {
 							<h2 class="mt-4">{ recently.Device.Name }</h2>
 							for _, subreddit := range recently.Subreddits {
 								<h4>
-									<a class="text-primary" href={ templ.SafeURL(fmt.Sprintf("/subreddits/details/%s?device=%d", subreddit.Subreddit.Name, recently.Device.Slug)) }>
+									<a class="text-primary" href={ templ.SafeURL(fmt.Sprintf("/subreddits/details/%s?device=%s", subreddit.Subreddit.Name, recently.Device.Slug)) }>
 										{ subreddit.Subreddit.Name }
 									</a>
 									- { strconv.Itoa(len(subreddit.Images)) } images
