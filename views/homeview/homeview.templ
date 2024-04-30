@@ -4,6 +4,7 @@ import "github.com/tigorlazuardi/redmage/views/components"
 import "github.com/tigorlazuardi/redmage/views"
 import "github.com/tigorlazuardi/redmage/views/utils"
 import "strconv"
+import "fmt"
 
 templ Home(c *views.Context, data Data) {
 	@components.Doctype() {
@@ -27,8 +28,8 @@ templ HomeContent(c *views.Context, data Data) {
 					<div
 						class="flex content-center gap-8"
 						hx-get="/"
-						hx-target="main"
-						hx-select="main"
+						hx-target="#recently-added-images"
+						hx-select="#recently-added-images"
 						hx-swap="outerHTML"
 						hx-trigger="change"
 						hx-include="this"
@@ -41,17 +42,24 @@ templ HomeContent(c *views.Context, data Data) {
 						@recentRangeInput(c)
 						@nsfwToggle(c, data)
 					</div>
-					if data.TotalImages == 0 {
-						<h2 class="mt-4">There are no recently added images in the current time range.</h2>
-					}
-					for _, recently := range data.RecentlyAddedImages {
-						<div class="divider"></div>
-						<h2 class="mt-4">{ recently.Device.Name }</h2>
-						for _, subreddit := range recently.Subreddits {
-							<h4>{ subreddit.Subreddit.Name } - { strconv.Itoa(len(subreddit.Images)) } images</h4>
-							@RecentlyAddedImageList(subreddit.Images, 0)
+					<div id="recently-added-images">
+						if data.TotalImages == 0 {
+							<h2 class="mt-4">There are no recently added images in the current time range.</h2>
 						}
-					}
+						for _, recently := range data.RecentlyAddedImages {
+							<div class="divider"></div>
+							<h2 class="mt-4">{ recently.Device.Name }</h2>
+							for _, subreddit := range recently.Subreddits {
+								<h4>
+									<a class="text-primary" href={ templ.SafeURL(fmt.Sprintf("/subreddits/details/%s?device=%d", subreddit.Subreddit.Name, recently.Device.ID)) }>
+										{ subreddit.Subreddit.Name }
+									</a>
+									- { strconv.Itoa(len(subreddit.Images)) } images
+								</h4>
+								@RecentlyAddedImageList(subreddit.Images, 0)
+							}
+						}
+					</div>
 				</section>
 				<section>
 					<h1>Subreddits</h1>
@@ -99,11 +107,11 @@ templ nsfwToggle(c *views.Context, data Data) {
 		class="select select-ghost select-bordered"
 	>
 		if (c.Request.URL.Query().Get("sfw") == "1") || data.SFW {
-			<option value="0">NSFW - ON</option>
-			<option selected="selected" value="1">NSFW - Off</option>
+			<option value="0">NSFW - Show</option>
+			<option selected="selected" value="1">NSFW - Hide</option>
 		} else {
-			<option selected="selected" value="0">NSFW - ON</option>
-			<option value="1">NSFW - Off</option>
+			<option selected="selected" value="0">NSFW - Show</option>
+			<option value="1">NSFW - Hide</option>
 		}
 	</select>
 }

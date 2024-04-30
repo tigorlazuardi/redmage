@@ -37,7 +37,7 @@ templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
 				<a
 					href={ templ.URL(data.PostURL) }
 					class="card-title font-bold underline text-base text-primary"
-				>{ data.Title }</a>
+				>{ truncateTitle(data.Title) }</a>
 			}
 			<a class="text-primary underline" href={ templ.URL(data.PosterURL) }>{ data.Poster }</a>
 			<div>
@@ -55,6 +55,13 @@ templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
 			</div>
 		</div>
 	</div>
+}
+
+func truncateTitle(title string) string {
+	if len(title) > 50 {
+		return title[:50] + "..."
+	}
+	return title
 }
 
 templ RecentlyAddedImageList(images models.ImageSlice, opts ImageCardOption) {
