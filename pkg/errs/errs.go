@@ -74,6 +74,9 @@ func (er *Err) Error() string {
 	s := strings.Builder{}
 	if er.message != "" {
 		s.WriteString(er.message)
+		if er.origin != nil {
+			s.WriteString(": ")
+		}
 	}
 	for unwrap := errors.Unwrap(er); unwrap != nil; {
 		if e, ok := unwrap.(Error); ok && e.GetMessage() != "" {

@@ -27,6 +27,9 @@ func (api *API) DevicesUpdate(ctx context.Context, slug string, update *models.D
 	}
 
 	if err := device.Reload(ctx, api.db); err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return device, errs.Wrapw(err, "device not found", "slug", slug).Code(404)
+		}
 		return device, errs.Wrapw(err, "failed to reload device", "slug", slug)
 	}
 
