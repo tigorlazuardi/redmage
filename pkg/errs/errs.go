@@ -55,16 +55,14 @@ func (er *Err) LogValue() slog.Value {
 
 	if er.origin == nil {
 		values = append(values, slog.Any("error", er.origin))
+	} else if lv, ok := er.origin.(slog.LogValuer); ok {
+		values = append(values, slog.Attr{Key: "error", Value: lv.LogValue()})
 	} else {
-		errGroupValues := make([]slog.Attr, 0, 3)
-		errGroupValues = append(errGroupValues, slog.String("type", reflect.TypeOf(er.origin).String()))
-		if lv, ok := er.origin.(slog.LogValuer); ok {
-			errGroupValues = append(errGroupValues, slog.Attr{Key: "data", Value: lv.LogValue()})
-		} else {
-			errGroupValues = append(errGroupValues, slog.String("message", er.origin.Error()), slog.Any("data", er.origin))
-		}
-
-		values = append(values, slog.Attr{Key: "error", Value: slog.GroupValue(errGroupValues...)})
+		values = append(values, slog.Attr{Key: "error", Value: slog.GroupValue(
+			slog.String("type", reflect.TypeOf(er.origin).String()),
+			slog.String("message", er.origin.Error()),
+			slog.Any("data", er.origin),
+		)})
 	}
 
 	return slog.GroupValue(values...)
