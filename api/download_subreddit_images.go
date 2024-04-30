@@ -276,22 +276,14 @@ func (api *API) isImageExists(ctx context.Context, post reddit.Post, device *mod
 	ctx, span := tracer.Start(ctx, "*API.IsImageExists")
 	defer span.End()
 
-	_, err := models.Images.Query(ctx, api.db,
+	_, errQuery := models.Images.Query(ctx, api.db,
 		models.SelectWhere.Images.DeviceID.EQ(device.ID),
 		models.SelectWhere.Images.PostID.EQ(post.GetID()),
 	).One()
-	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
-			return false
-		}
-	}
 
-	// Image does not exist in target path.
-	if _, err := os.Stat(post.GetImageTargetPath(api.config, device)); err != nil {
-		return false
-	}
+	_, errStat := os.Stat(post.GetImageTargetPath(api.config, device))
 
-	return true
+	return errQuery == nil && errStat == nil
 }
 
 func shouldDownloadPostForDevice(post reddit.Post, device *models.Device) bool {
