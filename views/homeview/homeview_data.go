@@ -1,7 +1,6 @@
 package homeview
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 	"time"
@@ -42,11 +41,11 @@ func NewRecentlyAddedImages(images models.ImageSlice) RecentlyAddedImages {
 		}
 		var deviceFound bool
 		for i, ra := range r {
-			if ra.Device.ID == image.R.Device.ID {
+			if ra.Device.Slug == image.R.Device.Slug {
 				deviceFound = true
 				var subredditFound bool
 				for j, subreddit := range r[i].Subreddits {
-					if subreddit.Subreddit.ID == image.R.Subreddit.ID {
+					if subreddit.Subreddit.Name == image.R.Subreddit.Name {
 						subredditFound = true
 						r[i].Subreddits[j].Images = append(r[i].Subreddits[j].Images, image)
 						count++
@@ -88,8 +87,6 @@ func NewRecentlyAddedImages(images models.ImageSlice) RecentlyAddedImages {
 		rightName := strings.ToLower(right.Device.Name)
 		return strings.Compare(leftName, rightName)
 	})
-
-	fmt.Println("image count", count)
 
 	return r
 }

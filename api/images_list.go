@@ -22,8 +22,8 @@ type ImageListParams struct {
 	Sort      string
 	Offset    int64
 	Limit     int64
-	Device    int32
-	Subreddit int32
+	Device    string
+	Subreddit string
 	CreatedAt time.Time
 }
 
@@ -40,10 +40,8 @@ func (ilp *ImageListParams) FillFromQuery(query Queryable) {
 	if ilp.Limit < 1 {
 		ilp.Limit = 25
 	}
-	device, _ := strconv.ParseInt(query.Get("device"), 10, 32)
-	ilp.Device = int32(device)
-	subreddit, _ := strconv.ParseInt(query.Get("subreddit"), 10, 32)
-	ilp.Subreddit = int32(subreddit)
+	ilp.Device = query.Get("device")
+	ilp.Subreddit = query.Get("subreddit")
 
 	createdAtint, _ := strconv.ParseInt(query.Get("created_at"), 10, 64)
 	if createdAtint > 0 {
@@ -59,8 +57,8 @@ func (ilp ImageListParams) CountQuery() (expr []bob.Mod[*dialect.SelectQuery]) {
 		arg := sqlite.Arg("%" + ilp.Q + "%")
 		expr = append(expr,
 			sm.Where(
-				models.ImageColumns.Title.Like(arg).
-					Or(models.ImageColumns.Poster.Like(arg)).
+				models.ImageColumns.PostTitle.Like(arg).
+					Or(models.ImageColumns.PostAuthor.Like(arg)).
 					Or(models.ImageColumns.ImageRelativePath.Like(arg)),
 			),
 		)
@@ -70,12 +68,12 @@ func (ilp ImageListParams) CountQuery() (expr []bob.Mod[*dialect.SelectQuery]) {
 		expr = append(expr, models.SelectWhere.Images.NSFW.EQ(0))
 	}
 
-	if ilp.Device > 0 {
-		expr = append(expr, models.SelectWhere.Images.DeviceID.EQ(ilp.Device))
+	if len(ilp.Device) > 0 {
+		expr = append(expr, models.SelectWhere.Images.Device.EQ(ilp.Device))
 	}
 
-	if ilp.Subreddit > 0 {
-		expr = append(expr, models.SelectWhere.Images.SubredditID.EQ(ilp.Subreddit))
+	if len(ilp.Subreddit) > 0 {
+		expr = append(expr, models.SelectWhere.Images.Subreddit.EQ(ilp.Subreddit))
 	}
 
 	if !ilp.CreatedAt.IsZero() {

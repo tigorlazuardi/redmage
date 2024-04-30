@@ -44,7 +44,7 @@ func (routes *Routes) registerV1APIRoutes(router chi.Router) {
 
 	router.Get("/devices", routes.APIDeviceList)
 	router.Post("/devices", routes.APIDeviceCreate)
-	router.Patch("/devices/{id}", routes.APIDeviceUpdate)
+	router.Patch("/devices/{slug}", routes.APIDeviceUpdate)
 
 	router.Get("/images", routes.ImagesListAPI)
 

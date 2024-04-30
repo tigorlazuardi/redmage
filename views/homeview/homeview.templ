@@ -26,7 +26,7 @@ templ HomeContent(c *views.Context, data Data) {
 			} else {
 				<section class="mb-4 mx-auto">
 					<div
-						class="flex content-center gap-8"
+						class="flex flex-wrap content-center gap-x-8"
 						hx-get="/"
 						hx-target="#recently-added-images"
 						hx-select="#recently-added-images"
@@ -35,7 +35,7 @@ templ HomeContent(c *views.Context, data Data) {
 						hx-include="this"
 						hx-push-url="true"
 					>
-						<h1>
+						<h1 class="mb-4">
 							Recently Added -
 							{ strconv.FormatInt(data.TotalImages, 10) } Images
 						</h1>
@@ -51,7 +51,7 @@ templ HomeContent(c *views.Context, data Data) {
 							<h2 class="mt-4">{ recently.Device.Name }</h2>
 							for _, subreddit := range recently.Subreddits {
 								<h4>
-									<a class="text-primary" href={ templ.SafeURL(fmt.Sprintf("/subreddits/details/%s?device=%d", subreddit.Subreddit.Name, recently.Device.ID)) }>
+									<a class="text-primary" href={ templ.SafeURL(fmt.Sprintf("/subreddits/details/%s?device=%d", subreddit.Subreddit.Name, recently.Device.Slug)) }>
 										{ subreddit.Subreddit.Name }
 									</a>
 									- { strconv.Itoa(len(subreddit.Images)) } images

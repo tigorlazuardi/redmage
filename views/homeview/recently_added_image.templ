@@ -28,7 +28,7 @@ templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
 				<img
 					class="object-contain w-[256px] h-[256px]"
 					src={ fmt.Sprintf("/img/%s", data.ThumbnailRelativePath) }
-					alt={ data.Title }
+					alt={ data.PostTitle }
 				/>
 			</a>
 		</figure>
@@ -37,9 +37,9 @@ templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
 				<a
 					href={ templ.URL(data.PostURL) }
 					class="card-title font-bold underline text-base text-primary"
-				>{ truncateTitle(data.Title) }</a>
+				>{ truncateTitle(data.PostTitle) }</a>
 			}
-			<a class="text-primary underline" href={ templ.URL(data.PosterURL) }>{ data.Poster }</a>
+			<a class="text-primary underline" href={ templ.URL(data.PostAuthorURL) }>{ data.PostAuthor }</a>
 			<div>
 				@utils.RelativeTimeNode(fmt.Sprintf("relative-time-%s", data.PostName), data.CreatedAt)
 			</div>

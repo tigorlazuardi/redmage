@@ -100,11 +100,11 @@ func (api *API) downloadSubredditListImage(ctx context.Context, list reddit.List
 		if !post.IsImagePost() {
 			continue
 		}
-		devices := api.getDevicesThatAcceptPost(ctx, post, devices)
-		if len(devices) == 0 {
+		acceptedDevices := api.getDevicesThatAcceptPost(ctx, post, devices)
+		if len(acceptedDevices) == 0 {
 			continue
 		}
-		log.New(ctx).Debug("downloading image", "post_id", post.GetID(), "post_url", post.GetImageURL(), "devices", devices)
+		log.New(ctx).Debug("downloading image", "post_id", post.GetID(), "post_url", post.GetImageURL(), "devices", acceptedDevices)
 		wg.Add(1)
 		api.imageSemaphore <- struct{}{}
 		go func(ctx context.Context, post reddit.Post) {
@@ -113,7 +113,15 @@ func (api *API) downloadSubredditListImage(ctx context.Context, list reddit.List
 				wg.Done()
 			}()
 
-			if err := api.downloadSubredditImage(ctx, post, subreddit, devices); err != nil {
+			if imageFile := api.findImageFileForDevices(ctx, post, devices); imageFile != nil {
+				err := api.saveImageToFSAndDatabase(ctx, imageFile, subreddit, post, acceptedDevices)
+				if err != nil {
+					log.New(ctx).Err(err).Error("failed to download subreddit image")
+				}
+				return
+			}
+
+			if err := api.downloadSubredditImage(ctx, post, subreddit, acceptedDevices); err != nil {
 				log.New(ctx).Err(err).Error("failed to download subreddit image")
 			}
 		}(ctx, post)
@@ -174,13 +182,21 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, su
 		return errs.Wrapw(err, "failed to encode thumbnail file to jpeg", "filename", thumbnailPath)
 	}
 
+	return api.saveImageToFSAndDatabase(ctx, tmpImageFile, subreddit, post, devices)
+}
+
+func (api *API) saveImageToFSAndDatabase(ctx context.Context, image io.ReadCloser, subreddit *models.Subreddit, post reddit.Post, devices models.DeviceSlice) (err error) {
+	ctx, span := tracer.Start(ctx, "*API.saveImageToFSAndDatabase")
+	defer span.End()
+	defer image.Close()
+
 	w, close, err := api.createDeviceImageWriters(post, devices)
 	if err != nil {
 		return errs.Wrapw(err, "failed to create image files")
 	}
 	log.New(ctx).Debug("saving image files", "post_id", post.GetID(), "post_url", post.GetImageURL(), "devices", devices)
 	defer close()
-	_, err = io.Copy(w, tmpImageFile)
+	_, err = io.Copy(w, image)
 	if err != nil {
 		return errs.Wrapw(err, "failed to save image files")
 	}
@@ -192,20 +208,27 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, su
 		if post.IsNSFW() {
 			nsfw = 1
 		}
+		width, height := post.GetImageSize()
+		var size int64
+		if fi, err := os.Stat(post.GetImageTargetPath(api.config, device)); err == nil {
+			size = fi.Size()
+		}
+
 		many = append(many, &models.ImageSetter{
-			SubredditID:           omit.From(subreddit.ID),
-			DeviceID:              omit.From(device.ID),
-			Title:                 omit.From(post.GetTitle()),
-			PostID:                omit.From(post.GetID()),
+			Subreddit:             omit.From(subreddit.Name),
+			Device:                omit.From(device.Slug),
+			PostTitle:             omit.From(post.GetTitle()),
 			PostURL:               omit.From(post.GetPostURL()),
 			PostCreated:           omit.From(post.GetCreated().Unix()),
 			PostName:              omit.From(post.GetName()),
-			Poster:                omit.From(post.GetAuthor()),
-			PosterURL:             omit.From(post.GetAuthorURL()),
+			PostAuthor:            omit.From(post.GetAuthor()),
+			PostAuthorURL:         omit.From(post.GetAuthorURL()),
+			ImageWidth:            omit.From(int32(width)),
+			ImageHeight:           omit.From(int32(height)),
+			ImageSize:             omit.From(size),
 			ImageRelativePath:     omit.From(post.GetImageRelativePath(device)),
 			ThumbnailRelativePath: omit.From(post.GetThumbnailRelativePath()),
 			ImageOriginalURL:      omit.From(post.GetImageURL()),
-			ThumbnailOriginalURL:  omit.From(post.GetThumbnailURL()),
 			NSFW:                  omit.From(nsfw),
 			CreatedAt:             omit.From(now.Unix()),
 			UpdatedAt:             omit.From(now.Unix()),
@@ -217,7 +240,6 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, su
 	if err != nil {
 		return errs.Wrapw(err, "failed to insert images to database", "params", many)
 	}
-
 	return nil
 }
 
@@ -265,25 +287,50 @@ func (api *API) createDeviceImageWriters(post reddit.Post, devices models.Device
 
 func (api *API) getDevicesThatAcceptPost(ctx context.Context, post reddit.Post, devices models.DeviceSlice) (devs models.DeviceSlice) {
 	for _, device := range devices {
-		if shouldDownloadPostForDevice(post, device) && !api.isImageExists(ctx, post, device) {
+		if shouldDownloadPostForDevice(post, device) && !api.isImageEntryExists(ctx, post, device) {
 			devs = append(devs, device)
 		}
 	}
 	return devs
 }
 
-func (api *API) isImageExists(ctx context.Context, post reddit.Post, device *models.Device) (found bool) {
+// isImageEntryExists checks if the image entry already exists in the database and
+// the image file actually exists in the filesystem.
+func (api *API) isImageEntryExists(ctx context.Context, post reddit.Post, device *models.Device) (found bool) {
 	ctx, span := tracer.Start(ctx, "*API.IsImageExists")
 	defer span.End()
 
 	_, errQuery := models.Images.Query(ctx, api.db,
-		models.SelectWhere.Images.DeviceID.EQ(device.ID),
-		models.SelectWhere.Images.PostID.EQ(post.GetID()),
+		models.SelectWhere.Images.Device.EQ(device.Slug),
+		models.SelectWhere.Images.PostName.EQ(post.GetName()),
 	).One()
 
 	_, errStat := os.Stat(post.GetImageTargetPath(api.config, device))
 
 	return errQuery == nil && errStat == nil
+}
+
+// findImageFileForDevice finds if any of the image file exists for given devices.
+//
+// This helps to avoid downloading the same image for different devices.
+//
+// Return nil if no image file exists for the devices.
+//
+// Ensure to close the file after use.
+func (api *API) findImageFileForDevices(ctx context.Context, post reddit.Post, devices models.DeviceSlice) (file *os.File) {
+	for _, device := range devices {
+		_, err := os.Stat(post.GetImageTargetPath(api.config, device))
+		if err == nil {
+			file, err = os.Open(post.GetImageTargetPath(api.config, device))
+			if err != nil {
+				log.New(ctx).Err(err).Error("failed to open image file", "filename", post.GetImageTargetPath(api.config, device))
+				return nil
+			}
+			return file
+		}
+	}
+
+	return nil
 }
 
 func shouldDownloadPostForDevice(post reddit.Post, device *models.Device) bool {

@@ -9,11 +9,11 @@ import (
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 )
 
-func (api *API) DevicesUpdate(ctx context.Context, id int, update *models.DeviceSetter) (device *models.Device, err error) {
+func (api *API) DevicesUpdate(ctx context.Context, slug string, update *models.DeviceSetter) (device *models.Device, err error) {
 	ctx, span := tracer.Start(ctx, "*API.DevicesUpdate")
 	defer span.End()
 
-	device = &models.Device{ID: int32(id)}
+	device = &models.Device{Slug: slug}
 
 	err = models.Devices.Update(ctx, api.db, update, device)
 	if err != nil {
@@ -23,11 +23,11 @@ func (api *API) DevicesUpdate(ctx context.Context, id int, update *models.Device
 				return device, errs.Wrapw(err, "a device with the same slug id already exists").Code(409)
 			}
 		}
-		return device, errs.Wrapw(err, "failed to update device", "id", id, "values", update)
+		return device, errs.Wrapw(err, "failed to update device", "slug", slug, "values", update)
 	}
 
 	if err := device.Reload(ctx, api.db); err != nil {
-		return device, errs.Wrapw(err, "failed to reload device", "id", id)
+		return device, errs.Wrapw(err, "failed to reload device", "slug", slug)
 	}
 
 	return device, nil

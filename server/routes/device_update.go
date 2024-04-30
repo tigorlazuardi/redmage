@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/aarondl/opt/omit"
@@ -36,11 +35,10 @@ func (routes *Routes) APIDeviceUpdate(rw http.ResponseWriter, r *http.Request) {
 		dec = json.NewDecoder(r.Body)
 	)
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil {
-		log.New(ctx).Err(err).Error("failed to parse id")
+	slug := chi.URLParam(r, "slug")
+	if slug == "" {
 		rw.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(rw).Encode(map[string]string{"error": fmt.Sprintf("bad id: %s", err)})
+		_ = json.NewEncoder(rw).Encode(map[string]string{"error": "missing name"})
 		return
 	}
 
@@ -53,8 +51,7 @@ func (routes *Routes) APIDeviceUpdate(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	device, err := routes.API.DevicesUpdate(ctx, id, &models.DeviceSetter{
-		Slug:                 omit.FromCond(body.Slug, body.Slug != ""),
+	device, err := routes.API.DevicesUpdate(ctx, slug, &models.DeviceSetter{
 		Name:                 omit.FromCond(body.Name, body.Name != ""),
 		ResolutionX:          omit.FromCond(body.ResolutionX, body.ResolutionX != 0),
 		ResolutionY:          omit.FromCond(body.ResolutionY, body.ResolutionY != 0),
