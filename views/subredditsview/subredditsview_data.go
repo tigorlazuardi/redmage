@@ -1,7 +1,10 @@
 package subredditsview
 
-import "github.com/tigorlazuardi/redmage/models"
+import (
+	"github.com/tigorlazuardi/redmage/api"
+)
 
 type Data struct {
-	Subreddits models.SubredditSlice
+	Subreddits api.ListSubredditsResult
+	Error      string
 }

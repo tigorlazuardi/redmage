@@ -26,7 +26,7 @@ func (r *Routes) SubredditsListAPI(rw http.ResponseWriter, req *http.Request) {
 }
 
 func parseSubredditListQuery(req *http.Request) (params api.ListSubredditsParams) {
-	params.Name = req.FormValue("name")
+	params.Q = req.FormValue("name")
 	params.Limit, _ = strconv.ParseInt(req.FormValue("limit"), 10, 64)
 	if params.Limit < 1 {
 		params.Limit = 10

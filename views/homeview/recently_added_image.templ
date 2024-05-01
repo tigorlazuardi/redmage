@@ -18,14 +18,14 @@ const (
 )
 
 templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
-	<div class="not-prose card card-bordered bg-base-100 hover:bg-base-200 shadow-xl min-w-[256px] rounded-xl top-0 hover:-top-1 hover:drop-shadow-2xl transition-all">
+	<div class="not-prose card card-bordered bg-base-100 hover:bg-base-200 shadow-xl min-w-[16rem] rounded-xl top-0 hover:-top-1 hover:drop-shadow-2xl transition-all">
 		<figure>
 			<a
 				href={ templ.URL(fmt.Sprintf("/img/%s", data.ImageRelativePath)) }
 				target="_blank"
 			>
 				<img
-					class="object-contain max-w-[256px] max-h-[256px]"
+					class="object-contain max-w-[16rem] max-h-[16rem]"
 					src={ fmt.Sprintf("/img/%s", data.ThumbnailRelativePath) }
 					alt={ data.PostTitle }
 				/>
