@@ -3,8 +3,6 @@ package homeview
 import "github.com/tigorlazuardi/redmage/models"
 import "fmt"
 import "github.com/tigorlazuardi/redmage/views/utils"
-import "strconv"
-import "github.com/alecthomas/units"
 
 type ImageCardOption uint
 
@@ -45,16 +43,26 @@ templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
 			<div class="flex w-full justify-end">
 				@utils.RelativeTimeNode(fmt.Sprintf("relative-time-%s", data.PostName), data.CreatedAt, "text-sm")
 			</div>
-			<div class="grid grid-cols-2 gap-x-4">
-				<p class="text-xs">Width</p>
-				<p class="text-xs text-end">{ strconv.Itoa(int(data.ImageWidth)) } px</p>
-				<p class="text-xs">Height</p>
-				<p class="text-xs text-end">{ strconv.Itoa(int(data.ImageHeight)) } px</p>
-				<p class="text-xs">Size</p>
-				<p class="text-xs text-end">{ units.MetricBytes(data.ImageSize).Round(1).String() }</p>
+			<div class="grid grid-cols-2">
+				<p class="text-xs">{ fmt.Sprintf("%d \u00d7 %d", data.ImageWidth, data.ImageHeight) } px</p>
+				<p class="text-xs text-end">{ formatByteSize(data.ImageSize) }</p>
 			</div>
 		</div>
 	</div>
+}
+
+func formatByteSize(size int64) string {
+	if size < 1024 {
+		return fmt.Sprintf("%d B", size)
+	}
+	if size < 1024*1024 {
+		return fmt.Sprintf("%.2f KiB", float64(size)/1024)
+	}
+	if size < 1024*1024*1024 {
+		return fmt.Sprintf("%.2f MiB", float64(size)/(1024*1024))
+	}
+	return fmt.Sprintf("%.2f GiB", float64(size)/(1024*1024*1024))
+
 }
 
 func truncateTitle(title string) string {
