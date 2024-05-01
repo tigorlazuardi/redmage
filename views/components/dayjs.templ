@@ -1,10 +1,13 @@
 package components
 
-templ Dayjs() {
-	<script src="/public/dayjs-1.11.10.min.js"></script>
-	<script src="/public/dayjs-relativeTime-1.11.10.min.js"></script>
-	<script src="/public/dayjs-utc-1.11.10.min.js"></script>
-	<script src="/public/dayjs-timezone-1.11.10.min.js"></script>
+import "fmt"
+import "github.com/tigorlazuardi/redmage/views"
+
+templ Dayjs(c *views.Context) {
+	<script src={ fmt.Sprintf("/public/dayjs-%s.min.js", c.Config.String("web.dependencies.dayjs.version")) }></script>
+	<script src={ fmt.Sprintf("/public/dayjs-relativeTime-%s.min.js", c.Config.String("web.dependencies.dayjs.version")) }></script>
+	<script src={ fmt.Sprintf("/public/dayjs-utc-%s.min.js", c.Config.String("web.dependencies.dayjs.version")) }></script>
+	<script src={ fmt.Sprintf("/public/dayjs-timezone-%s.min.js", c.Config.String("web.dependencies.dayjs.version")) }></script>
 	<script>
         dayjs.extend(window.dayjs_plugin_relativeTime)
         dayjs.extend(window.dayjs_plugin_utc)

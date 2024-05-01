@@ -8,6 +8,7 @@ templ Head(vc *views.Context, extras ...templ.Component) {
 		<meta name="keywords" content="Reddit, Image, Downloader"/>
 		<link rel="stylesheet" href="/public/style.css"/>
 		<link rel="icon" href="/public/favicon.svg"/>
+		@Dayjs(vc)
 		@HTMX(vc)
 		@ThemeChange(vc)
 		if vc.Config.Bool("http.hotreload") {

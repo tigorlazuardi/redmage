@@ -9,7 +9,6 @@ import "fmt"
 templ Home(c *views.Context, data Data) {
 	@components.Doctype() {
 		@components.Head(c,
-			components.Dayjs(),
 			components.HeadTitle("Redmage - Home"),
 		)
 		@components.Body(c) {

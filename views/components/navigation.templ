@@ -87,7 +87,7 @@ templ Navbar(c *views.Context) {
 				<span class="font-bold">Redmage</span>
 			</div>
 			<div class="divider"></div>
-			<nav class="pt-4">
+			<nav class="pt-4" hx-boost="true" hx-select="main" hx-target="main">
 				@navList(c)
 			</nav>
 			<div class="flex-grow"></div>
