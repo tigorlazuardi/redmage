@@ -31,16 +31,17 @@ templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
 				/>
 			</a>
 		</figure>
+		<div class="flex-1"></div>
 		<div class="card-body">
 			if !opts.Has(HideTitle) {
 				<a
 					href={ templ.URL(data.PostURL) }
-					class="card-title font-bold underline text-base text-primary"
+					class="card-title font-bold underline text-sm text-primary"
 				>{ truncateTitle(data.PostTitle) }</a>
 			}
-			<a class="text-primary underline" href={ templ.URL(data.PostAuthorURL) }>{ data.PostAuthor }</a>
+			<a class="text-primary text-sm underline" href={ templ.URL(data.PostAuthorURL) }>{ data.PostAuthor }</a>
 			<div class="flex-1"></div>
-			<div class="flex w-full justify-end">
+			<div class="flex">
 				@utils.RelativeTimeNode(fmt.Sprintf("relative-time-%s", data.PostName), data.CreatedAt, "text-sm")
 			</div>
 			<div class="grid grid-cols-2">
