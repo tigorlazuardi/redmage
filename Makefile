@@ -7,6 +7,10 @@ export GOOSE_DRIVER=sqlite3
 export GOOSE_DBSTRING=./data.db
 export GOOSE_MIGRATION_DIR=db/migrations
 
+export REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION=$(shell echo "$${REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION:-1.9.12}")
+export REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION=$(shell echo "$${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION:-1.11.10}")
+export REDMAGE_WEB_DEPENDENCIES_THEMECHANGE_VERSION=$(shell echo "$${REDMAGE_WEB_DEPENDENCIES_THEMECHANGE_VERSION:-2.0.2}")
+
 start: dev-dependencies
 	@air
 
@@ -27,40 +31,40 @@ build-dependencies:
 		echo "Node modules not found, installing them"
 		npm install
 	fi
-	@if [  ! -f "public/htmx-1.9.11.min.js" ]; then
+	@if [  ! -f "public/htmx-${REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION}.min.js" ]; then
 		mkdir -p public
-		echo "Htmx not found, installing it"
-		curl -o public/htmx-1.9.11.min.js https://unpkg.com/htmx.org@1.9.11/dist/htmx.min.js
+		echo "Htmx ${REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION} not found, installing it"
+		curl -o public/htmx-${REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION}.min.js https://unpkg.com/htmx.org@${REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION}/dist/htmx.min.js
 	fi
-	@if [ ! -f "public/htmx-response-targets-1.9.11.min.js" ]; then
+	@if [ ! -f "public/htmx-response-targets-${REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION}.min.js" ]; then
 		mkdir -p public
-		echo "Htmx response targets not found, installing it"
-		curl -o public/htmx-response-targets-1.9.11.min.js https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.11/ext/response-targets.min.js
+		echo "Htmx response targets ${REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION} not found, installing it"
+		curl -o public/htmx-response-targets-${REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION}.min.js https://cdnjs.cloudflare.com/ajax/libs/htmx/${REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION}/ext/response-targets.min.js
 	fi
-	@if [ ! -f "public/dayjs-1.11.10.min.js" ]; then
+	@if [ ! -f "public/dayjs-${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}.min.js" ]; then
 		mkdir -p public
-		echo "Dayjs not found, installing it"
-		curl -o public/dayjs-1.11.10.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js
+		echo "Dayjs ${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION} not found, installing it"
+		curl -o public/dayjs-${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}/dayjs.min.js
 	fi
-	@if [ ! -f "public/dayjs-relativeTime-1.11.10.min.js" ]; then
+	@if [ ! -f "public/dayjs-relativeTime-${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}.min.js" ]; then
 		mkdir -p public
-		echo "Dayjs Relative Time not found, installing it"
-		curl -o public/dayjs-relativeTime-1.11.10.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/relativeTime.min.js
+		echo "Dayjs Relative Time ${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION} not found, installing it"
+		curl -o public/dayjs-relativeTime-${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}/plugin/relativeTime.min.js
 	fi
-	@if [ ! -f "public/dayjs-utc-1.11.10.min.js" ]; then
+	@if [ ! -f "public/dayjs-utc-${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}.min.js" ]; then
 		mkdir -p public
-		echo "Dayjs UTC plugin not found, installing it"
-		curl -o public/dayjs-utc-1.11.10.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/utc.min.js
+		echo "Dayjs UTC ${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION} plugin not found, installing it"
+		curl -o public/dayjs-utc-${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}/plugin/utc.min.js
 	fi
-	@if [ ! -f "public/dayjs-timezone-1.11.10.min.js" ]; then
+	@if [ ! -f "public/dayjs-timezone-${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}.min.js" ]; then
 		mkdir -p public
-		echo "Dayjs Timezone plugin not found, installing it"
-		curl -o public/dayjs-timezone-1.11.10.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/timezone.min.js
+		echo "Dayjs Timezone ${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION} plugin not found, installing it"
+		curl -o public/dayjs-timezone-${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}/plugin/timezone.min.js
 	fi
-	@if [ ! -f "public/theme-change-2.0.2.min.js" ];  then
+	@if [ ! -f "public/theme-change-${REDMAGE_WEB_DEPENDENCIES_THEMECHANGE_VERSION}.min.js" ];  then
 		mkdir -p public
-		echo "Theme change not found, installing it"
-		curl -o public/theme-change-2.0.2.min.js https://cdn.jsdelivr.net/npm/theme-change@2.0.2/index.js
+		echo "Theme change ${REDMAGE_WEB_DEPENDENCIES_THEMECHANGE_VERSION} not found, installing it"
+		curl -o public/theme-change-${REDMAGE_WEB_DEPENDENCIES_THEMECHANGE_VERSION}.min.js https://cdn.jsdelivr.net/npm/theme-change@${REDMAGE_WEB_DEPENDENCIES_THEMECHANGE_VERSION}/index.js
 	fi
 
 build: build-dependencies prepare

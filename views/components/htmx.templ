@@ -1,0 +1,9 @@
+package components
+
+import "github.com/tigorlazuardi/redmage/views"
+import "fmt"
+
+templ HTMX(c *views.Context) {
+	<script src={ fmt.Sprintf("/public/htmx-%s.min.js", c.Config.String("web.dependencies.htmx.version")) }></script>
+	<script src={ fmt.Sprintf("/public/htmx-response-targets-%s.min.js", c.Config.String("web.dependencies.htmx.version")) }></script>
+}

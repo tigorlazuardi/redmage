@@ -8,9 +8,8 @@ templ Head(vc *views.Context, extras ...templ.Component) {
 		<meta name="keywords" content="Reddit, Image, Downloader"/>
 		<link rel="stylesheet" href="/public/style.css"/>
 		<link rel="icon" href="/public/favicon.svg"/>
-		<script src="/public/htmx-1.9.11.min.js"></script>
-		<script src="/public/htmx-response-targets-1.9.11.min.js"></script>
-		<script src="/public/theme-change-2.0.2.min.js"></script>
+		@HTMX(vc)
+		@ThemeChange(vc)
 		if vc.Config.Bool("http.hotreload") {
 			<script src="/public/hot_reload.js"></script>
 		}

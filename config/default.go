@@ -56,6 +56,10 @@ var DefaultConfig = map[string]any{
 
 	"telemetry.trace.ratio": 1,
 
+	"web.dependencies.htmx.version":        "1.9.12",
+	"web.dependencies.dayjs.version":       "1.11.10",
+	"web.dependencies.themechange.version": "2.0.2",
+
 	"runtime.version":     "0.0.1",
 	"runtime.environment": "development",
 }
