@@ -23,6 +23,7 @@ go.work
 node_modules
 *.env
 *_templ.go
+*_templ.txt
 public/style.css
 public/htmx*.js
 .direnv

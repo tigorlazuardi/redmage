@@ -1,4 +1,4 @@
-package homeview
+package components
 
 import "github.com/tigorlazuardi/redmage/models"
 import "fmt"
@@ -12,13 +12,12 @@ func (o ImageCardOption) Has(opt ImageCardOption) bool {
 
 const (
 	HideTitle ImageCardOption = 1 << iota
-	HideDescription
 	HideSubreddit
 	HidePoster
 )
 
-templ RecentlyAddedImageCard(data *models.Image, opts ImageCardOption) {
-	<div class="not-prose card card-bordered bg-base-100 hover:bg-base-200 shadow-xl min-w-[16rem] rounded-xl top-0 hover:-top-1 hover:drop-shadow-2xl transition-all">
+templ ImageCard(data *models.Image, opts ImageCardOption) {
+	<div class="not-prose card card-bordered bg-base-100 hover:bg-base-200 shadow-xl min-w-[16rem] max-w-[16rem] rounded-xl top-0 hover:-top-1 hover:drop-shadow-2xl transition-all">
 		<figure>
 			<a
 				href={ templ.URL(fmt.Sprintf("/img/%s", data.ImageRelativePath)) }
@@ -67,16 +66,8 @@ func formatByteSize(size int64) string {
 }
 
 func truncateTitle(title string) string {
-	if len(title) > 50 {
+	if len(title) > 52 {
 		return title[:50] + "..."
 	}
 	return title
-}
-
-templ RecentlyAddedImageList(images models.ImageSlice, opts ImageCardOption) {
-	<div class="overflow-x-auto flex gap-4 p-6 shadow-inner bg-base-300 rounded-2xl w-[85vw] md:w-full">
-		for _, data := range images {
-			@RecentlyAddedImageCard(data, opts)
-		}
-	</div>
 }

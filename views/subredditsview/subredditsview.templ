@@ -26,7 +26,7 @@ templ SubredditContent(c *views.Context, data Data) {
 			} else {
 				<h2>{ strconv.FormatInt(data.Subreddits.Total, 10) } Subreddits Registered</h2>
 			}
-			<div class="flex flex-wrap gap-1">
+			<div class="flex flex-wrap gap-1" hx-boost="true">
 				for _, subreddit := range data.Subreddits.Data {
 					@SubredditCard(c, subreddit)
 				}

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/stephenafamo/bob"
+	"github.com/stephenafamo/bob/dialect/sqlite"
 	"github.com/stephenafamo/bob/dialect/sqlite/dialect"
 	"github.com/stephenafamo/bob/dialect/sqlite/sm"
 	"github.com/tigorlazuardi/redmage/models"
@@ -50,9 +51,9 @@ func (l ListSubredditsParams) Query() (expr []bob.Mod[*dialect.SelectQuery]) {
 	}
 	if l.OrderBy != "" {
 		if l.Sort == "desc" {
-			expr = append(expr, sm.OrderBy(l.OrderBy).Desc())
+			expr = append(expr, sm.OrderBy(sqlite.Quote(l.OrderBy)).Desc())
 		} else {
-			expr = append(expr, sm.OrderBy(l.OrderBy).Asc())
+			expr = append(expr, sm.OrderBy(sqlite.Quote(l.OrderBy)).Asc())
 		}
 	} else {
 		expr = append(expr, sm.OrderBy(models.SubredditColumns.Name).Asc())

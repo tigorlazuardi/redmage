@@ -1,0 +1,66 @@
+package detailsview
+
+import "github.com/tigorlazuardi/redmage/views"
+import "github.com/tigorlazuardi/redmage/models"
+import "github.com/tigorlazuardi/redmage/views/components"
+import "strconv"
+import "github.com/tigorlazuardi/redmage/api"
+import "fmt"
+
+type Data struct {
+	Subreddit   *models.Subreddit
+	Images      models.ImageSlice
+	TotalImages int64
+	Error       string
+	Params      api.SubredditGetByNameImageParams
+}
+
+templ Detailsview(c *views.Context, data Data) {
+	@components.Doctype() {
+		@components.Head(c, components.HeadTitle("Redmage - Subreddits"))
+		@components.Body(c) {
+			@DetailsContent(c, data)
+		}
+	}
+}
+
+templ DetailsContent(c *views.Context, data Data) {
+	<main class="prose min-w-full">
+		@components.Container() {
+			if data.Error != "" {
+				<h1>Error: { data.Error }</h1>
+			} else {
+				<h1>Subreddit { data.Subreddit.Name }</h1>
+				<h2>
+					Total Images: 
+					{ strconv.FormatInt(data.TotalImages, 10) }
+				</h2>
+				<div class="divider"></div>
+				@paginationButtons(c, data)
+				<div class="flex flex-wrap gap-4 mt-8" hx-boost="true">
+					for _, image := range data.Images {
+						@components.ImageCard(image, 0)
+					}
+				</div>
+			}
+		}
+	</main>
+}
+
+templ paginationButtons(_ *views.Context, data Data) {
+	<div class="flex justify-center join">
+		for i, count := 1, int64(0); count < data.TotalImages; i, count = i+1, count+data.Params.Limit {
+			if data.Params.Offset <= count && data.Params.Offset > count-data.Params.Limit {
+				<a href={ buildPaginationURL(data.Subreddit.Name, data.Params, "offset", strconv.FormatInt(count, 10)) } class="join-item btn btn-active no-underline">{ strconv.Itoa(i) }</a>
+			} else {
+				<a href={ buildPaginationURL(data.Subreddit.Name, data.Params, "offset", strconv.FormatInt(count, 10)) } class="join-item btn no-underline">{ strconv.Itoa(i) }</a>
+			}
+		}
+	</div>
+}
+
+func buildPaginationURL(subreddit string, params api.SubredditGetByNameImageParams, extraQueries ...string) templ.SafeURL {
+	queries := params.IntoQueryWith(extraQueries...)
+
+	return templ.SafeURL(fmt.Sprintf("/subreddits/details/%s?%s", subreddit, queries.Encode()))
+}

@@ -3,6 +3,7 @@ package homeview
 import "github.com/tigorlazuardi/redmage/views/components"
 import "github.com/tigorlazuardi/redmage/views"
 import "github.com/tigorlazuardi/redmage/views/utils"
+import "github.com/tigorlazuardi/redmage/models"
 import "strconv"
 import "fmt"
 
@@ -119,4 +120,12 @@ templ nsfwToggle(c *views.Context, data Data) {
 			<option value="1">NSFW - Hide</option>
 		}
 	</select>
+}
+
+templ RecentlyAddedImageList(images models.ImageSlice, opts components.ImageCardOption) {
+	<div class="overflow-x-auto flex gap-4 p-6 shadow-inner bg-base-300 rounded-2xl w-[85vw] md:w-full">
+		for _, data := range images {
+			@components.ImageCard(data, 0)
+		}
+	</div>
 }
