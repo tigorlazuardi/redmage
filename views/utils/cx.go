@@ -13,5 +13,5 @@ func CX(classes map[string]bool) string {
 		}
 	}
 
-	return b.String()
+	return strings.TrimSpace(b.String())
 }
