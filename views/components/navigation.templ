@@ -32,20 +32,7 @@ templ Navigation(c *views.Context) {
 					<span class="font-bold">Redmage</span>
 				</div>
 				<div class="divider"></div>
-				<ul>
-					<a href="/" class={ classForNavItem(c, "/") }>
-						<li class="hover:bg-accent hover:text-neutral-50 py-2 pl-4 hover:font-bold">Home</li>
-					</a>
-					<a href="/about" class={ classForNavItem(c, "/about") }>
-						<li class="hover:bg-accent hover:text-neutral-50 py-2 pl-4 hover:font-bold">About</li>
-					</a>
-					<a href="/config" class={ classForNavItem(c, "/config") }>
-						<li class="hover:bg-accent hover:text-neutral-50 py-2 pl-4 hover:font-bold">Config</li>
-					</a>
-					<a href="/browse" class={ classForNavItem(c, "/browse") }>
-						<li class="hover:bg-accent hover:text-neutral-50 py-2 pl-4 hover:font-bold">Browse</li>
-					</a>
-				</ul>
+				@navList(c)
 			</div>
 		</nav>
 	</div>
@@ -91,40 +78,23 @@ templ Navbar(c *views.Context) {
 				@navList(c)
 			</nav>
 			<div class="flex-grow"></div>
-			@SelectThemeInput()
 		</div>
 	</header>
 }
 
 templ navList(c *views.Context) {
-	<ul class="flex flex-col flex-wrap">
+	<ul hx-boost="true" class="flex flex-col flex-wrap transition-all">
 		<a href="/" class={ classForNavItem(c, "/") }>
 			<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Home</li>
 		</a>
 		<a href="/about" class={ classForNavItem(c, "/about") }>
 			<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">About</li>
 		</a>
-		<a href="/config" class={ classForNavItem(c, "/config") }>
+		<a hx-boost="false" href="/config" class={ classForNavItem(c, "/config") }>
 			<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Config</li>
 		</a>
 		<a href="/subreddits" class={ classForNavItem(c, "/subreddits") }>
 			<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Subreddits</li>
 		</a>
 	</ul>
-}
-
-templ SelectThemeInput() {
-	<select class="select select-ghost select-bordered w-full" data-choose-theme>
-		<option value="light">Light (Default)</option>
-		<option value="dark">Dark</option>
-		<option value="cupcake">Cupcake</option>
-		<option value="bumblebee">Bumblebee</option>
-		<option value="emerald">Emerald</option>
-		<option value="corporate">Corporate</option>
-		<option value="synthwave">Synthwave</option>
-		<option value="retru">Retro</option>
-		<option value="cyberpunk">Cyberpunk</option>
-		<option value="valentine">Valentine</option>
-		<option value="halloween">Halloween</option>
-	</select>
 }

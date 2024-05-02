@@ -1,0 +1,42 @@
+package configview
+
+import "github.com/tigorlazuardi/redmage/views"
+import "github.com/tigorlazuardi/redmage/views/components"
+
+templ Config(c *views.Context) {
+	@components.Doctype() {
+		@components.Head(c, components.HeadTitle("Redmage - Config"))
+		@components.Body(c) {
+			@ConfigContent(c)
+		}
+	}
+}
+
+templ ConfigContent(c *views.Context) {
+	<main class="prose min-w-full">
+		@components.Container() {
+			<h1>Config</h1>
+			<div class="divider"></div>
+			<div class="grid grid-cols-2 items-center">
+				<h2>Theme</h2>
+				@SelectThemeInput()
+			</div>
+		}
+	</main>
+}
+
+templ SelectThemeInput() {
+	<select class="select select-ghost select-bordered w-full" data-choose-theme>
+		<option value="light">Light (Default)</option>
+		<option value="dark">Dark</option>
+		<option value="cupcake">Cupcake</option>
+		<option value="bumblebee">Bumblebee</option>
+		<option value="emerald">Emerald</option>
+		<option value="corporate">Corporate</option>
+		<option value="synthwave">Synthwave</option>
+		<option value="retru">Retro</option>
+		<option value="cyberpunk">Cyberpunk</option>
+		<option value="valentine">Valentine</option>
+		<option value="halloween">Halloween</option>
+	</select>
+}

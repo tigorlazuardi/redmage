@@ -9,7 +9,7 @@ import "strconv"
 
 script RelativeFromTimeText(id string, time int64, inter int) {
     const el = document.getElementById(id)
-    el.parentNode.dataset.tip = dayjs.unix(time).tz(dayjs.tz.guess()).format('ddd, D MMM YYYY HH:mm:ss Z')
+    el.parentNode.dataset.tip = dayjs.unix(time).tz(dayjs.tz.guess()).format('ddd, D MMM YYYY HH:mm:ss')
     
     const timeText = dayjs.unix(time).fromNow()
     el.textContent = timeText
@@ -34,7 +34,7 @@ script RelativeFromTimeText(id string, time int64, inter int) {
 }
 
 templ RelativeTimeNode(id string, time int64, class ...string) {
-	<div class="tooltip z-10" data-tip={ strconv.FormatInt(time, 10) }>
+	<div class="tooltip" data-tip={ strconv.FormatInt(time, 10) }>
 		<span
 			id={ id }
 			class={ strings.Join(class, " ") }
