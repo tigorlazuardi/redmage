@@ -12,7 +12,9 @@ export REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION=$(shell echo "$${REDMAGE_WEB_DEPEN
 export REDMAGE_WEB_DEPENDENCIES_THEMECHANGE_VERSION=$(shell echo "$${REDMAGE_WEB_DEPENDENCIES_THEMECHANGE_VERSION:-2.0.2}")
 
 start: dev-dependencies
-	@air
+	@tailwindcss -i views/style.css -o public/style.css --watch &
+	@templ generate -watch &
+	air
 
 dev-dependencies: build-dependencies
 	@if ! command -v air > /dev/null; then
