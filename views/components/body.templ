@@ -3,7 +3,7 @@ package components
 import "github.com/tigorlazuardi/redmage/views"
 
 templ Body(c *views.Context) {
-	<body class="bg-base-100 min-h-screen w-screen" hx-ext="response-targets">
+	<body class="bg-base-100 min-h-screen w-screen" hx-boost="true" hx-ext="response-targets">
 		@Navigation(c) {
 			<div class="flex">
 				@Navbar(c)

@@ -112,10 +112,11 @@ func (sgb *SubredditGetByNameImageParams) CountQuery() (expr []bob.Mod[*dialect.
 		expr = append(expr,
 			sm.Where(
 				models.ImageColumns.PostTitle.Like(arg).
-					Or(models.ImageColumns.PostURL.Like(arg).
-						Or(models.ImageColumns.ImageRelativePath.Like(arg)),
-					),
-			))
+					Or(models.ImageColumns.PostURL.Like(arg)).
+					Or(models.ImageColumns.ImageRelativePath.Like(arg)).
+					Or(models.ImageColumns.PostAuthor.Like(arg)),
+			),
+		)
 	}
 
 	if !sgb.After.IsZero() {

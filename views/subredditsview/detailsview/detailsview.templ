@@ -36,31 +36,103 @@ templ DetailsContent(c *views.Context, data Data) {
 					{ strconv.FormatInt(data.TotalImages, 10) }
 				</h2>
 				<div class="divider"></div>
-				@paginationButtons(c, data)
-				<div class="flex flex-wrap gap-4 mt-8" hx-boost="true">
+				<div class="flex gap-4 flex-wrap justify-between content-center">
+					@FilterBar(c, data)
+					@showingImageFromTo(data)
+					@paginationButtons(c, data)
+				</div>
+				<div class="flex flex-wrap gap-4 my-8 justify-around">
 					for _, image := range data.Images {
 						@components.ImageCard(image, 0)
 					}
 				</div>
+				@paginationButtons(c, data)
 			}
 		}
 	</main>
 }
 
-templ paginationButtons(_ *views.Context, data Data) {
-	<div class="flex justify-center join">
-		for i, count := 1, int64(0); count < data.TotalImages; i, count = i+1, count+data.Params.Limit {
-			if data.Params.Offset <= count && data.Params.Offset > count-data.Params.Limit {
-				<a href={ buildPaginationURL(data.Subreddit.Name, data.Params, "offset", strconv.FormatInt(count, 10)) } class="join-item btn btn-active no-underline">{ strconv.Itoa(i) }</a>
-			} else {
-				<a href={ buildPaginationURL(data.Subreddit.Name, data.Params, "offset", strconv.FormatInt(count, 10)) } class="join-item btn no-underline">{ strconv.Itoa(i) }</a>
-			}
-		}
+templ FilterBar(c *views.Context, data Data) {
+	<div
+		id="filter-bar"
+		hx-get={ fmt.Sprintf("/subreddits/details/%s", data.Subreddit.Name) }
+		hx-include="this"
+		hx-trigger="change, on-rapid delay:500ms, on-demand"
+		hx-target="main"
+		hx-select="main"
+		hx-push-url="true"
+		class="flex flex-wrap gap-4"
+	>
+		<label class="input input-bordered flex items-center gap-2">
+			<input
+				id="search"
+				type="text"
+				class="grow"
+				placeholder="Search"
+				name="q"
+				value={ data.Params.Q }
+				oninput="htmx.trigger('#filter-bar', 'on-rapid')"
+			/>
+			<svg
+				onclick="htmx.trigger('#filter-bar', 'on-demand')"
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox="0 0 16 16"
+				fill="currentColor"
+				class="w-4 h-4 opacity-70"
+			><path fill-rule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clip-rule="evenodd"></path></svg>
+		</label>
+		<label class="input flex items-center gap-2">
+			Limit
+			<select name="limit" class="select select-bordered w-full">
+				@limitOption(data.Params, 25)
+				@limitOption(data.Params, 50)
+				@limitOption(data.Params, 75)
+				@limitOption(data.Params, 100)
+			</select>
+		</label>
 	</div>
 }
 
-func buildPaginationURL(subreddit string, params api.SubredditGetByNameImageParams, extraQueries ...string) templ.SafeURL {
+templ paginationButtons(_ *views.Context, data Data) {
+	if data.TotalImages > data.Params.Limit {
+		<div class="join">
+			for i, count := 1, int64(0); count < data.TotalImages; i, count = i+1, count+data.Params.Limit {
+				if data.Params.Offset <= count && data.Params.Offset > count-data.Params.Limit {
+					<a href={ buildURL(data.Subreddit.Name, data.Params, "offset", strconv.FormatInt(count, 10)) } class="join-item btn btn-active no-underline">{ strconv.Itoa(i) }</a>
+				} else {
+					<a href={ buildURL(data.Subreddit.Name, data.Params, "offset", strconv.FormatInt(count, 10)) } class="join-item btn no-underline">{ strconv.Itoa(i) }</a>
+				}
+			}
+		</div>
+	}
+}
+
+func buildURL(subreddit string, params api.SubredditGetByNameImageParams, extraQueries ...string) templ.SafeURL {
 	queries := params.IntoQueryWith(extraQueries...)
 
 	return templ.SafeURL(fmt.Sprintf("/subreddits/details/%s?%s", subreddit, queries.Encode()))
+}
+
+templ limitOption(params api.SubredditGetByNameImageParams, value int) {
+	if int(params.Limit) == value {
+		<option selected>{ strconv.Itoa(value) }</option>
+	} else {
+		<option>{ strconv.Itoa(value) }</option>
+	}
+}
+
+templ showingImageFromTo(data Data) {
+	if data.TotalImages > 1 {
+		<span class="my-auto">{ showingFromToImages(data) }</span>
+	}
+}
+
+func showingFromToImages(data Data) string {
+	params := data.Params
+	start := params.Offset + 1
+	end := params.Limit + params.Offset
+	if end > data.TotalImages {
+		end = data.TotalImages
+	}
+	return fmt.Sprintf("Showing from %d to %d", start, end)
 }
