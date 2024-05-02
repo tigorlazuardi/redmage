@@ -46,7 +46,9 @@ templ DetailsContent(c *views.Context, data Data) {
 						@components.ImageCard(image, 0)
 					}
 				</div>
-				@paginationButtons(c, data)
+				<div class="flex w-full justify-center">
+					@paginationButtons(c, data)
+				</div>
 			}
 		}
 	</main>
