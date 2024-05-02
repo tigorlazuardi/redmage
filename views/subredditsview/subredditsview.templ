@@ -19,12 +19,16 @@ templ SubredditContent(c *views.Context, data Data) {
 	<main class="prose min-w-full">
 		@components.Container() {
 			<h1>Subreddits</h1>
-			<div class="divider"></div>
 			if data.Subreddits.Total == 0 {
+				<div class="divider"></div>
 				<h3>No Subreddits Found</h3>
 				<p>Click <a class="text-primary" href="/subreddits/add">here</a> to add a new subreddit.</p>
 			} else {
-				<h2>{ strconv.FormatInt(data.Subreddits.Total, 10) } Subreddits Registered</h2>
+				<div class="flex justify-between flex-wrap">
+					<h2 class="my-auto">{ strconv.FormatInt(data.Subreddits.Total, 10) } Subreddits Registered</h2>
+					<a class="btn btn-primary text-base-100 no-underline" href="/subreddits/add">Add Subreddit</a>
+				</div>
+				<div class="divider"></div>
 			}
 			<div class="flex flex-wrap gap-1" hx-boost="true">
 				for _, subreddit := range data.Subreddits.Data {

@@ -40,7 +40,7 @@ templ DetailsContent(c *views.Context, data Data) {
 					<button
 						hx-post="/htmx/subreddits/start"
 						hx-include="this"
-						class="btn btn-info"
+						class="btn btn-primary text-base-100"
 						hx-target={ components.NotificationContainerID }
 						hx-target-error={ components.NotificationContainerID }
 						hx-swap="afterbegin"
