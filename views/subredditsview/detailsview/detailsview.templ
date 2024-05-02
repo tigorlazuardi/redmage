@@ -20,6 +20,7 @@ templ Detailsview(c *views.Context, data Data) {
 		@components.Head(c, components.HeadTitle("Redmage - Subreddits"))
 		@components.Body(c) {
 			@DetailsContent(c, data)
+			@components.NotificationContainer()
 		}
 	}
 }
@@ -31,10 +32,23 @@ templ DetailsContent(c *views.Context, data Data) {
 				<h1>Error: { data.Error }</h1>
 			} else {
 				<h1>Subreddit { data.Subreddit.Name }</h1>
-				<h2>
-					Total Images: 
-					{ strconv.FormatInt(data.TotalImages, 10) }
-				</h2>
+				<div class="flex flex-wrap justify-between content-center">
+					<h2 class="my-auto">
+						Total Images: 
+						{ strconv.FormatInt(data.TotalImages, 10) }
+					</h2>
+					<button
+						hx-post="/htmx/subreddits/start"
+						hx-include="this"
+						class="btn btn-info"
+						hx-target={ components.NotificationContainerID }
+						hx-target-error={ components.NotificationContainerID }
+						hx-swap="afterbegin"
+					>
+						Start Download
+						<input type="hidden" name="subreddit" value={ data.Subreddit.Name }/>
+					</button>
+				</div>
 				<div class="divider"></div>
 				<div class="flex gap-4 flex-wrap justify-between content-center">
 					@FilterBar(c, data)

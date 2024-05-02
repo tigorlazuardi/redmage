@@ -1,0 +1,58 @@
+package components
+
+const NotificationContainerID = "#notification-container"
+
+templ NotificationContainer() {
+	<div id="notification-container" class="fixed bottom-4 right-4 z-50"></div>
+}
+
+templ InfoNotication(messages ...string) {
+	<div
+		hx-on::load="setTimeout(() => this.remove(), 5000)"
+		class="toast"
+		onclick="this.remove()"
+	>
+		<div class="alert alert-info hover:bg-info-content transition-all">
+			for i, message := range messages {
+				<span>{ message }</span>
+				if i != len(messages) - 1 {
+					<br/>
+				}
+			}
+		</div>
+	</div>
+}
+
+templ ErrorNotication(messages ...string) {
+	<div
+		hx-on::load="setTimeout(() => this.remove(), 5000)"
+		class="toast"
+		onclick="this.remove()"
+	>
+		<div class="alert alert-error hover:bg-error-content transition-all">
+			for i, message := range messages {
+				<span>{ message }</span>
+				if i != len(messages) - 1 {
+					<br/>
+				}
+			}
+		</div>
+	</div>
+}
+
+templ SuccessNotification(messages ...string) {
+	<div
+		hx-on::load="setTimeout(() => this.remove(), 5000)"
+		class="toast"
+		onclick="this.remove()"
+	>
+		<div class="alert alert-success hover:bg-success-content transition-all">
+			for i, message := range messages {
+				<span>{ message }</span>
+				if i != len(messages) - 1 {
+					<br/>
+				}
+			}
+		</div>
+	</div>
+}

@@ -28,8 +28,10 @@ func (routes *Routes) Register(router chi.Router) {
 		router.Get("/hot_reload", routes.CreateHotReloadRoute())
 	}
 
-	router.Group(routes.registerWWWRoutes)
+	router.Route("/htmx", routes.registerHTMXRoutes)
 	router.Route("/api/v1", routes.registerV1APIRoutes)
+
+	router.Group(routes.registerWWWRoutes)
 }
 
 func (routes *Routes) registerV1APIRoutes(router chi.Router) {
@@ -49,6 +51,14 @@ func (routes *Routes) registerV1APIRoutes(router chi.Router) {
 	router.Get("/images", routes.ImagesListAPI)
 
 	router.Get("/events", routes.EventsAPI)
+}
+
+func (routes *Routes) registerHTMXRoutes(router chi.Router) {
+	router.Use(otelchi.Middleware("redmage"))
+	router.Use(chimiddleware.RequestLogger(middleware.ChiLogger{}))
+	router.Use(chimiddleware.SetHeader("Content-Type", "text/html; charset=utf-8"))
+
+	router.Post("/subreddits/start", routes.SubredditStartDownloadHTMX)
 }
 
 func (routes *Routes) registerWWWRoutes(router chi.Router) {
