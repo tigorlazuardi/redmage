@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/tigorlazuardi/redmage/pkg/errs"
@@ -15,19 +16,28 @@ import (
 type SubredditType int
 
 func (su *SubredditType) UnmarshalJSON(b []byte) error {
-	switch string(b) {
-	case "null":
+	if len(b) == 4 && string(b) == "null" {
 		return nil
+	}
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return errs.Wrapw(err, "failed to unquote string json value").Code(http.StatusBadRequest)
+	}
+	return su.Parse(s)
+}
+
+func (su *SubredditType) Parse(s string) error {
+	switch s {
 	case `"user"`, `"u"`, "1":
 		*su = SubredditTypeUser
 		return nil
-	case `"r"`, `"subreddit"`, "0":
+	case `"r"`, `"subreddit"`, "0", "":
 		*su = SubredditTypeSub
 		return nil
 	}
 	return errs.
-		Fail("subreddit type not recognized. Valid values are 'user', 'u', 'r', 'subreddit', 0, 1, and null",
-			"got", string(b),
+		Fail("subreddit type not recognized. Valid values are '' (empty), 'user', 'u', 'r', 'subreddit', 0, 1, and null",
+			"got", s,
 		).
 		Code(http.StatusBadRequest)
 }

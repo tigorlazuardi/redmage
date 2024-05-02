@@ -17,7 +17,7 @@ type Data struct {
 
 templ Detailsview(c *views.Context, data Data) {
 	@components.Doctype() {
-		@components.Head(c, components.HeadTitle("Redmage - Subreddits"))
+		@components.Head(c, components.HeadTitle(fmt.Sprintf("Subreddit - %s", data.Subreddit.Name)))
 		@components.Body(c) {
 			@DetailsContent(c, data)
 			@components.NotificationContainer()

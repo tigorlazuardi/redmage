@@ -39,9 +39,7 @@ func (reddit *Reddit) CheckSubreddit(ctx context.Context, params CheckSubredditP
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		// This happens for user pages.
-		// For subreddits, they will be 200 or 301/302 status code and has to be specially handled below.
-		return actual, errs.Wrapw(err, "user not found", "url", url, "params", params).Code(http.StatusNotFound)
+		return actual, errs.Wrapw(err, "user or subreddit not found", "url", url, "params", params).Code(http.StatusNotFound)
 	}
 
 	if resp.StatusCode >= 400 {

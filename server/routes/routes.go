@@ -59,6 +59,7 @@ func (routes *Routes) registerHTMXRoutes(router chi.Router) {
 	router.Use(chimiddleware.SetHeader("Content-Type", "text/html; charset=utf-8"))
 
 	router.Post("/subreddits/start", routes.SubredditStartDownloadHTMX)
+	router.Post("/subreddits/check", routes.SubredditCheckHTMX)
 }
 
 func (routes *Routes) registerWWWRoutes(router chi.Router) {
@@ -76,6 +77,7 @@ func (routes *Routes) registerWWWRoutes(router chi.Router) {
 		r.Get("/", routes.PageHome)
 		r.Get("/subreddits", routes.PageSubreddits)
 		r.Get("/subreddits/details/{name}", routes.PageSubredditsDetails)
+		r.Get("/subreddits/add", routes.PageSubredditsAdd)
 		r.Get("/config", routes.PageConfig)
 	})
 }
