@@ -21,7 +21,8 @@ import (
 )
 
 type API struct {
-	db bob.Executor
+	db    bob.Executor
+	sqldb *sql.DB
 
 	scheduler   *cron.Cron
 	scheduleMap map[cron.EntryID]*models.Subreddit
@@ -56,6 +57,7 @@ func New(deps Dependencies) *API {
 	}
 	api := &API{
 		db:                 bob.New(deps.DB),
+		sqldb:              deps.DB,
 		scheduler:          cron.New(),
 		scheduleMap:        make(map[cron.EntryID]*models.Subreddit, 8),
 		downloadBroadcast:  broadcast.NewRelay[bmessage.ImageDownloadMessage](),

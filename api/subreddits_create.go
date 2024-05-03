@@ -38,5 +38,13 @@ func (api *API) SubredditsCreate(ctx context.Context, params *models.Subreddit) 
 		}
 	}
 
+	_, err = api.ScheduleSet(ctx, ScheduleSetParams{
+		Subreddit: subreddit.Name,
+		Status:    ScheduleStatus(params.EnableSchedule), // Possible value should only be 0 or 1
+	})
+	if err != nil {
+		return subreddit, errs.Wrapw(err, "failed to set schedule status")
+	}
+
 	return subreddit, nil
 }

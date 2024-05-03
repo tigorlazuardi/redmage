@@ -17,6 +17,18 @@ import (
 
 func (api *API) StartSubredditDownloadPubsub(messages <-chan *message.Message) {
 	for msg := range messages {
+		var subreddit *models.Subreddit
+		if err := json.Unmarshal(msg.Payload, &subreddit); err != nil {
+			log.New(context.Background()).Err(err).Error("failed to unmarshal json for download pubsub", "topic", downloadTopic)
+			return
+		}
+		ctx := context.Background()
+		if _, err := api.ScheduleSet(ctx, ScheduleSetParams{
+			Subreddit: subreddit.Name,
+			Status:    ScheduleStatusEnqueued,
+		}); err != nil {
+			log.New(ctx).Err(err).Error("failed to set schedule status", "subreddit", subreddit.Name, "status", ScheduleStatusDownloading.String())
+		}
 		log.New(context.Background()).Debug("received pubsub message",
 			"message", msg,
 			"len", len(api.subredditSemaphore),
@@ -24,23 +36,39 @@ func (api *API) StartSubredditDownloadPubsub(messages <-chan *message.Message) {
 			"download.concurrency.subreddits", api.config.Int("download.concurrency.subreddits"),
 		)
 		api.subredditSemaphore <- struct{}{}
-		go func(msg *message.Message) {
+		go func(msg *message.Message, subreddit *models.Subreddit) {
 			defer func() {
 				msg.Ack()
 				<-api.subredditSemaphore
 			}()
-			var (
-				err       error
-				subreddit *models.Subreddit
-			)
+			var err error
 			ctx, span := tracer.Start(context.Background(), "Download Subreddit Pubsub")
-			defer func() { telemetry.EndWithStatus(span, err) }()
+			defer func() {
+				if err != nil {
+					if _, err := api.ScheduleSet(ctx, ScheduleSetParams{
+						Subreddit:    subreddit.Name,
+						Status:       ScheduleStatusError,
+						ErrorMessage: err.Error(),
+					}); err != nil {
+						log.New(ctx).Err(err).Error("failed to set schedule status", "subreddit", subreddit.Name, "status", ScheduleStatusError.String())
+					}
+				} else {
+					if _, err := api.ScheduleSet(ctx, ScheduleSetParams{
+						Subreddit: subreddit.Name,
+						Status:    ScheduleStatusStandby,
+					}); err != nil {
+						log.New(ctx).Err(err).Error("failed to set schedule status", "subreddit", subreddit.Name, "status", ScheduleStatusStandby.String())
+					}
+				}
+				telemetry.EndWithStatus(span, err)
+			}()
 			span.AddEvent("pubsub." + downloadTopic)
-
-			err = json.Unmarshal(msg.Payload, &subreddit)
+			_, err = api.ScheduleSet(ctx, ScheduleSetParams{
+				Subreddit: subreddit.Name,
+				Status:    ScheduleStatusDownloading,
+			})
 			if err != nil {
-				log.New(ctx).Err(err).Error("failed to unmarshal json for download pubsub", "topic", downloadTopic)
-				return
+				log.New(ctx).Err(err).Error("failed to set schedule status", "subreddit", subreddit.Name, "status", ScheduleStatusDownloading.String())
 			}
 
 			devices, err := models.Devices.Query(ctx, api.db).All()
@@ -54,7 +82,7 @@ func (api *API) StartSubredditDownloadPubsub(messages <-chan *message.Message) {
 				log.New(ctx).Err(err).Error("failed to download subreddit images", "subreddit", subreddit)
 				return
 			}
-		}(msg)
+		}(msg, subreddit)
 	}
 }
 
