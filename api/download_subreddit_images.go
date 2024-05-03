@@ -313,10 +313,17 @@ func (api *API) isImageEntryExists(ctx context.Context, post reddit.Post, device
 		models.SelectWhere.Images.Device.EQ(device.Slug),
 		models.SelectWhere.Images.PostName.EQ(post.GetName()),
 	).Exists()
-
-	_, errStat := os.Stat(post.GetImageTargetPath(api.config, device))
-
-	return exist && errQuery == nil && errStat == nil
+	if errQuery != nil {
+		return false
+	}
+	if !exist {
+		return false
+	}
+	stat, errStat := os.Stat(post.GetImageTargetPath(api.config, device))
+	if errStat != nil {
+		return false
+	}
+	return stat.Size() > 0
 }
 
 // findImageFileForDevice finds if any of the image file exists for given devices.
