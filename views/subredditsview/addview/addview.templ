@@ -2,7 +2,6 @@ package addview
 
 import "github.com/tigorlazuardi/redmage/views"
 import "github.com/tigorlazuardi/redmage/views/components"
-import "github.com/tigorlazuardi/redmage/views/utils"
 
 templ Addview(c *views.Context) {
 	@components.Doctype() {
@@ -19,73 +18,18 @@ templ AddviewContent(c *views.Context) {
 		@components.Container() {
 			<h1>Add Subreddit</h1>
 			<div class="divider"></div>
-			<form hx-post="/htmx/subreddit/add" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+			<form
+				onkeydown="return event.key !== 'Enter'"
+				hx-post="/htmx/subreddit/add"
+				class="grid grid-cols-1 sm:grid-cols-2 gap-4"
+			>
 				<label id="subreddit-input" class="form-control w-full">
 					@SubredditInputForm(SubredditInputData{})
+				</label>
+				<label id="subreddit-type-input" class="form-control w-full">
+					@SubredditTypeInput(SubredditTypeData{})
 				</label>
 			</form>
 		}
 	</main>
-}
-
-type SubredditInputData struct {
-	Value string
-	Error string
-	Valid bool
-}
-
-templ SubredditInputForm(data SubredditInputData) {
-	<div class="label">
-		<span
-			class={ utils.CX(map[string]bool{
-                        "label-text": true,
-                        "text-error": data.Error != "",
-                        "text-success": data.Valid,
-                        "text-base": true,
-                    }) }
-		>Subreddit Name</span>
-	</div>
-	@subredditInputField("/htmx/subreddits/check", data)
-	<div class="label">
-		<span
-			class={ utils.CX(map[string]bool{
-                            "label-text": true,
-                            "text-error": data.Error != "",
-                            "text-success": data.Valid,
-                            "min-h-[1rem]": true,
-                        }) }
-		>
-			if data.Valid {
-				Subreddit / User target is valid
-			} else {
-				{ data.Error }
-			}
-		</span>
-	</div>
-}
-
-templ subredditInputField(target string, data SubredditInputData) {
-	<input
-		type="text"
-		id="name"
-		name="name"
-		hx-post={ target }
-		hx-target="#subreddit-input"
-		hx-target-4xx="#subreddit-input"
-		hx-trigger="keyup changed delay:1s, on-demand"
-		hx-target-5x={ components.NotificationContainerID }
-		value={ data.Value }
-		placeholder="e.g. 'wallpaper' or 'EarthPorn'"
-		class={ utils.CX(map[string]bool{
-                "input": true,
-                "input-bordered": true,
-                "input-error": data.Error != "",
-                "text-error": data.Error != "",
-                "input-success": data.Valid,
-                "text-success": data.Valid,
-            }) }
-		required
-		data-error={ data.Error }
-		hx-on::load="this.setCustomValidity(this.getAttribute('data-error'))"
-	/>
 }

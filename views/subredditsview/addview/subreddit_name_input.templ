@@ -1,0 +1,73 @@
+package addview
+
+import "github.com/tigorlazuardi/redmage/views/components"
+import "github.com/tigorlazuardi/redmage/views/utils"
+import "github.com/tigorlazuardi/redmage/api/reddit"
+
+type SubredditInputData struct {
+	Value string
+	Error string
+	Valid bool
+	Type  reddit.SubredditType
+}
+
+templ SubredditInputForm(data SubredditInputData) {
+	<div class="label">
+		<span
+			class={ utils.CX(map[string]bool{
+                        "label-text": true,
+                        "text-error": data.Error != "",
+                        "text-success": data.Valid,
+                        "text-base": true,
+                    }) }
+		>Subreddit Name</span>
+	</div>
+	@subredditInputField("/htmx/subreddits/check", data)
+	<div class="label">
+		<span
+			class={ utils.CX(map[string]bool{
+                            "label-text": true,
+                            "text-error": data.Error != "",
+                            "text-success": data.Valid,
+                            "min-h-[1rem]": true,
+                        }) }
+		>
+			if data.Valid {
+				if data.Type == reddit.SubredditTypeUser {
+					Username target is valid
+				} else {
+					Subreddit is valid
+				}
+			} else {
+				{ data.Error }
+			}
+		</span>
+	</div>
+}
+
+templ subredditInputField(target string, data SubredditInputData) {
+	<input
+		type="text"
+		id="name"
+		name="name"
+		hx-post={ target }
+		hx-target="#subreddit-input"
+		hx-target-4xx="#subreddit-input"
+		hx-trigger="keyup changed delay:1s, on-demand"
+		hx-include="[name='type']"
+		hx-target-5x={ components.NotificationContainerID }
+		value={ data.Value }
+		placeholder="e.g. 'wallpaper' or 'EarthPorn'"
+		class={ utils.CX(map[string]bool{
+                "input": true,
+                "input-bordered": true,
+                "input-error": data.Error != "",
+                "text-error": data.Error != "",
+                "input-success": data.Valid,
+                "text-success": data.Valid,
+            }) }
+		required
+		data-error={ data.Error }
+		hx-on::load="this.setCustomValidity(this.getAttribute('data-error'))"
+	/>
+}

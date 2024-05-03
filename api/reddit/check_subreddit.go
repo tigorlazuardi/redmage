@@ -39,7 +39,18 @@ func (reddit *Reddit) CheckSubreddit(ctx context.Context, params CheckSubredditP
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		return actual, errs.Wrapw(err, "user or subreddit not found", "url", url, "params", params).Code(http.StatusNotFound)
+		var msg string
+		if params.SubredditType == SubredditTypeUser {
+			msg = "user not found"
+		}
+		if params.SubredditType == SubredditTypeSub {
+			msg = "subreddit not found"
+		}
+		return actual, errs.Wrapw(err, msg, "url", url, "params", params).Code(http.StatusNotFound)
+	}
+
+	if params.SubredditType == SubredditTypeUser && resp.StatusCode == http.StatusOK {
+		return params.Subreddit, nil
 	}
 
 	if resp.StatusCode >= 400 {
