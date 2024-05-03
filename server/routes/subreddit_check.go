@@ -99,7 +99,7 @@ func (routes *Routes) SubredditCheckHTMX(rw http.ResponseWriter, r *http.Request
 	}
 
 	if exist {
-		rw.WriteHeader(http.StatusNotFound)
+		rw.WriteHeader(http.StatusConflict)
 		data.Error = "subreddit already registered"
 		if err := addview.SubredditInputForm(data).Render(r.Context(), rw); err != nil {
 			log.New(r.Context()).Err(err).Error("failed to render subreddit input form")

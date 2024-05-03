@@ -29,6 +29,9 @@ templ AddviewContent(c *views.Context) {
 				<label id="subreddit-type-input" class="form-control w-full">
 					@SubredditTypeInput(SubredditTypeData{})
 				</label>
+				<div class="flex gap-4 content-center">
+					@scheduleInputContainer()
+				</div>
 			</form>
 		}
 	</main>
