@@ -45,7 +45,7 @@ func (routes *Routes) SubredditValidateScheduleHTMX(rw http.ResponseWriter, r *h
 
 	next := scheduler.Next(time.Now())
 
-	data.Valid = fmt.Sprintf("Schedule is valid. Next run at: %s", next.Format("Monday, _2 January 2006 15:04:05 MST"))
+	data.Valid = fmt.Sprintf("Syntax is valid. Next run at: %s", next.Format("Monday, _2 January 2006 15:04 MST"))
 
 	if err := addview.ScheduleInput(data).Render(ctx, rw); err != nil {
 		log.New(ctx).Err(err).Error("failed to render schedule input")

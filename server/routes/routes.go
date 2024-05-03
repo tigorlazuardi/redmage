@@ -58,6 +58,7 @@ func (routes *Routes) registerHTMXRoutes(router chi.Router) {
 	router.Use(chimiddleware.RequestLogger(middleware.ChiLogger{}))
 	router.Use(chimiddleware.SetHeader("Content-Type", "text/html; charset=utf-8"))
 
+	router.Post("/subreddits/add", routes.SubredditsCreateHTMX)
 	router.Post("/subreddits/start", routes.SubredditStartDownloadHTMX)
 	router.Post("/subreddits/check", routes.SubredditCheckHTMX)
 	router.Get("/subreddits/validate/schedule", routes.SubredditValidateScheduleHTMX)

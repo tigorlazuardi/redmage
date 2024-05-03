@@ -1,0 +1,73 @@
+package addview
+
+import "strconv"
+import "github.com/tigorlazuardi/redmage/views/utils"
+
+type CountbackInputData struct {
+	Value     int64
+	Error     string
+	HXSwapOOB string
+}
+
+func (c *CountbackInputData) GetValue() string {
+	if c.Value < 1 {
+		return "100"
+	}
+	return strconv.FormatInt(c.Value, 10)
+}
+
+templ CountbackInput(data CountbackInputData) {
+	<label
+		id="countback-input"
+		class="form-control w-full sm:col-span-2"
+		hx-swap-oob={ data.HXSwapOOB }
+	>
+		<div class="label">
+			<span
+				class={ utils.CX(map[string]bool{
+                        "label-text": true,
+                        "text-error": data.Error != "",
+                        "text-base": true,
+                    }) }
+			>Countback</span>
+			<span
+				class={ utils.CX(map[string]bool{
+                        "label-text-alt": true,
+                        "text-error": data.Error != "",
+                    }) }
+			>NOTE: Non image posts are also counted in the countback!</span>
+		</div>
+		<input
+			name="countback"
+			type="number"
+			class={ utils.CX(map[string]bool{
+                "input": true,
+                "input-bordered": true,
+                "input-error": data.Error != "",
+                "text-error": data.Error != "",
+            }) }
+			value={ data.GetValue() }
+			min="1"
+			required
+			data-error={ data.Error }
+			hx-on::load="this.setCustomValidity(this.dataset.error)"
+			onchange="this.setCustomValidity('')"
+		/>
+		<div class="label">
+			<span
+				class={ utils.CX(map[string]bool{
+                            "label-text": true,
+                            "text-error": data.Error != "",
+                        }) }
+			>
+				if data.Error != "" {
+					{ data.Error }
+				} else {
+					Number of posts to lookup for whenever the scheduler runs this task or triggered manually by you. 
+					The bigger the number, the longer it takes to finish the task.
+					You should adjust this number based on how active the subreddit is, how often the scheduler runs this task (if enabled), and your internet speed.
+				}
+			</span>
+		</div>
+	</label>
+}

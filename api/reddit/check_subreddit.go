@@ -49,6 +49,17 @@ func (reddit *Reddit) CheckSubreddit(ctx context.Context, params CheckSubredditP
 		return actual, errs.Wrapw(err, msg, "url", url, "params", params).Code(http.StatusNotFound)
 	}
 
+	if resp.StatusCode == http.StatusForbidden {
+		var msg string
+		if params.SubredditType == SubredditTypeUser {
+			msg = "user has set their profile to private"
+		}
+		if params.SubredditType == SubredditTypeSub {
+			msg = "subreddit is private"
+		}
+		return actual, errs.Wrapw(err, msg, "url", url, "params", params).Code(http.StatusForbidden)
+	}
+
 	if params.SubredditType == SubredditTypeUser && resp.StatusCode == http.StatusOK {
 		return params.Subreddit, nil
 	}

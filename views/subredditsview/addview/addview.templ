@@ -19,19 +19,24 @@ templ AddviewContent(c *views.Context) {
 			<h1>Add Subreddit</h1>
 			<div class="divider"></div>
 			<form
+				action="/htmx/subreddits/add"
+				method="POST"
 				onkeydown="return event.key !== 'Enter'"
-				hx-post="/htmx/subreddit/add"
-				class="grid grid-cols-1 sm:grid-cols-2 gap-4"
+				hx-post="/htmx/subreddits/add"
 			>
-				<label id="subreddit-input" class="form-control w-full">
+				<div
+					class="grid grid-cols-1 sm:grid-cols-2 gap-4"
+				>
 					@SubredditInputForm(SubredditInputData{})
-				</label>
-				<label id="subreddit-type-input" class="form-control w-full">
 					@SubredditTypeInput(SubredditTypeData{})
-				</label>
-				<div class="flex gap-4 content-center">
-					@scheduleInputContainer()
+					<div class="sm:col-span-2">
+						@scheduleInputContainer()
+					</div>
+					<div class="sm:col-span-2">
+						@CountbackInput(CountbackInputData{})
+					</div>
 				</div>
+				<button type="submit" class="block btn btn-primary mx-auto w-full max-w-xs mt-8 text-primary-content">Add</button>
 			</form>
 		}
 	</main>

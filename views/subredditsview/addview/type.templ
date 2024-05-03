@@ -1,0 +1,52 @@
+package addview
+
+import "github.com/tigorlazuardi/redmage/views/utils"
+
+type SubredditTypeData struct {
+	Value     string
+	Error     string
+	HXSwapOOB string
+}
+
+templ SubredditTypeInput(data SubredditTypeData) {
+	<label
+		id="subreddit-type-input"
+		class="form-control w-full"
+		hx-swap-oob={ data.HXSwapOOB }
+	>
+		<div class="label">
+			<span
+				class={ utils.CX(map[string]bool{
+                        "label-text": true,
+                        "text-error": data.Error != "",
+                        "text-base": true,
+                    }) }
+			>Subreddit Type</span>
+		</div>
+		<select
+			onchange="
+				htmx.trigger('#name', 'on-demand'); 
+				this.setCustomValidity('');
+			"
+			name="type"
+			value={ data.Value }
+			class="select select-bordered"
+			class={ utils.CX(map[string]bool{
+				"select": true,
+				"select-bordered": true,
+				"select-error": data.Error != "",
+			}) }
+			data-error={ data.Error }
+			hx-on::load="this.setCustomValidity(this.dataset.error)"
+		>
+			if data.Value == "1" {
+				<option value="0">Subreddit</option>
+				<option selected value="1">User</option>
+			} else {
+				<option selected value="0">Subreddit</option>
+				<option value="1">User</option>
+			}
+		</select>
+		<script>document.addEventListener('DOMContentLoaded', () => htmx.trigger('#name', 'on-demand'))  </script>
+	</label>
+}
