@@ -9,6 +9,7 @@ import (
 	"github.com/tigorlazuardi/redmage/api/reddit"
 	"github.com/tigorlazuardi/redmage/db"
 	"github.com/tigorlazuardi/redmage/pkg/log"
+	"github.com/tigorlazuardi/redmage/pkg/pubsub"
 	"github.com/tigorlazuardi/redmage/pkg/telemetry"
 	"github.com/tigorlazuardi/redmage/server"
 )
@@ -33,9 +34,20 @@ var serveCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		pubsubDb, err := db.OpenPubsub(cfg)
+		pubsubDB, err := pubsub.NewDB(cfg)
 		if err != nil {
 			log.New(cmd.Context()).Err(err).Error("failed to open connection to pubsub database")
+			os.Exit(1)
+		}
+
+		publisher, err := pubsub.NewPublisher(pubsubDB)
+		if err != nil {
+			log.New(cmd.Context()).Err(err).Error("failed to create publisher")
+			os.Exit(1)
+		}
+		subscriber, err := pubsub.NewSubscriber(pubsubDB)
+		if err != nil {
+			log.New(cmd.Context()).Err(err).Error("failed to create subscriber")
 			os.Exit(1)
 		}
 
@@ -50,10 +62,11 @@ var serveCmd = &cobra.Command{
 		}
 
 		api := api.New(api.Dependencies{
-			DB:       loggedDb,
-			PubsubDB: pubsubDb,
-			Config:   cfg,
-			Reddit:   red,
+			DB:         loggedDb,
+			Config:     cfg,
+			Reddit:     red,
+			Publisher:  publisher,
+			Subscriber: subscriber,
 		})
 
 		server := server.New(cfg, api, PublicDir)

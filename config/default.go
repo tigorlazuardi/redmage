@@ -21,8 +21,8 @@ var DefaultConfig = map[string]any{
 	"db.string":      "data.db",
 	"db.automigrate": true,
 
-	"pubsub.db.driver":    "sqlite3",
-	"pubsub.db.string":    "pubsub.db",
+	"pubsub.db.name":      "pubsub.db",
+	"pubsub.db.timeout":   "5s",
 	"pubsub.ack.deadline": "30m",
 
 	"download.concurrency.images":     5,

@@ -17,9 +17,7 @@ import (
 	"github.com/tigorlazuardi/redmage/pkg/log"
 
 	"github.com/ThreeDotsLabs/watermill"
-	watermillSql "github.com/ThreeDotsLabs/watermill-sql/v3/pkg/sql"
 	"github.com/ThreeDotsLabs/watermill/message"
-	watermillSqlite "github.com/walterwanderley/watermill-sqlite"
 )
 
 type API struct {
@@ -42,36 +40,17 @@ type API struct {
 }
 
 type Dependencies struct {
-	DB       *sql.DB
-	PubsubDB *sql.DB
-	Config   *config.Config
-	Reddit   *reddit.Reddit
+	DB         *sql.DB
+	Config     *config.Config
+	Reddit     *reddit.Reddit
+	Publisher  message.Publisher
+	Subscriber message.Subscriber
 }
 
 const downloadTopic = "subreddit_download"
 
-var watermillLogger = &log.WatermillLogger{}
-
 func New(deps Dependencies) *API {
-	ackDeadline := deps.Config.Duration("pubsub.ack.deadline")
-	subscriber, err := watermillSql.NewSubscriber(deps.PubsubDB, watermillSql.SubscriberConfig{
-		ConsumerGroup:    "redmage",
-		AckDeadline:      &ackDeadline,
-		SchemaAdapter:    watermillSqlite.DefaultSQLiteSchema{},
-		OffsetsAdapter:   watermillSqlite.DefaultSQLiteOffsetsAdapter{},
-		InitializeSchema: true,
-	}, watermillLogger)
-	if err != nil {
-		panic(err)
-	}
-	publisher, err := watermillSql.NewPublisher(deps.PubsubDB, watermillSql.PublisherConfig{
-		SchemaAdapter:        watermillSqlite.DefaultSQLiteSchema{},
-		AutoInitializeSchema: true,
-	}, watermillLogger)
-	if err != nil {
-		panic(err)
-	}
-	ch, err := subscriber.Subscribe(context.Background(), downloadTopic)
+	ch, err := deps.Subscriber.Subscribe(context.Background(), downloadTopic)
 	if err != nil {
 		panic(err)
 	}
@@ -84,8 +63,8 @@ func New(deps Dependencies) *API {
 		imageSemaphore:     make(chan struct{}, deps.Config.Int("download.concurrency.images")),
 		subredditSemaphore: make(chan struct{}, deps.Config.Int("download.concurrency.subreddits")),
 		reddit:             deps.Reddit,
-		subscriber:         subscriber,
-		publisher:          publisher,
+		subscriber:         deps.Subscriber,
+		publisher:          deps.Publisher,
 	}
 
 	if err := api.StartScheduler(context.Background()); err != nil {
