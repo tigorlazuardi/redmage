@@ -30,7 +30,7 @@ templ SubredditContent(c *views.Context, data Data) {
 				</div>
 				<div class="divider"></div>
 			}
-			<div class="flex flex-wrap gap-1" hx-boost="true">
+			<div class="flex flex-wrap gap-1 justify-around" hx-boost="true">
 				for _, subreddit := range data.Subreddits.Data {
 					@SubredditCard(c, subreddit)
 				}
