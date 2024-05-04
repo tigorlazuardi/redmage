@@ -81,5 +81,6 @@ func (routes *Routes) registerWWWRoutes(router chi.Router) {
 		r.Get("/subreddits/details/{name}", routes.PageSubredditsDetails)
 		r.Get("/subreddits/add", routes.PageSubredditsAdd)
 		r.Get("/config", routes.PageConfig)
+		r.Get("/schedules", routes.PageScheduleHistory)
 	})
 }

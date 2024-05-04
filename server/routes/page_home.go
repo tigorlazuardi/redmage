@@ -16,6 +16,8 @@ func (routes *Routes) PageHome(rw http.ResponseWriter, r *http.Request) {
 	ctx, span := tracer.Start(r.Context(), "routes.PageHome")
 	defer span.End()
 
+	var data homeview.Data
+
 	vc := views.NewContext(routes.Config, r)
 
 	listSubredditParams := parseSubredditListQuery(r)
@@ -48,12 +50,10 @@ func (routes *Routes) PageHome(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := homeview.Data{
-		SubredditsList:      list,
-		RecentlyAddedImages: homeview.NewRecentlyAddedImages(imageList.Images),
-		Now:                 time.Now(),
-		TotalImages:         imageList.Total,
-	}
+	data.SubredditsList = list
+	data.RecentlyAddedImages = homeview.NewRecentlyAddedImages(imageList.Images)
+	data.Now = time.Now()
+	data.TotalImages = imageList.Total
 
 	if err := homeview.Home(vc, data).Render(ctx, rw); err != nil {
 		log.New(ctx).Err(err).Error("failed to render home view")

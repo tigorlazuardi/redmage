@@ -1,0 +1,26 @@
+package scheduleshistoryview
+
+import "github.com/tigorlazuardi/redmage/views"
+import "github.com/tigorlazuardi/redmage/views/components"
+
+type Data struct{}
+
+templ ScheduleHistoriesview(c *views.Context, data Data) {
+	@components.Doctype() {
+		@components.Head(c,
+			components.HeadTitle("Schedule History"),
+		)
+		@components.Body(c) {
+			@ScheduleHistoriesContent(c, data)
+		}
+	}
+}
+
+templ ScheduleHistoriesContent(c *views.Context, data Data) {
+	@components.Container() {
+		<main class="prose min-w-full">
+			<h1>Schedule History</h1>
+			<div class="divider"></div>
+		</main>
+	}
+}
