@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE schedule_status(
     id INTEGER PRIMARY KEY,
-    subreddit VARCHAR(255) NOT NULL,
+    subreddit VARCHAR(255) NOT NULL COLLATE NOCASE,
     status TINYINT NOT NULL DEFAULT 0,
     error_message VARCHAR(255) NOT NULL DEFAULT '',
     created_at BIGINT DEFAULT 0 NOT NULL,

@@ -1,9 +1,9 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE devices(
-    slug VARCHAR(255) NOT NULL PRIMARY KEY,
+    slug VARCHAR(255) NOT NULL PRIMARY KEY COLLATE NOCASE,
     enable INTEGER NOT NULL DEFAULT 1,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL COLLATE NOCASE,
     resolution_x DOUBLE NOT NULL,
     resolution_y DOUBLE NOT NULL,
     aspect_ratio_tolerance DOUBLE NOT NULL default 0.2,

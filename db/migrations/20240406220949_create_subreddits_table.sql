@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE subreddits (
-    name VARCHAR(30) NOT NULL PRIMARY KEY,
+    name VARCHAR(30) NOT NULL PRIMARY KEY COLLATE NOCASE,
     enable_schedule INT NOT NULL DEFAULT 1,
     subtype INT NOT NULL DEFAULT 0,
     schedule VARCHAR(20) NOT NULL DEFAULT '@daily',

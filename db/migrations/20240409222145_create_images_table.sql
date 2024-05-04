@@ -2,8 +2,8 @@
 -- +goose StatementBegin
 CREATE TABLE images(
     id INTEGER PRIMARY KEY,
-    subreddit VARCHAR(255) NOT NULL,
-    device VARCHAR(250) NOT NULL,
+    subreddit VARCHAR(255) NOT NULL COLLATE NOCASE,
+    device VARCHAR(250) NOT NULL COLLATE NOCASE,
     post_title VARCHAR(255) NOT NULL,
     post_name VARCHAR(255) NOT NULL,
     post_url VARCHAR(255) NOT NULL,
