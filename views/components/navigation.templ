@@ -86,7 +86,9 @@ templ Navbar(c *views.Context) {
 templ navList(c *views.Context) {
 	@createLink(c, "/", "Home", true)
 	@createLink(c, "/config", "Config", false)
+	@createLink(c, "/devices", "Devices", true)
 	@createLink(c, "/subreddits", "Subreddits", true)
+	@createLink(c, "/schedules", "Schedules", true)
 	<div class="flex-1 flex-shrink-0"></div>
 	<div class="divider"></div>
 	@createLink(c, "/about", "About", true)
@@ -95,7 +97,7 @@ templ navList(c *views.Context) {
 
 templ createLink(c *views.Context, path string, text string, boost bool) {
 	<a
-		href={ templ.SafeURL(path) }
+		href={ templ.URL(path) }
 		class={ utils.CX(map[string]bool{
         "hover:bg-accent": true,
         "hover:text-neutral-50": true,

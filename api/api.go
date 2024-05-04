@@ -31,8 +31,7 @@ type API struct {
 
 	config *config.Config
 
-	imageSemaphore     chan struct{}
-	subredditSemaphore chan struct{}
+	imageSemaphore chan struct{}
 
 	reddit *reddit.Reddit
 
@@ -56,17 +55,16 @@ func New(deps Dependencies) *API {
 		panic(err)
 	}
 	api := &API{
-		db:                 bob.New(deps.DB),
-		sqldb:              deps.DB,
-		scheduler:          cron.New(),
-		scheduleMap:        make(map[cron.EntryID]*models.Subreddit, 8),
-		downloadBroadcast:  broadcast.NewRelay[bmessage.ImageDownloadMessage](),
-		config:             deps.Config,
-		imageSemaphore:     make(chan struct{}, deps.Config.Int("download.concurrency.images")),
-		subredditSemaphore: make(chan struct{}, deps.Config.Int("download.concurrency.subreddits")),
-		reddit:             deps.Reddit,
-		subscriber:         deps.Subscriber,
-		publisher:          deps.Publisher,
+		db:                bob.New(deps.DB),
+		sqldb:             deps.DB,
+		scheduler:         cron.New(),
+		scheduleMap:       make(map[cron.EntryID]*models.Subreddit, 8),
+		downloadBroadcast: broadcast.NewRelay[bmessage.ImageDownloadMessage](),
+		config:            deps.Config,
+		imageSemaphore:    make(chan struct{}, deps.Config.Int("download.concurrency.images")),
+		reddit:            deps.Reddit,
+		subscriber:        deps.Subscriber,
+		publisher:         deps.Publisher,
 	}
 
 	if err := api.StartScheduler(context.Background()); err != nil {

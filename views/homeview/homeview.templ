@@ -28,22 +28,9 @@ templ HomeContent(c *views.Context, data Data) {
 				@components.ErrorToast(data.Error)
 			} else {
 				<section class="mb-4 mx-auto">
-					<div
-						class="flex flex-wrap content-center gap-x-8"
-						hx-get="/"
-						hx-target="#recently-added-images"
-						hx-select="#recently-added-images"
-						hx-swap="outerHTML"
-						hx-trigger="change"
-						hx-include="this"
-						hx-push-url="true"
-					>
-						<h1 class="mb-4">
-							Recently Added 						
-						</h1>
-						@recentRangeInput(c)
-						@nsfwToggle(c, data)
-					</div>
+					<h1 class="mb-4">
+						Recently Added 						
+					</h1>
 					<div id="recently-added-images">
 						if data.TotalImages == 0 {
 							<h2 class="mt-4">There are no recently added images in the current time range.</h2>
@@ -52,6 +39,20 @@ templ HomeContent(c *views.Context, data Data) {
 								{ strconv.FormatInt(data.TotalImages, 10) } Images
 							</h2>
 						}
+						<div
+							id="filter-bar"
+							hx-get="/"
+							hx-target="#recently-added-images"
+							hx-select="#recently-added-images"
+							hx-swap="outerHTML"
+							hx-trigger="change"
+							hx-include="this"
+							hx-push-url="true"
+							class="flex flex-wrap content-center gap-x-8"
+						>
+							@recentRangeInput(c)
+							@nsfwToggle(c, data)
+						</div>
 						for _, recently := range data.RecentlyAddedImages {
 							<div class="divider"></div>
 							<h2 class="mt-4">{ recently.Device.Name }</h2>
@@ -82,19 +83,25 @@ templ HomeContent(c *views.Context, data Data) {
 }
 
 templ recentRangeInput(c *views.Context) {
-	<select
-		name="created_at"
-		class="select select-ghost select-bordered"
-	>
-		@recentlyRangeOption(c, "-10800", "3 Hours")
-		@recentlyRangeOption(c, "-21600", "6 Hours")
-		@recentlyRangeOption(c, "-43200", "12 Hours")
-		@recentlyRangeOption(c, "-86400", "1 Day")
-		@recentlyRangeOption(c, "-172800", "2 Days")
-		@recentlyRangeOption(c, "-259200", "3 Days")
-		@recentlyRangeOption(c, "-604800", "7 Days")
-		@recentlyRangeOption(c, "-2592000", "30 Days")
-	</select>
+	<div class="form-control">
+		<label class="label gap-4">
+			<span class="label-text">Range</span>
+			<select
+				id="select-range"
+				name="created_at"
+				class="select select-ghost select-bordered"
+			>
+				@recentlyRangeOption(c, "-10800", "3 Hours")
+				@recentlyRangeOption(c, "-21600", "6 Hours")
+				@recentlyRangeOption(c, "-43200", "12 Hours")
+				@recentlyRangeOption(c, "-86400", "1 Day")
+				@recentlyRangeOption(c, "-172800", "2 Days")
+				@recentlyRangeOption(c, "-259200", "3 Days")
+				@recentlyRangeOption(c, "-604800", "7 Days")
+				@recentlyRangeOption(c, "-2592000", "30 Days")
+			</select>
+		</label>
+	</div>
 }
 
 templ recentlyRangeOption(c *views.Context, value, text string) {
@@ -108,22 +115,27 @@ templ recentlyRangeOption(c *views.Context, value, text string) {
 }
 
 templ nsfwToggle(c *views.Context, data Data) {
-	<select
-		name="sfw"
-		class="select select-ghost select-bordered"
-	>
-		if (c.Request.URL.Query().Get("sfw") == "1") || data.SFW {
-			<option value="0">NSFW - Show</option>
-			<option selected="selected" value="1">NSFW - Hide</option>
-		} else {
-			<option selected="selected" value="0">NSFW - Show</option>
-			<option value="1">NSFW - Hide</option>
-		}
-	</select>
+	<div class="form-control">
+		<label class="label gap-4">
+			<span class="label-text">NSFW</span>
+			<select
+				name="sfw"
+				class="select select-ghost select-bordered"
+			>
+				if (c.Request.URL.Query().Get("sfw") == "1") || data.SFW {
+					<option value="0">Show</option>
+					<option selected="selected" value="1">Hide</option>
+				} else {
+					<option selected="selected" value="0">Show</option>
+					<option value="1">Hide</option>
+				}
+			</select>
+		</label>
+	</div>
 }
 
 templ RecentlyAddedImageList(images models.ImageSlice, opts components.ImageCardOption) {
-	<div class="overflow-x-auto flex gap-4 p-6 shadow-inner bg-base-300 rounded-2xl w-[85vw] md:w-full scrollbar-track-base-100 scrollbar-thumb-base-200 scrollbar-thin">
+	<div class="overflow-x-auto flex gap-4 p-6 shadow-inner bg-base-300 rounded-2xl w-[85vw] md:w-full scrollbar-track-base-100 scrollbar-thumb-primary scrollbar-thin hover:scrollbar-thumb-base-300">
 		for _, data := range images {
 			@components.ImageCard(data, 0)
 		}

@@ -4,13 +4,15 @@ import "github.com/tigorlazuardi/redmage/views"
 
 templ Head(vc *views.Context, extras ...templ.Component) {
 	<head>
+		<script>
+            document.querySelector('html').dataset.theme = localStorage.getItem('theme') || '';
+        </script>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<meta name="keywords" content="Reddit, Image, Downloader"/>
 		<link rel="stylesheet" href="/public/style.css"/>
 		<link rel="icon" href="/public/favicon.svg"/>
 		@Dayjs(vc)
 		@HTMX(vc)
-		@ThemeChange(vc)
 		if vc.Config.Bool("http.hotreload") {
 			<script src="/public/hot_reload.js"></script>
 		}

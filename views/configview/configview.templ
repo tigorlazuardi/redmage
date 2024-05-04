@@ -17,26 +17,44 @@ templ ConfigContent(c *views.Context) {
 		@components.Container() {
 			<h1>Config</h1>
 			<div class="divider"></div>
-			<div class="grid grid-cols-2 items-center">
-				<h2>Theme</h2>
-				@SelectThemeInput()
-			</div>
+			<h2>Theme</h2>
+			@SelectThemeInput()
 		}
 	</main>
 }
 
 templ SelectThemeInput() {
-	<select class="select select-ghost select-bordered w-full" data-choose-theme>
-		<option value="light">Light (Default)</option>
-		<option value="dark">Dark</option>
-		<option value="cupcake">Cupcake</option>
-		<option value="bumblebee">Bumblebee</option>
-		<option value="emerald">Emerald</option>
-		<option value="corporate">Corporate</option>
-		<option value="synthwave">Synthwave</option>
-		<option value="retru">Retro</option>
-		<option value="cyberpunk">Cyberpunk</option>
-		<option value="valentine">Valentine</option>
-		<option value="halloween">Halloween</option>
-	</select>
+	<div
+		class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4"
+		onchange="document.querySelector('html').dataset.theme = event.target.value; localStorage.setItem('theme', event.target.value)"
+	>
+		@themeRadio("default", "System (Default)")
+		@themeRadio("light", "Light")
+		@themeRadio("dark", "Dark")
+		@themeRadio("aqua", "Aqua")
+		@themeRadio("bumblebee", "Bumblebee")
+		@themeRadio("corporate", "Corporate")
+		@themeRadio("cupcake", "Cupcake")
+		@themeRadio("cyberpunk", "Cyberpunk")
+		@themeRadio("emerald", "Emerald")
+		@themeRadio("halloween", "Halloween")
+		@themeRadio("retro", "Retro")
+		@themeRadio("synthwave", "Synthwave")
+		@themeRadio("valentine", "Valentine")
+	</div>
+	<script>
+        {
+            const theme = localStorage.getItem('theme') || 'default';
+            document.querySelector(`input[name="theme-radios"][value="${theme}"]`).checked = true
+        }
+    </script>
+}
+
+templ themeRadio(value, display string) {
+	<div class="form-control">
+		<label class="label cursor-pointer gap-4 justify-start">
+			<input type="radio" name="theme-radios" class="radio theme-controller" value={ value }/>
+			<span class="label-text">{ display }</span>
+		</label>
+	</div>
 }

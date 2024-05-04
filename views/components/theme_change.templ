@@ -1,8 +1,0 @@
-package components
-
-import "github.com/tigorlazuardi/redmage/views"
-import "fmt"
-
-templ ThemeChange(c *views.Context) {
-	<script src={ fmt.Sprintf("/public/theme-change-%s.min.js", c.Config.String("web.dependencies.themechange.version")) }></script>
-}

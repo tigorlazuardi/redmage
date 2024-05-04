@@ -9,7 +9,6 @@ export GOOSE_MIGRATION_DIR=db/migrations
 
 export REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION=$(shell echo "$${REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION:-1.9.12}")
 export REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION=$(shell echo "$${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION:-1.11.10}")
-export REDMAGE_WEB_DEPENDENCIES_THEMECHANGE_VERSION=$(shell echo "$${REDMAGE_WEB_DEPENDENCIES_THEMECHANGE_VERSION:-2.0.2}")
 
 start: dev-dependencies
 	@tailwindcss -i views/style.css -o public/style.css --watch &
@@ -62,11 +61,6 @@ build-dependencies:
 		mkdir -p public
 		echo "Dayjs Timezone ${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION} plugin not found, installing it"
 		curl -o public/dayjs-timezone-${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}/plugin/timezone.min.js
-	fi
-	@if [ ! -f "public/theme-change-${REDMAGE_WEB_DEPENDENCIES_THEMECHANGE_VERSION}.min.js" ];  then
-		mkdir -p public
-		echo "Theme change ${REDMAGE_WEB_DEPENDENCIES_THEMECHANGE_VERSION} not found, installing it"
-		curl -o public/theme-change-${REDMAGE_WEB_DEPENDENCIES_THEMECHANGE_VERSION}.min.js https://cdn.jsdelivr.net/npm/theme-change@${REDMAGE_WEB_DEPENDENCIES_THEMECHANGE_VERSION}/index.js
 	fi
 
 build: build-dependencies prepare
