@@ -17,7 +17,7 @@ templ ConfigContent(c *views.Context) {
 		@components.Container() {
 			<h1>Config</h1>
 			<div class="divider"></div>
-			<h2>Theme</h2>
+			<h2>Site Theme</h2>
 			@SelectThemeInput()
 		}
 	</main>
@@ -31,16 +31,36 @@ templ SelectThemeInput() {
 		@themeRadio("default", "System (Default)")
 		@themeRadio("light", "Light")
 		@themeRadio("dark", "Dark")
+		@themeRadio("acid", "Acid")
 		@themeRadio("aqua", "Aqua")
+		@themeRadio("autumn", "Autumn")
+		@themeRadio("black", "Black")
 		@themeRadio("bumblebee", "Bumblebee")
+		@themeRadio("business", "Business")
+		@themeRadio("cmyk", "CMYK")
+		@themeRadio("coffee", "Coffee")
 		@themeRadio("corporate", "Corporate")
 		@themeRadio("cupcake", "Cupcake")
 		@themeRadio("cyberpunk", "Cyberpunk")
+		@themeRadio("dim", "Dim")
+		@themeRadio("dracula", "Dracula")
 		@themeRadio("emerald", "Emerald")
+		@themeRadio("fantasy", "Fantasy")
+		@themeRadio("forest", "Forest")
+		@themeRadio("garden", "Garden")
 		@themeRadio("halloween", "Halloween")
+		@themeRadio("lemonade", "Lemonade")
+		@themeRadio("lofi", "Lo-Fi")
+		@themeRadio("luxury", "Luxury")
+		@themeRadio("night", "Night")
+		@themeRadio("nord", "Nord")
+		@themeRadio("pastel", "Pastel")
 		@themeRadio("retro", "Retro")
+		@themeRadio("sunset", "Sunset")
 		@themeRadio("synthwave", "Synthwave")
 		@themeRadio("valentine", "Valentine")
+		@themeRadio("winter", "Winter")
+		@themeRadio("wireframe", "Wireframe")
 	</div>
 	<script>
         {
