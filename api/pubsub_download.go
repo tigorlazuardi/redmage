@@ -7,6 +7,7 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/stephenafamo/bob"
 	"github.com/tigorlazuardi/redmage/models"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
@@ -22,25 +23,11 @@ func (api *API) StartSubredditDownloadPubsub(messages <-chan *message.Message) {
 			log.New(context.Background()).Err(err).Error("failed to unmarshal json for download pubsub", "topic", downloadTopic)
 			return
 		}
-		ctx := context.Background()
-		if _, err := api.ScheduleSet(ctx, ScheduleSetParams{
-			Subreddit: subreddit.Name,
-			Status:    ScheduleStatusEnqueued,
-		}); err != nil {
-			log.New(ctx).Err(err).Error("failed to set schedule status", "subreddit", subreddit.Name, "status", ScheduleStatusDownloading.String())
-		}
 		log.New(context.Background()).Debug("received pubsub message",
-			"message", msg,
-			"len", len(api.subredditSemaphore),
-			"cap", cap(api.subredditSemaphore),
-			"download.concurrency.subreddits", api.config.Int("download.concurrency.subreddits"),
+			"message", string(msg.Payload),
 		)
-		api.subredditSemaphore <- struct{}{}
-		go func(msg *message.Message, subreddit *models.Subreddit) {
-			defer func() {
-				msg.Ack()
-				<-api.subredditSemaphore
-			}()
+		func(msg *message.Message, subreddit *models.Subreddit) {
+			defer msg.Ack()
 			var err error
 			ctx, span := tracer.Start(context.Background(), "Download Subreddit Pubsub")
 			defer func() {
@@ -102,12 +89,26 @@ func (api *API) PubsubStartDownloadSubreddit(ctx context.Context, params PubsubS
 		return errs.Wrapw(err, "failed to verify subreddit existence", "params", params)
 	}
 
-	payload, _ := json.Marshal(subreddit)
+	err = api.withTransaction(ctx, func(exec bob.Executor) error {
+		_, err := api.scheduleSet(ctx, exec, ScheduleSetParams{
+			Subreddit: subreddit.Name,
+			Status:    ScheduleStatusEnqueued,
+		})
+		if err != nil {
+			return err
+		}
 
-	err = api.publisher.Publish(downloadTopic, message.NewMessage(watermill.NewUUID(), payload))
-	if err != nil {
-		return errs.Wrapw(err, "failed to enqueue reddit download", "params", params)
-	}
+		payload, err := json.Marshal(subreddit)
+		if err != nil {
+			return errs.Wrapw(err, "failed to marshal subreddit")
+		}
+
+		err = api.publisher.Publish(downloadTopic, message.NewMessage(watermill.NewUUID(), payload))
+		if err != nil {
+			return errs.Wrapw(err, "failed to enqueue reddit download", "params", params)
+		}
+		return nil
+	})
 
 	return nil
 }

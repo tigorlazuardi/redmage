@@ -13,9 +13,9 @@ type ScheduleStatus int8
 const (
 	ScheduleStatusDisabled ScheduleStatus = iota
 	ScheduleStatusStandby
+	ScheduleStatusError
 	ScheduleStatusEnqueued
 	ScheduleStatusDownloading
-	ScheduleStatusError
 )
 
 func (ss ScheduleStatus) String() string {
@@ -49,19 +49,27 @@ func (api *API) ScheduleSet(ctx context.Context, params ScheduleSetParams) (sche
 	defer span.End()
 
 	errTx := api.withTransaction(ctx, func(exec bob.Executor) error {
-		schedule, err = api.ScheduleStatusUpsert(ctx, params)
-		if err != nil {
-			return errs.Wrapw(err, "failed to set schedule status", "params", params)
-		}
-
-		_, err = api.ScheduleHistoryInsert(ctx, params)
-		if err != nil {
-			return errs.Wrapw(err, "failed to insert schedule history", "params", params)
-		}
-
-		// TODO: Create cron job schedule rebalancing
-		return nil
+		schedule, err = api.scheduleSet(ctx, exec, params)
+		return err
 	})
 
 	return schedule, errTx
+}
+
+func (api *API) scheduleSet(ctx context.Context, exec bob.Executor, params ScheduleSetParams) (schedule *models.ScheduleStatus, err error) {
+	ctx, span := tracer.Start(ctx, "*API.scheduleSet")
+	defer span.End()
+
+	schedule, err = api.scheduleStatusUpsert(ctx, exec, params)
+	if err != nil {
+		return schedule, errs.Wrapw(err, "failed to set schedule status", "params", params)
+	}
+
+	_, err = api.scheduleHistoryInsert(ctx, exec, params)
+	if err != nil {
+		return schedule, errs.Wrapw(err, "failed to insert schedule history", "params", params)
+	}
+
+	// TODO: Create cron job schedule rebalancing if schedule is set to disabled.
+	return schedule, nil
 }
