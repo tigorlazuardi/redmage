@@ -2,6 +2,8 @@ package components
 
 import "github.com/tigorlazuardi/redmage/views"
 import "strings"
+import "github.com/tigorlazuardi/redmage/views/utils"
+import "strconv"
 
 templ Navigation(c *views.Context) {
 	<div class="drawer">
@@ -67,34 +69,50 @@ templ navLogo() {
 }
 
 templ Navbar(c *views.Context) {
-	<header class="hidden lg:inline-block bg-base-200 min-w-[200px] w-[15vw] max-w-[300px]">
+	<header class="hidden lg:block bg-base-200 min-w-[200px] w-[15vw] max-w-[300px]">
 		<div class="sticky top-0 flex flex-col min-h-screen">
 			<div class="flex flex-col items-center min-w-[180px] max-w-[280px] mx-auto">
 				@navLogo()
 				<span class="font-bold">Redmage</span>
 			</div>
 			<div class="divider"></div>
-			<nav class="pt-4">
+			<nav class="flex-grow pt-4 min-h-full flex flex-col transition-all">
 				@navList(c)
 			</nav>
-			<div class="flex-grow"></div>
 		</div>
 	</header>
 }
 
 templ navList(c *views.Context) {
-	<ul hx-boost="true" class="flex flex-col flex-wrap transition-all">
-		<a href="/" class={ classForNavItem(c, "/") }>
-			<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Home</li>
-		</a>
-		<a href="/about" class={ classForNavItem(c, "/about") }>
-			<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">About</li>
-		</a>
-		<a hx-boost="false" href="/config" class={ classForNavItem(c, "/config") }>
-			<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Config</li>
-		</a>
-		<a href="/subreddits" class={ classForNavItem(c, "/subreddits") }>
-			<li class="hover:bg-accent hover:text-neutral-50 py-2 text-center hover:font-bold">Subreddits</li>
-		</a>
-	</ul>
+	@createLink(c, "/", "Home", true)
+	@createLink(c, "/config", "Config", false)
+	@createLink(c, "/subreddits", "Subreddits", true)
+	<div class="flex-1 flex-shrink-0"></div>
+	<div class="divider"></div>
+	@createLink(c, "/about", "About", true)
+	<div class="mt-4"></div>
+}
+
+templ createLink(c *views.Context, path string, text string, boost bool) {
+	<a
+		href={ templ.SafeURL(path) }
+		class={ utils.CX(map[string]bool{
+        "hover:bg-accent": true,
+        "hover:text-neutral-50": true,
+        "py-2": true,
+        "text-center": true,
+        "font-bold": isCurrentPage(c, path),
+        "hover:font-bold": true,
+        }) }
+		hx-boost={ strconv.FormatBool(boost) }
+	>{ text }</a>
+}
+
+func isCurrentPage(c *views.Context, path string) bool {
+	if path == "/" && c.Request.URL.Path == "/" {
+		return true
+	} else if strings.HasPrefix(c.Request.URL.Path, path) && path != "/" {
+		return true
+	}
+	return false
 }
