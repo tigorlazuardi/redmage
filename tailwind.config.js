@@ -4,7 +4,11 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [require("daisyui"), require("@tailwindcss/typography")],
+  plugins: [
+    require("daisyui"),
+    require("@tailwindcss/typography"),
+    require("tailwind-scrollbar")({ noCompatible: true }),
+  ],
   daisyui: {
     themes: true, // false: only light + dark | true: all themes | array: specific themes like this ["light", "dark", "cupcake"]
     darkTheme: "dark", // name of one of the included themes for dark mode
