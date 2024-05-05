@@ -12,16 +12,19 @@ type ScheduleStatus int8
 
 const (
 	ScheduleStatusDisabled ScheduleStatus = iota
+	ScheduleStatusEnabled
 	ScheduleStatusStandby
-	ScheduleStatusError
 	ScheduleStatusEnqueued
 	ScheduleStatusDownloading
+	ScheduleStatusError
 )
 
 func (ss ScheduleStatus) String() string {
 	switch ss {
 	case ScheduleStatusDisabled:
 		return "Disabled"
+	case ScheduleStatusEnabled:
+		return "Enabled"
 	case ScheduleStatusStandby:
 		return "Standby"
 	case ScheduleStatusEnqueued:

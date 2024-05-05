@@ -1,0 +1,17 @@
+package components
+
+import "time"
+import "strings"
+
+templ AbsoluteTimeText(id string, t int64, class ...string) {
+	<span class={ strings.Join(class, " ") }>
+		{ time.Unix(t, 0).Format("Mon, _2 Jan 2006 15:04:05") }
+	</span>
+	@absoluteFromTime(id, t)
+}
+
+script absoluteFromTime(id string, time int64) {
+    const el = document.getElementById(id);
+    const timeText = dayjs.unix(time).tz(dayjs.tz.guess()).format('ddd, D MMM YYYY HH:mm:ss');
+    el.textContent = timeText;
+}
