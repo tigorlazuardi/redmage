@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -32,6 +33,7 @@ func (routes *Routes) PageSubredditsDetails(rw http.ResponseWriter, r *http.Requ
 		code, message := errs.HTTPMessage(err)
 		rw.WriteHeader(code)
 		data.Error = message
+		fmt.Println(data)
 		if err := detailsview.Detailsview(c, data).Render(ctx, rw); err != nil {
 			log.New(ctx).Err(err).Error("failed to render subreddit details page")
 		}

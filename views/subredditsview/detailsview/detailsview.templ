@@ -17,7 +17,11 @@ type Data struct {
 
 templ Detailsview(c *views.Context, data Data) {
 	@components.Doctype() {
-		@components.Head(c, components.HeadTitle(fmt.Sprintf("Subreddit - %s", data.Subreddit.Name)))
+		if data.Subreddit != nil {
+			@components.Head(c, components.HeadTitle(fmt.Sprintf("Subreddit - %s", data.Subreddit.Name)))
+		} else {
+			@components.Head(c, components.HeadTitle("Subreddit - 404 NOT FOUND"))
+		}
 		@components.Body(c) {
 			@DetailsContent(c, data)
 			@components.NotificationContainer()

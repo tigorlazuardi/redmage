@@ -294,6 +294,9 @@ func (post *Post) GetThumbnailTargetPath(cfg *config.Config) string {
 	baseDownloadDir := cfg.String("download.directory")
 	p := path.Join(baseDownloadDir, "_thumbnails", post.GetSubreddit(), post.GetImageFilename())
 	abs, _ := filepath.Abs(p)
+	if before, found := strings.CutSuffix(abs, ".png"); found {
+		return before + ".jpeg"
+	}
 	return abs
 }
 
@@ -305,7 +308,11 @@ func (post *Post) GetThumbnailTargetDir(cfg *config.Config) string {
 }
 
 func (post *Post) GetThumbnailRelativePath() string {
-	return path.Join("_thumbnails", post.GetSubreddit(), post.GetImageFilename())
+	p := path.Join("_thumbnails", post.GetSubreddit(), post.GetImageFilename())
+	if before, found := strings.CutSuffix(p, ".png"); found {
+		return before + ".jpeg"
+	}
+	return p
 }
 
 func (post *Post) GetImageRelativePath(device *models.Device) string {

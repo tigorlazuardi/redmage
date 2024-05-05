@@ -27,6 +27,7 @@ templ ImageCard(data *models.Image, opts ImageCardOption) {
 					class="object-contain max-w-[16rem] max-h-[16rem]"
 					src={ fmt.Sprintf("/img/%s", data.ThumbnailRelativePath) }
 					alt={ data.PostTitle }
+					loading="lazy"
 				/>
 			</a>
 		</figure>
