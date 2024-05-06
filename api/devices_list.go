@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/stephenafamo/bob"
 	"github.com/stephenafamo/bob/dialect/sqlite"
@@ -12,24 +13,37 @@ import (
 )
 
 type DevicesListParams struct {
-	All     bool
-	Q       string
+	Q      string
+	Status int
+
 	Limit   int64
 	Offset  int64
 	OrderBy string
 	Sort    string
-	Active  bool
+}
+
+func (dlp *DevicesListParams) FillFromQuery(query Queryable) {
+	dlp.Status, _ = strconv.Atoi(query.Get("status"))
+	if dlp.Status > 2 {
+		dlp.Status = 2
+	}
+	dlp.Q = query.Get("q")
+
+	dlp.Limit, _ = strconv.ParseInt(query.Get("limit"), 10, 64)
+	if dlp.Limit < 1 {
+		dlp.Limit = 20
+	}
+	dlp.Offset, _ = strconv.ParseInt(query.Get("offset"), 10, 64)
+	if dlp.Offset < 0 {
+		dlp.Offset = 0
+	}
+
+	dlp.OrderBy = query.Get("order_by")
+	dlp.Sort = query.Get("sort")
 }
 
 func (dlp DevicesListParams) Query() (expr []bob.Mod[*dialect.SelectQuery]) {
 	expr = append(expr, dlp.CountQuery()...)
-	if dlp.Active {
-		expr = append(expr, models.SelectWhere.Devices.Enable.EQ(1))
-	}
-
-	if dlp.All {
-		return expr
-	}
 
 	if dlp.Limit > 0 {
 		expr = append(expr, sm.Limit(dlp.Limit))
@@ -54,8 +68,8 @@ func (dlp DevicesListParams) Query() (expr []bob.Mod[*dialect.SelectQuery]) {
 }
 
 func (dlp DevicesListParams) CountQuery() (expr []bob.Mod[*dialect.SelectQuery]) {
-	if dlp.Active {
-		expr = append(expr, models.SelectWhere.Devices.Enable.EQ(1))
+	if dlp.Status > 0 {
+		expr = append(expr, models.SelectWhere.Devices.Enable.EQ(int32(dlp.Status-1)))
 	}
 
 	if dlp.Q != "" {

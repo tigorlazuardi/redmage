@@ -1,0 +1,80 @@
+package  devicesview
+
+import "github.com/tigorlazuardi/redmage/views"
+import "github.com/tigorlazuardi/redmage/views/components"
+import "github.com/tigorlazuardi/redmage/models"
+import "github.com/tigorlazuardi/redmage/api"
+import "strconv"
+import "fmt"
+import "github.com/tigorlazuardi/redmage/views/utils"
+
+type Data struct {
+	Error   string
+	Devices models.DeviceSlice
+	Total   int64
+	Params  api.DevicesListParams
+}
+
+templ Devices(c *views.Context, data Data) {
+	@components.Doctype() {
+		@components.Head(c, components.HeadTitle("Redmage - Devices"))
+		@components.Body(c) {
+			@DevicesContent(c, data)
+		}
+	}
+}
+
+templ DevicesContent(c *views.Context, data Data) {
+	<main class="prose min-w-full">
+		@components.Container() {
+			if data.Error != "" {
+				@components.ErrorToast(data.Error)
+			} else {
+				<h1>Devices</h1>
+				<div class="divider"></div>
+				<h2>{ strconv.FormatInt(data.Total, 10) } Devices</h2>
+				@devicesList(data)
+			}
+		}
+	</main>
+}
+
+templ devicesList(data Data) {
+	<div class="grid md:grid-cols-2 gap-4">
+		for _, device := range data.Devices {
+			<a
+				href={ templ.URL(fmt.Sprintf("/devices/details/%s", device.Slug)) }
+				class={ utils.CXX(
+                    "card bg-base-100 no-underline text-primary hover:bg-base-200 shadow-xl rounded-xl top-0 hover:-top-1 transition-all", true,
+                    "bg-base-300 hover:bg-base-300", device.Enable == 0,
+                ) }
+			>
+				<div class="card-body">
+					<div class="card-title">
+						<h2 class="my-auto">{ device.Name }</h2>
+						<span class="text-sm self-end italic font-normal">{ device.Slug }</span>
+						<p class="text-xs my-auto text-end">{ fmt.Sprintf("%.0f \u00d7 %.0f", device.ResolutionX, device.ResolutionY) } px</p>
+					</div>
+					<div class="flex flex-wrap gap-4">
+						if device.NSFW == 1 {
+							<div class="badge badge-accent">NSFW</div>
+						}
+						<div class="badge badge-secondary">Tolerance: { fmt.Sprintf("%.2f", device.AspectRatioTolerance) }</div>
+						if device.MaxX  > 0 {
+							<div class="badge badge-primary">Max Width: { strconv.Itoa(int(device.MaxX)) }px</div>
+						}
+						if device.MaxY  > 0 {
+							<div class="badge badge-primary">Max Height: { strconv.Itoa(int(device.MaxY)) }px</div>
+						}
+						if  device.MinX  > 0 {
+							<div class="badge badge-primary">Min Width: { strconv.Itoa(int(device.MinX)) }px</div>
+						}
+						if  device.MinY  > 0 {
+							<div class="badge badge-primary">Min Height: { strconv.Itoa(int(device.MinY)) }px</div>
+						}
+					</div>
+				</div>
+			</a>
+		}
+	</div>
+}
