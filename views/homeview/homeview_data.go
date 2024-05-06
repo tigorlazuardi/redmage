@@ -33,8 +33,6 @@ type Subreddit struct {
 func NewRecentlyAddedImages(images models.ImageSlice) RecentlyAddedImages {
 	r := make(RecentlyAddedImages, 0, len(images))
 
-	var count int
-
 	for _, image := range images {
 		if image.R.Device == nil || image.R.Subreddit == nil {
 			continue
@@ -48,7 +46,6 @@ func NewRecentlyAddedImages(images models.ImageSlice) RecentlyAddedImages {
 					if subreddit.Subreddit.Name == image.R.Subreddit.Name {
 						subredditFound = true
 						r[i].Subreddits[j].Images = append(r[i].Subreddits[j].Images, image)
-						count++
 					}
 				}
 				if !subredditFound {
@@ -56,12 +53,10 @@ func NewRecentlyAddedImages(images models.ImageSlice) RecentlyAddedImages {
 						Subreddit: image.R.Subreddit,
 						Images:    models.ImageSlice{image},
 					})
-					count++
 				}
 			}
 		}
 		if !deviceFound {
-			count++
 			r = append(r, RecentlyAddedImage{
 				Device: image.R.Device,
 				Subreddits: []Subreddit{

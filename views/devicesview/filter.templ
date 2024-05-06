@@ -1,0 +1,67 @@
+package devicesview
+
+import "github.com/tigorlazuardi/redmage/api"
+import "strconv"
+
+templ filter(data Data) {
+	<div
+		id="filter-bar"
+		hx-get="/devices"
+		hx-include="this"
+		hx-trigger="change, input delay:500ms"
+		hx-target="main"
+		hx-select="main"
+		hx-swap="outerHTML"
+		hx-push-url="true"
+		class="grid md:grid-cols-2 gap-4"
+	>
+		<label class="input input-bordered flex items-center gap-2">
+			<input
+				id="search"
+				type="text"
+				class="grow"
+				placeholder="Search"
+				name="q"
+				value={ data.Params.Q }
+			/>
+			<svg
+				onclick="htmx.trigger('#filter-bar', 'change')"
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox="0 0 16 16"
+				fill="currentColor"
+				class="w-4 h-4 opacity-70"
+			><path fill-rule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clip-rule="evenodd"></path></svg>
+		</label>
+		<div class="grid grid-cols-[1fr,3fr] sm:grid-cols-[1fr,3fr,1fr,3fr] items-center gap-4">
+			<label for="status">Status</label>
+			<select id="status" name="status" class="select select-bordered w-full">
+				<option value="">*No Filter</option>
+				if data.Params.Status == 2 {
+					<option selected value="2">Enabled</option>
+				} else {
+					<option value="2">Enabled</option>
+				}
+				if data.Params.Status == 1 {
+					<option selected value="1">Disabled</option>
+				} else {
+					<option value="1">Disabled</option>
+				}
+			</select>
+			<label for="limit">Limit</label>
+			<select id="limit" name="limit" class="select select-bordered w-full">
+				@limitOption(data.Params, 25)
+				@limitOption(data.Params, 50)
+				@limitOption(data.Params, 75)
+				@limitOption(data.Params, 100)
+			</select>
+		</div>
+	</div>
+}
+
+templ limitOption(params api.DevicesListParams, value int) {
+	if int(params.Limit) == value {
+		<option selected>{ strconv.Itoa(value) }</option>
+	} else {
+		<option>{ strconv.Itoa(value) }</option>
+	}
+}

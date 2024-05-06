@@ -32,6 +32,7 @@ templ DevicesContent(c *views.Context, data Data) {
 			} else {
 				<h1>Devices</h1>
 				<div class="divider"></div>
+				@filter(data)
 				<h2>{ strconv.FormatInt(data.Total, 10) } Devices</h2>
 				@devicesList(data)
 			}
@@ -55,6 +56,7 @@ templ devicesList(data Data) {
 						<span class="text-sm self-end italic font-normal">{ device.Slug }</span>
 						<p class="text-xs my-auto text-end">{ fmt.Sprintf("%.0f \u00d7 %.0f", device.ResolutionX, device.ResolutionY) } px</p>
 					</div>
+					<div class="divider">Filter</div>
 					<div class="flex flex-wrap gap-4">
 						if device.NSFW == 1 {
 							<div class="badge badge-accent">NSFW</div>

@@ -1,0 +1,45 @@
+package devicedetails
+
+import "github.com/tigorlazuardi/redmage/views"
+import "github.com/tigorlazuardi/redmage/views/components"
+import "fmt"
+import "github.com/tigorlazuardi/redmage/models"
+
+templ View(c *views.Context, data Data) {
+	@components.Doctype() {
+		if data.Device == nil {
+			@components.Head(c, components.HeadTitle("Redmage - Device Not Found"))
+		} else {
+			@components.Head(c, components.HeadTitle(fmt.Sprintf("Redmage - %s", data.Device.Name)))
+		}
+		@components.Body(c) {
+			@Content(c, data)
+		}
+	}
+}
+
+templ Content(c *views.Context, data Data) {
+	<main class="prose min-w-full">
+		@components.Container() {
+			if data.Error != "" {
+				@components.ErrorToast(data.Error)
+			} else {
+				<h1>{ data.Device.Name }</h1>
+				<div class="divider"></div>
+				@filter(data)
+				for _, group := range data.splitImages() {
+					<h2>{ group.Subreddit }</h2>
+					@imageList(group.Images)
+				}
+			}
+		}
+	</main>
+}
+
+templ imageList(images models.ImageSlice) {
+	<div class="overflow-x-auto flex gap-4 p-6 shadow-inner bg-base-300 rounded-2xl w-[85vw] md:w-full scrollbar-track-base-100 scrollbar-thumb-primary scrollbar-thin hover:scrollbar-thumb-base-300">
+		for _, data := range images {
+			@components.ImageCard(data, 0)
+		}
+	</div>
+}
