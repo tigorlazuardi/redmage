@@ -58,7 +58,7 @@ func (api *API) StartSubredditDownloadPubsub(messages <-chan *message.Message) {
 				log.New(ctx).Err(err).Error("failed to set schedule status", "subreddit", subreddit.Name, "status", ScheduleStatusDownloading.String())
 			}
 
-			devices, err := models.Devices.Query(ctx, api.db).All()
+			devices, err := models.Devices.Query(ctx, api.db, models.SelectWhere.Devices.Enable.EQ(1)).All()
 			if err != nil {
 				log.New(ctx).Err(err).Error("failed to query devices")
 				return

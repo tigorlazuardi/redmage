@@ -44,7 +44,7 @@ func (api *API) DownloadSubredditImages(ctx context.Context, subreddit *models.S
 	}
 
 	if len(devices) == 0 {
-		return errs.Wrapw(ErrNoDevices, "downloading images requires at least one device configured").Code(http.StatusBadRequest)
+		return errs.Wrapw(ErrNoDevices, "downloading images requires at least one device configured and enabled").Code(http.StatusBadRequest)
 	}
 
 	ctx, span := tracer.Start(ctx, "*API.DownloadSubredditImages", trace.WithAttributes(attribute.String("subreddit", subreddit.Name)))
