@@ -9,6 +9,7 @@ import "fmt"
 
 type Data struct {
 	Subreddit   *models.Subreddit
+	Devices     models.DeviceSlice
 	Images      models.ImageSlice
 	TotalImages int64
 	Error       string
@@ -54,11 +55,9 @@ templ DetailsContent(c *views.Context, data Data) {
 					</button>
 				</div>
 				<div class="divider"></div>
-				<div class="flex gap-4 flex-wrap justify-between content-center">
-					@FilterBar(c, data)
-					@showingImageFromTo(data)
-					@paginationButtons(c, data)
-				</div>
+				@FilterBar(c, data)
+				@paginationButtons(c, data)
+				@showingImageFromTo(data)
 				<div class="flex flex-wrap gap-4 my-8 justify-around">
 					for _, image := range data.Images {
 						@components.ImageCard(image, 0)
@@ -81,9 +80,9 @@ templ FilterBar(c *views.Context, data Data) {
 		hx-target="main"
 		hx-select="main"
 		hx-push-url="true"
-		class="flex flex-wrap gap-4"
+		class="grid sm:grid-cols-2 md:grid-cols-3 gap-4"
 	>
-		<label class="input input-bordered flex items-center gap-2">
+		<label class="input input-bordered flex items-center gap-2 sm:col-span-2 md:col-auto">
 			<input
 				id="search"
 				type="text"
@@ -101,7 +100,7 @@ templ FilterBar(c *views.Context, data Data) {
 				class="w-4 h-4 opacity-70"
 			><path fill-rule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clip-rule="evenodd"></path></svg>
 		</label>
-		<label class="input flex items-center gap-2">
+		<label class="flex items-center gap-2">
 			Limit
 			<select name="limit" class="select select-bordered w-full">
 				@limitOption(data.Params, 25)
@@ -110,19 +109,36 @@ templ FilterBar(c *views.Context, data Data) {
 				@limitOption(data.Params, 100)
 			</select>
 		</label>
+		<label class="flex items-center gap-2">
+			Device
+			<select name="device" class="select select-bordered w-full">
+				if len(data.Devices) == 0 {
+					<option disabled selected>No Devices</option>
+				} else if data.Params.Device == "" {
+					<option value="" selected>*No Filter</option>
+				} else {
+					<option value="">*No Filter</option>
+				}
+				for _, device := range data.Devices {
+					@deviceOption(data.Params, device)
+				}
+			</select>
+		</label>
 	</div>
 }
 
 templ paginationButtons(_ *views.Context, data Data) {
 	if data.TotalImages > data.Params.Limit {
-		<div class="join">
-			for i, count := 1, int64(0); count < data.TotalImages; i, count = i+1, count+data.Params.Limit {
-				if data.Params.Offset <= count && data.Params.Offset > count-data.Params.Limit {
-					<a href={ buildURL(data.Subreddit.Name, data.Params, "offset", strconv.FormatInt(count, 10)) } class="join-item btn btn-active no-underline">{ strconv.Itoa(i) }</a>
-				} else {
-					<a href={ buildURL(data.Subreddit.Name, data.Params, "offset", strconv.FormatInt(count, 10)) } class="join-item btn no-underline">{ strconv.Itoa(i) }</a>
+		<div class="flex justify-center my-4">
+			<div class="join">
+				for i, count := 1, int64(0); count < data.TotalImages; i, count = i+1, count+data.Params.Limit {
+					if data.Params.Offset <= count && data.Params.Offset > count-data.Params.Limit {
+						<a href={ buildURL(data.Subreddit.Name, data.Params, "offset", strconv.FormatInt(count, 10)) } class="join-item btn btn-active no-underline">{ strconv.Itoa(i) }</a>
+					} else {
+						<a href={ buildURL(data.Subreddit.Name, data.Params, "offset", strconv.FormatInt(count, 10)) } class="join-item btn no-underline">{ strconv.Itoa(i) }</a>
+					}
 				}
-			}
+			</div>
 		</div>
 	}
 }
@@ -141,9 +157,17 @@ templ limitOption(params api.SubredditGetByNameImageParams, value int) {
 	}
 }
 
+templ deviceOption(params api.SubredditGetByNameImageParams, device *models.Device) {
+	if params.Device == device.Slug {
+		<option value={ device.Slug } selected>{ device.Name }</option>
+	} else {
+		<option value={ device.Slug }>{ device.Name }</option>
+	}
+}
+
 templ showingImageFromTo(data Data) {
 	if data.TotalImages > 1 {
-		<span class="my-auto">{ showingFromToImages(data) }</span>
+		<p class="text-center my-4">{ showingFromToImages(data) }</p>
 	}
 }
 

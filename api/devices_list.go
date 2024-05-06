@@ -46,6 +46,8 @@ func (dlp DevicesListParams) Query() (expr []bob.Mod[*dialect.SelectQuery]) {
 		} else {
 			expr = append(expr, order.Asc())
 		}
+	} else {
+		expr = append(expr, sm.OrderBy(models.DeviceColumns.Name).Asc())
 	}
 
 	return expr
@@ -77,7 +79,7 @@ func (api *API) DevicesList(ctx context.Context, params DevicesListParams) (resu
 	ctx, span := tracer.Start(ctx, "*API.DevicesList")
 	defer span.End()
 
-	result.Devices, err = models.Devices.Query(ctx, api.db, params.Query()...).All()
+	result.Devices, err = api.GetDevices(ctx, params)
 	if err != nil {
 		return result, errs.Wrapw(err, "failed to query devices", "params", params)
 	}
@@ -85,6 +87,18 @@ func (api *API) DevicesList(ctx context.Context, params DevicesListParams) (resu
 	result.Total, err = models.Devices.Query(ctx, api.db, params.CountQuery()...).Count()
 	if err != nil {
 		return result, errs.Wrapw(err, "failed to count devices", "params", params)
+	}
+
+	return result, nil
+}
+
+func (api *API) GetDevices(ctx context.Context, params DevicesListParams) (result models.DeviceSlice, err error) {
+	ctx, span := tracer.Start(ctx, "*API.GetDevices")
+	defer span.End()
+
+	result, err = models.Devices.Query(ctx, api.db, params.Query()...).All()
+	if err != nil {
+		return result, errs.Wrapw(err, "failed to query devices", "params", params)
 	}
 
 	return result, nil

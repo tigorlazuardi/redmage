@@ -39,6 +39,7 @@ type SubredditGetByNameImageParams struct {
 	Sort    string
 	SFW     int
 	After   time.Time
+	Device  string
 }
 
 func (sgb SubredditGetByNameImageParams) IntoQuery() url.Values {
@@ -62,6 +63,9 @@ func (sgb SubredditGetByNameImageParams) IntoQuery() url.Values {
 	if !sgb.After.IsZero() {
 		queries.Set("after", strconv.FormatInt(sgb.After.Unix(), 10))
 	}
+	if sgb.Device != "" {
+		queries.Set("device", sgb.Device)
+	}
 
 	return queries
 }
@@ -76,6 +80,7 @@ func (sgb SubredditGetByNameImageParams) IntoQueryWith(keyValue ...string) url.V
 
 func (sgb *SubredditGetByNameImageParams) FillFromQuery(query Queryable) {
 	sgb.Q = query.Get("q")
+	sgb.Device = query.Get("device")
 	sgb.Limit, _ = strconv.ParseInt(query.Get("limit"), 10, 64)
 	if sgb.Limit < 1 {
 		sgb.Limit = 25
@@ -117,6 +122,10 @@ func (sgb *SubredditGetByNameImageParams) CountQuery() (expr []bob.Mod[*dialect.
 					Or(models.ImageColumns.PostAuthor.Like(arg)),
 			),
 		)
+	}
+
+	if sgb.Device != "" {
+		expr = append(expr, models.SelectWhere.Images.Device.EQ(sgb.Device))
 	}
 
 	if !sgb.After.IsZero() {

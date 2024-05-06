@@ -30,6 +30,7 @@ CREATE TABLE images(
 );
 
 CREATE INDEX idx_subreddit_images ON images(subreddit);
+CREATE INDEX idx_subreddit_device_images ON images(device, subreddit);
 CREATE INDEX idx_nsfw_images ON images(nsfw);
 CREATE INDEX idx_images_created_at_nsfw ON images(created_at DESC, nsfw);
 CREATE UNIQUE INDEX idx_unique_images_per_device ON images(device, post_name);

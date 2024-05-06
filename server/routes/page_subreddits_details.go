@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -33,7 +32,6 @@ func (routes *Routes) PageSubredditsDetails(rw http.ResponseWriter, r *http.Requ
 		code, message := errs.HTTPMessage(err)
 		rw.WriteHeader(code)
 		data.Error = message
-		fmt.Println(data)
 		if err := detailsview.Detailsview(c, data).Render(ctx, rw); err != nil {
 			log.New(ctx).Err(err).Error("failed to render subreddit details page")
 		}
@@ -42,6 +40,16 @@ func (routes *Routes) PageSubredditsDetails(rw http.ResponseWriter, r *http.Requ
 	data.Subreddit = result.Subreddit
 	data.Images = result.Images
 	data.TotalImages = result.Total
+	data.Devices, err = routes.API.GetDevices(ctx, api.DevicesListParams{})
+	if err != nil {
+		log.New(ctx).Err(err).Error("failed to get devices")
+		code, message := errs.HTTPMessage(err)
+		rw.WriteHeader(code)
+		data.Error = message
+		if err := detailsview.Detailsview(c, data).Render(ctx, rw); err != nil {
+			log.New(ctx).Err(err).Error("failed to render subreddit details page")
+		}
+	}
 
 	if err := detailsview.Detailsview(c, data).Render(ctx, rw); err != nil {
 		log.New(ctx).Err(err).Error("failed to render subreddit details page")
