@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strconv"
 
 	"github.com/tigorlazuardi/redmage/models"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/pkg/telemetry"
+	"github.com/tigorlazuardi/redmage/views/components"
 )
 
 func (routes *Routes) APIDeviceCreate(rw http.ResponseWriter, r *http.Request) {
@@ -94,4 +96,68 @@ func validateCreateDevice(params *models.Device) error {
 		params.WindowsWallpaperMode = 1
 	}
 	return nil
+}
+
+func (routes *Routes) DevicesCreateHTMX(rw http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx, span := tracer.Start(req.Context(), "*Routes.DevicesCreateHTMX")
+	defer func() { telemetry.EndWithStatus(span, err) }()
+
+	device, err := createDeviceFromParams(req)
+	if err != nil {
+		rw.WriteHeader(400)
+		if err := components.ErrorToast(err.Error()).Render(ctx, rw); err != nil {
+			log.New(ctx).Err(err).Error("failed to render error notification")
+		}
+		return
+	}
+
+	_, err = routes.API.DevicesCreate(ctx, device)
+	if err != nil {
+		log.New(ctx).Err(err).Error("failed to create device", "device", device)
+		code, message := errs.HTTPMessage(err)
+		rw.WriteHeader(code)
+		if err := components.ErrorToast(message).Render(ctx, rw); err != nil {
+			log.New(ctx).Err(err).Error("failed to render error notification")
+		}
+		return
+	}
+
+	rw.Header().Set("HX-Redirect", "/devices")
+	rw.WriteHeader(http.StatusCreated)
+
+	if err := components.SuccessToast("device created").Render(ctx, rw); err != nil {
+		log.New(ctx).Err(err).Error("failed to render success notification")
+	}
+}
+
+func createDeviceFromParams(req *http.Request) (*models.Device, error) {
+	device := new(models.Device)
+
+	device.Enable = 1
+	device.Name = req.FormValue("name")
+	device.Slug = req.FormValue("slug")
+	device.ResolutionX, _ = strconv.ParseFloat(req.FormValue("resolution_x"), 32)
+	device.ResolutionY, _ = strconv.ParseFloat(req.FormValue("resolution_y"), 32)
+	device.AspectRatioTolerance, _ = strconv.ParseFloat(req.FormValue("aspect_ratio_tolerance"), 32)
+
+	maxX, _ := strconv.ParseInt(req.FormValue("max_x"), 10, 32)
+	device.MaxX = int32(maxX)
+
+	maxY, _ := strconv.ParseInt(req.FormValue("max_y"), 10, 32)
+	device.MaxY = int32(maxY)
+
+	minX, _ := strconv.ParseInt(req.FormValue("min_x"), 10, 32)
+	device.MinX = int32(minX)
+
+	minY, _ := strconv.ParseInt(req.FormValue("min_y"), 10, 32)
+	device.MinY = int32(minY)
+
+	nsfw, _ := strconv.ParseInt(req.FormValue("nsfw"), 10, 32)
+	device.NSFW = int32(nsfw)
+
+	windowsWallpaperMode, _ := strconv.ParseInt(req.FormValue("windows_wallpaper_mode"), 10, 32)
+	device.WindowsWallpaperMode = int32(windowsWallpaperMode)
+
+	return device, validateCreateDevice(device)
 }

@@ -186,6 +186,10 @@ func (api *API) SubredditGetByNameWithImages(ctx context.Context, name string, i
 		return result, errs.Wrapw(err, "failed to get images by subreddit", "subreddit", result.Subreddit.Name, "params", imageParams)
 	}
 
+	if err := result.Images.LoadImageDevice(ctx, api.db); err != nil {
+		return result, errs.Wrapw(err, "failed to get device by images")
+	}
+
 	result.Total, err = models.Images.
 		Query(ctx, api.db, append(imageParams.CountQuery(), models.SelectWhere.Images.Subreddit.EQ(result.Subreddit.Name))...).
 		Count()

@@ -1,0 +1,27 @@
+package adddevice
+
+type WindowsWallpaperCheckboxData struct {
+	Checked bool
+}
+
+templ WindowsWallpaperCheckbox(data WindowsWallpaperCheckboxData) {
+	<div class="form-control">
+		<div class="divider my-0 py-0"></div>
+		<div class="divider my-0 py-0"></div>
+		<label class="label cursor-pointer">
+			<span class="label-text">Windows Wallpaper Mode</span>
+			<input
+				type="checkbox"
+				checked?={ data.Checked }
+				class="checkbox"
+				name="windows_wallpaper_mode"
+				value="1"
+			/>
+		</label>
+		<div class="divider my-0 py-0"></div>
+		<span class="label-text pl-1">
+			Windows Wallpaper Mode puts images under one folder instead of split by subreddits.
+			This allows the user to target Windows Wallpaper to the whole image collections.
+		</span>
+	</div>
+}

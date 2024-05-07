@@ -114,10 +114,8 @@ templ FilterBar(c *views.Context, data Data) {
 			<select name="device" class="select select-bordered w-full">
 				if len(data.Devices) == 0 {
 					<option disabled selected>No Devices</option>
-				} else if data.Params.Device == "" {
-					<option value="" selected>*No Filter</option>
 				} else {
-					<option value="">*No Filter</option>
+					<option value="" selected?={ data.Params.Device == "" }>*No Filter</option>
 				}
 				for _, device := range data.Devices {
 					@deviceOption(data.Params, device)

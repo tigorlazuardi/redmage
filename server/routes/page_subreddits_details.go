@@ -40,7 +40,7 @@ func (routes *Routes) PageSubredditsDetails(rw http.ResponseWriter, r *http.Requ
 	data.Subreddit = result.Subreddit
 	data.Images = result.Images
 	data.TotalImages = result.Total
-	data.Devices, err = routes.API.GetDevices(ctx, api.DevicesListParams{})
+	data.Devices, err = routes.API.GetDevices(ctx, api.DevicesListParams{Status: -1})
 	if err != nil {
 		log.New(ctx).Err(err).Error("failed to get devices")
 		code, message := errs.HTTPMessage(err)

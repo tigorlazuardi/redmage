@@ -63,6 +63,7 @@ func (routes *Routes) registerHTMXRoutes(router chi.Router) {
 	router.Post("/subreddits/check", routes.SubredditCheckHTMX)
 	router.Get("/subreddits/validate/schedule", routes.SubredditValidateScheduleHTMX)
 
+	router.Post("/devices/add", routes.DevicesCreateHTMX)
 	router.Post("/devices/add/validate/slug", routes.DevicesValidateSlugHTMX)
 	router.Post("/devices/add/validate/name", routes.DevicesValidateNameHTMX)
 }

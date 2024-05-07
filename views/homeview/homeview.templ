@@ -137,7 +137,7 @@ templ nsfwToggle(c *views.Context, data Data) {
 templ RecentlyAddedImageList(images models.ImageSlice, opts components.ImageCardOption) {
 	<div class="overflow-x-auto flex gap-4 p-6 shadow-inner bg-base-300 rounded-2xl w-[85vw] md:w-full scrollbar-track-base-100 scrollbar-thumb-primary scrollbar-thin hover:scrollbar-thumb-base-300">
 		for _, data := range images {
-			@components.ImageCard(data, 0)
+			@components.ImageCard(data, components.HideDevice)
 		}
 	</div>
 }

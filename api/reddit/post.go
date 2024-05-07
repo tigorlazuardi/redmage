@@ -262,6 +262,9 @@ func (post *Post) GetName() string {
 }
 
 func (post *Post) GetImageTargetPath(cfg *config.Config, device *models.Device) string {
+	if device.WindowsWallpaperMode == 1 {
+		return post.GetWindowsWallpaperImageTargetPath(cfg, device)
+	}
 	baseDownloadDir := cfg.String("download.directory")
 	p := path.Join(baseDownloadDir, device.Slug, post.GetSubreddit(), post.GetImageFilename())
 	abs, _ := filepath.Abs(p)
@@ -269,6 +272,9 @@ func (post *Post) GetImageTargetPath(cfg *config.Config, device *models.Device) 
 }
 
 func (post *Post) GetImageTargetDir(cfg *config.Config, device *models.Device) string {
+	if device.WindowsWallpaperMode == 1 {
+		return post.GetWindowsWallpaperImageTargetDir(cfg, device)
+	}
 	baseDownloadDir := cfg.String("download.directory")
 	p := path.Join(baseDownloadDir, device.Slug, post.GetSubreddit())
 	abs, _ := filepath.Abs(p)
@@ -316,6 +322,10 @@ func (post *Post) GetThumbnailRelativePath() string {
 }
 
 func (post *Post) GetImageRelativePath(device *models.Device) string {
+	if device.WindowsWallpaperMode == 1 {
+		return post.GetWindowsWallpaperImageRelativePath(device)
+	}
+
 	return path.Join(device.Slug, post.GetSubreddit(), post.GetImageFilename())
 }
 

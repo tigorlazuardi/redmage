@@ -1,0 +1,24 @@
+package adddevice
+
+type NSFWCheckboxData struct {
+	Checked bool
+}
+
+templ NSFWCheckbox(data NSFWCheckboxData) {
+	<div class="form-control">
+		<div class="divider my-0 py-0"></div>
+		<div class="divider my-0 py-0"></div>
+		<label class="label cursor-pointer">
+			<span class="label-text">NSFW</span>
+			<input
+				type="checkbox"
+				checked?={ data.Checked }
+				class="checkbox"
+				name="nsfw"
+				value="1"
+			/>
+		</label>
+		<div class="divider my-0 py-0"></div>
+		<span class="label-text pl-1">Whether to allow NSFW images for current device.</span>
+	</div>
+}

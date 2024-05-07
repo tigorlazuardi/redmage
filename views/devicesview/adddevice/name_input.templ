@@ -9,7 +9,7 @@ type NameInputData struct {
 }
 
 templ NameInput(data NameInputData) {
-	<label class="form-control">
+	<label id="name-input-form" class="form-control">
 		<div class="label">
 			<span
 				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
@@ -21,6 +21,8 @@ templ NameInput(data NameInputData) {
 			hx-post="/htmx/devices/add/validate/name"
 			hx-include="[name='slug']"
 			hx-trigger="change"
+			hx-target="#name-input-form"
+			hx-swap="outerHTML"
 			name="name"
 			type="text"
 			class={ utils.CXX("input input-bordered", true, "input-error", data.Error != "") }

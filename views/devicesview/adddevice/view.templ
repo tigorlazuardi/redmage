@@ -22,6 +22,9 @@ templ Content(c *views.Context) {
 				hx-post="/htmx/devices/add"
 				action="/htmx/devices/add"
 				class="grid sm:grid-cols-2 gap-4"
+				hx-target={ components.NotificationContainerID }
+				hx-target-error={ components.NotificationContainerID }
+				hx-swap="afterbegin"
 			>
 				@NameInput(NameInputData{})
 				@SlugInput(SlugInputData{})
@@ -29,6 +32,8 @@ templ Content(c *views.Context) {
 				@ResolutionYInput(ResolutionData{})
 				<div class="divider my-auto sm:col-span-2"><h3 class="m-0 p-0">Filter</h3></div>
 				@AspectRatioToleranceInput(AspectRatioToleranceData{Value: 0.2})
+				@NSFWCheckbox(NSFWCheckboxData{Checked: true})
+				@WindowsWallpaperCheckbox(WindowsWallpaperCheckboxData{})
 				@MinImageResolutionXInput(ResolutionData{})
 				@MinImageResolutionYInput(ResolutionData{})
 				@MaxImageResolutionXInput(ResolutionData{})
@@ -37,4 +42,5 @@ templ Content(c *views.Context) {
 			</form>
 		}
 	</main>
+	@components.NotificationContainer()
 }
