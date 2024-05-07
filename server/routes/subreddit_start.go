@@ -55,10 +55,30 @@ func (routes *Routes) SubredditStartDownloadHTMX(rw http.ResponseWriter, r *http
 		return
 	}
 
+	count, err := routes.API.DevicesCountEnabled(ctx)
+	if err != nil {
+		log.New(ctx).Err(err).Error("failed to devices")
+		code, message := errs.HTTPMessage(err)
+		rw.WriteHeader(code)
+		if err := components.ErrorNotication(message).Render(ctx, rw); err != nil {
+			log.New(ctx).Err(err).Error("failed to render error notification")
+		}
+		return
+	}
+
+	if count == 0 {
+		msg := "Starting subreddit download requires at least one device configured and enabled"
+		rw.WriteHeader(http.StatusBadRequest)
+		if err := components.ErrorNotication(msg).Render(ctx, rw); err != nil {
+			log.New(ctx).Err(err).Error("failed to render error notification")
+		}
+		return
+	}
+
 	var body api.PubsubStartDownloadSubredditParams
 	body.Subreddit = r.FormValue("subreddit")
 
-	err := routes.API.PubsubStartDownloadSubreddit(ctx, body)
+	err = routes.API.PubsubStartDownloadSubreddit(ctx, body)
 	if err != nil {
 		log.New(ctx).Err(err).Error("failed to start subreddit download", "subreddit", body.Subreddit)
 		code, message := errs.HTTPMessage(err)

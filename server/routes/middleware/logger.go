@@ -22,20 +22,43 @@ type ChiEntry struct {
 }
 
 func (ch *ChiEntry) Write(status int, bytes int, header http.Header, elapsed time.Duration, extra interface{}) {
-	elasedStr := formatDuration(elapsed)
-	message := fmt.Sprintf("%s %s %d %s", ch.request.Method, ch.request.URL, status, elasedStr)
+	elapsedStr := formatDuration(elapsed)
+	message := fmt.Sprintf("%s %s %d %s %s", ch.request.Method, ch.request.URL, status, elapsedStr, formatByteSize(bytes))
 
-	requestLog := slog.Attr{Key: "request", Value: ch.extractRequestLog()}
-	responseLog := slog.Group("response", "status", status, "headers", flat(header), "bytes", bytes)
-	roundtripLog := slog.String("elapsed", elasedStr)
+	var group slog.Attr
 
-	group := slog.Group("http", requestLog, responseLog, roundtripLog)
+	if status >= 500 {
+		requestLog := slog.Attr{Key: "request", Value: ch.extractRequestLog()}
+		responseLog := slog.Group("response", "status", status, "headers", flat(header), "bytes", bytes)
+		roundtripLog := slog.String("elapsed", elapsedStr)
+		group = slog.Group("http", requestLog, responseLog, roundtripLog)
+	}
+
 	if status >= 400 {
 		log.New(ch.request.Context()).With(group).Error(message)
 		return
 	}
 
 	log.New(ch.request.Context()).With(group).Info(message)
+}
+
+func formatByteSize(bytes int) string {
+	const (
+		kb = 1024
+		mb = 1024 * kb
+		gb = 1024 * mb
+	)
+
+	switch {
+	case bytes >= gb:
+		return fmt.Sprintf("%.2fGB", float64(bytes)/float64(gb))
+	case bytes >= mb:
+		return fmt.Sprintf("%.2fMB", float64(bytes)/float64(mb))
+	case bytes >= kb:
+		return fmt.Sprintf("%.2fKB", float64(bytes)/float64(kb))
+	default:
+		return fmt.Sprintf("%d bytes", bytes)
+	}
 }
 
 func (ch *ChiEntry) Panic(v interface{}, stack []byte) {
