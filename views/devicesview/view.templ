@@ -30,7 +30,10 @@ templ DevicesContent(c *views.Context, data Data) {
 			if data.Error != "" {
 				@components.ErrorToast(data.Error)
 			} else {
-				<h1>Devices</h1>
+				<div class="flex justify-between items-center">
+					<h1 class="my-auto">Devices</h1>
+					<a href="/devices/add" class="btn btn-primary no-underline text-base-100">Add Device</a>
+				</div>
 				<div class="divider"></div>
 				@filter(data)
 				<h2>{ strconv.FormatInt(data.Total, 10) } Devices</h2>

@@ -1,0 +1,22 @@
+package adddevice
+
+import "github.com/tigorlazuardi/redmage/views"
+import "github.com/tigorlazuardi/redmage/views/components"
+
+templ View(c *views.Context) {
+	@components.Doctype() {
+		@components.Head(c, components.HeadTitle("Device - Add"))
+		@components.Body(c) {
+			@Content(c)
+		}
+	}
+}
+
+templ Content(c *views.Context) {
+	<main class="prose min-w-full">
+		@components.Container() {
+			<h1>Add Device</h1>
+			<div class="divider"></div>
+		}
+	</main>
+}
