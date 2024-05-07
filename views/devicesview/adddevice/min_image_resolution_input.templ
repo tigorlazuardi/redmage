@@ -1,0 +1,101 @@
+package adddevice
+
+import "fmt"
+import "github.com/tigorlazuardi/redmage/views/utils"
+import "strconv"
+
+templ MinImageResolutionXInput(data ResolutionData) {
+	<label
+		x-data={ fmt.Sprintf(`{error: %t}`, data.Error != "") }
+		id="min-image-width-form"
+		class="form-control"
+		if data.HXSwapOOB {
+			hx-swap-oob="true"
+		}
+	>
+		<div class="label">
+			<span
+				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
+				:class="{'text-error': error}"
+			>Minimum Image Width</span>
+		</div>
+		<input
+			id="min-image-width-field"
+			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
+			name="min_x"
+			type="number"
+			min="0"
+			@change="$el.setCustomValidity(''); this.error = false"
+			class={ utils.CXX(
+                "input input-bordered", true,
+                "text-error", data.Error != "",
+                "input-error", data.Error != "",
+            ) }
+			:class="{'text-error': error, 'input-error': error}"
+			value={ strconv.Itoa(data.Value) }
+			placeholder="0"
+			required
+		/>
+		<div class="label">
+			<span
+				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
+				:class="{'text-error': error}"
+			>
+				if data.Error != "" {
+					{ data.Error }
+				} else {
+					Minimum image width resolution to download for this device. Set to '0' to disable this filter. Recommended to set this value same as your device's width resolution
+					so you will get non-blurry images when used as wallpaper.
+				}
+			</span>
+		</div>
+	</label>
+}
+
+templ MinImageResolutionYInput(data ResolutionData) {
+	<label
+		x-data={ fmt.Sprintf(`{error: %t}`, data.Error != "") }
+		id="min-image-height-form"
+		class="form-control"
+		if data.HXSwapOOB {
+			hx-swap-oob="true"
+		}
+	>
+		<div class="label">
+			<span
+				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
+				:class="{'text-error': error}"
+			>Minimum Image Height</span>
+		</div>
+		<input
+			id="min-image-height-field"
+			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
+			name="min_y"
+			type="number"
+			min="0"
+			@change="$el.setCustomValidity(''); this.error = false"
+			class={ utils.CXX(
+                "input input-bordered", true,
+                "text-error", data.Error != "",
+                "input-error", data.Error != "",
+            ) }
+			:class="{'text-error': error, 'input-error': error}"
+			value={ strconv.Itoa(data.Value) }
+			placeholder="0"
+			required
+		/>
+		<div class="label">
+			<span
+				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
+				:class="{'text-error': error}"
+			>
+				if data.Error != "" {
+					{ data.Error }
+				} else {
+					Minimum image height resolution to download for this device. Set to '0' to disable this filter. Recommended to set this value same as your device's height resolution
+					so you will get non-blurry images when used as wallpaper.
+				}
+			</span>
+		</div>
+	</label>
+}

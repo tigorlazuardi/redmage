@@ -23,9 +23,14 @@ type DevicesListParams struct {
 }
 
 func (dlp *DevicesListParams) FillFromQuery(query Queryable) {
-	dlp.Status, _ = strconv.Atoi(query.Get("status"))
-	if dlp.Status > 2 {
-		dlp.Status = 2
+	statusStr := query.Get("status")
+	switch statusStr {
+	case "0":
+		dlp.Status = 0
+	case "1":
+		dlp.Status = 1
+	default:
+		dlp.Status = -1
 	}
 	dlp.Q = query.Get("q")
 
@@ -68,8 +73,8 @@ func (dlp DevicesListParams) Query() (expr []bob.Mod[*dialect.SelectQuery]) {
 }
 
 func (dlp DevicesListParams) CountQuery() (expr []bob.Mod[*dialect.SelectQuery]) {
-	if dlp.Status > 0 {
-		expr = append(expr, models.SelectWhere.Devices.Enable.EQ(int32(dlp.Status-1)))
+	if dlp.Status >= 0 {
+		expr = append(expr, models.SelectWhere.Devices.Enable.EQ(int32(dlp.Status)))
 	}
 
 	if dlp.Q != "" {

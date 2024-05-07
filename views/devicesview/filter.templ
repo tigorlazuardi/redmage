@@ -36,16 +36,8 @@ templ filter(data Data) {
 			<label for="status">Status</label>
 			<select id="status" name="status" class="select select-bordered w-full">
 				<option value="">*No Filter</option>
-				if data.Params.Status == 2 {
-					<option selected value="2">Enabled</option>
-				} else {
-					<option value="2">Enabled</option>
-				}
-				if data.Params.Status == 1 {
-					<option selected value="1">Disabled</option>
-				} else {
-					<option value="1">Disabled</option>
-				}
+				<option value="2" selected?={ data.Params.Status == 2 }>Enabled</option>
+				<option value="1" selected?={ data.Params.Status == 1 }>Disabled</option>
 			</select>
 			<label for="limit">Limit</label>
 			<select id="limit" name="limit" class="select select-bordered w-full">

@@ -11,7 +11,13 @@ type SlugInputData struct {
 }
 
 templ SlugInput(data SlugInputData) {
-	<label id="slug-input-form" class="form-control">
+	<label
+		id="slug-input-form"
+		class="form-control"
+		if data.HXSwapOOB {
+			hx-swap-oob="true"
+		}
+	>
 		<div class="label">
 			<span
 				class={ utils.CXX(
@@ -35,12 +41,15 @@ templ SlugInput(data SlugInputData) {
                 "input-success", data.Valid != "",
             ) }
 			hx-post="/htmx/devices/add/validate/slug"
-			hx-trigger="change, input delay:200ms"
+			hx-trigger="change, input delay:2s"
 			hx-target="#slug-input-form"
 			hx-target-409="#slug-input-form"
 			hx-swap="outerHTML"
 			value={ data.Value }
 			placeholder="my-awesome-device"
+			title="Url Friendly Characters Only"
+			pattern="^[a-z0-9-_]+$"
+			required
 		/>
 		<div class="label">
 			<span class={ utils.CXX("label-text", true, "text-error", data.Error != "", "text-success", data.Valid != "") }>
@@ -50,7 +59,7 @@ templ SlugInput(data SlugInputData) {
 					{ data.Error }
 				} else {
 					Unique identifier for the device.
-					Value must be lowercase english alphabet and supported separator is only 'dash' (-).
+					Value must be lowercase english alphabet and supported separator is only 'dash' (-) and 'underscores' (_).
 				}
 			</span>
 		</div>

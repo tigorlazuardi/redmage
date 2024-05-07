@@ -17,9 +17,23 @@ templ Content(c *views.Context) {
 		@components.Container() {
 			<h1>Add Device</h1>
 			<div class="divider"></div>
-			<form class="grid sm:grid-cols-2 gap-4">
+			<form
+				method="post"
+				hx-post="/htmx/devices/add"
+				action="/htmx/devices/add"
+				class="grid sm:grid-cols-2 gap-4"
+			>
 				@NameInput(NameInputData{})
 				@SlugInput(SlugInputData{})
+				@ResolutionXInput(ResolutionData{})
+				@ResolutionYInput(ResolutionData{})
+				<div class="divider my-auto sm:col-span-2"><h3 class="m-0 p-0">Filter</h3></div>
+				@AspectRatioToleranceInput(AspectRatioToleranceData{Value: 0.2})
+				@MinImageResolutionXInput(ResolutionData{})
+				@MinImageResolutionYInput(ResolutionData{})
+				@MaxImageResolutionXInput(ResolutionData{})
+				@MaxImageResolutionYInput(ResolutionData{})
+				<button type="submit" class="btn btn-primary sm:col-span-2">Add</button>
 			</form>
 		}
 	</main>

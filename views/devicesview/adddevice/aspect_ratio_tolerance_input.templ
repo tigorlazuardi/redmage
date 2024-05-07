@@ -1,0 +1,39 @@
+package adddevice
+
+import "fmt"
+
+type AspectRatioToleranceData struct {
+	Value float64
+}
+
+templ AspectRatioToleranceInput(data AspectRatioToleranceData) {
+	<label
+		id="aspect-ratio-tolerance-form"
+		class="form-control sm:col-span-2"
+	>
+		<div class="label">
+			<span class="label-text">Aspect Ratio Tolerance</span>
+			<span class="label-text-alt hidden sm:inline">NOTE: This is NOT a filter for image sizes, but just the shape of it.</span>
+		</div>
+		<input
+			id="aspect-ratio-tolerance-field"
+			name="aspect_ratio_tolerance"
+			type="number"
+			min="0"
+			@change="$el.setCustomValidity(''); this.error = false"
+			class="input input-bordered"
+			:class="{'text-error': error, 'input-error': error}"
+			value={ fmt.Sprintf("%.2f", data.Value) }
+			placeholder="0.20"
+			step="0.01"
+			required
+		/>
+		<div class="label">
+			<span class="label-text">
+				Aspect Ratio Tolerance is a filter on how close the shape of the download images to the device shape is.
+				The bigger the value, the more images will be accepted and vice versa. '0.20' is the default value because
+				it accept quite a bit of images to download while still looking good even when the image is stretched for the device's wallpaper.
+			</span>
+		</div>
+	</label>
+}

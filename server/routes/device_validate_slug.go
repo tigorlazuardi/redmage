@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 
+	"github.com/gosimple/slug"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/views/devicesview/adddevice"
@@ -13,7 +14,7 @@ func (routes *Routes) DevicesValidateSlugHTMX(rw http.ResponseWriter, req *http.
 	defer span.End()
 
 	var data adddevice.SlugInputData
-	data.Value = req.FormValue("slug")
+	data.Value = slug.Make(req.FormValue("slug"))
 	if data.Value == "" {
 		if err := adddevice.SlugInput(data).Render(ctx, rw); err != nil {
 			log.New(ctx).Err(err).Error("failed to render slug input")

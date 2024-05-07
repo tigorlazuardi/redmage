@@ -1,0 +1,99 @@
+package adddevice
+
+import "fmt"
+import "github.com/tigorlazuardi/redmage/views/utils"
+import "strconv"
+
+templ MaxImageResolutionXInput(data ResolutionData) {
+	<label
+		x-data={ fmt.Sprintf(`{error: %t}`, data.Error != "") }
+		id="max-image-width-form"
+		class="form-control"
+		if data.HXSwapOOB {
+			hx-swap-oob="true"
+		}
+	>
+		<div class="label">
+			<span
+				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
+				:class="{'text-error': error}"
+			>Maximum Image Width</span>
+		</div>
+		<input
+			id="max-image-width-field"
+			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
+			name="max_x"
+			type="number"
+			min="0"
+			@change="$el.setCustomValidity(''); this.error = false"
+			class={ utils.CXX(
+                "input input-bordered", true,
+                "text-error", data.Error != "",
+                "input-error", data.Error != "",
+            ) }
+			:class="{'text-error': error, 'input-error': error}"
+			value={ strconv.Itoa(data.Value) }
+			placeholder="0"
+			required
+		/>
+		<div class="label">
+			<span
+				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
+				:class="{'text-error': error}"
+			>
+				if data.Error != "" {
+					{ data.Error }
+				} else {
+					Maximum image width resolution to download for this device. Set to '0' to disable this filter. Set this value to avoid image sizes that are too big.
+				}
+			</span>
+		</div>
+	</label>
+}
+
+templ MaxImageResolutionYInput(data ResolutionData) {
+	<label
+		x-data={ fmt.Sprintf(`{error: %t}`, data.Error != "") }
+		id="max-image-height-form"
+		class="form-control"
+		if data.HXSwapOOB {
+			hx-swap-oob="true"
+		}
+	>
+		<div class="label">
+			<span
+				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
+				:class="{'text-error': error}"
+			>Maximum Image Height</span>
+		</div>
+		<input
+			id="max-image-height-field"
+			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
+			name="min_y"
+			type="number"
+			min="0"
+			@change="$el.setCustomValidity(''); this.error = false"
+			class={ utils.CXX(
+                "input input-bordered", true,
+                "text-error", data.Error != "",
+                "input-error", data.Error != "",
+            ) }
+			:class="{'text-error': error, 'input-error': error}"
+			value={ strconv.Itoa(data.Value) }
+			placeholder="0"
+			required
+		/>
+		<div class="label">
+			<span
+				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
+				:class="{'text-error': error}"
+			>
+				if data.Error != "" {
+					{ data.Error }
+				} else {
+					Maximum image height resolution to download for this device. Set to '0' to disable this filter. Set this value to avoid image sizes that are too big.
+				}
+			</span>
+		</div>
+	</label>
+}

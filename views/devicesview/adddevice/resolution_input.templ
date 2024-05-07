@@ -1,0 +1,109 @@
+package adddevice
+
+import "github.com/tigorlazuardi/redmage/views/utils"
+import "fmt"
+import "strconv"
+
+type ResolutionData struct {
+	Error     string
+	Value     int
+	HXSwapOOB bool
+}
+
+templ ResolutionXInput(data ResolutionData) {
+	<label
+		x-data={ fmt.Sprintf(`{error: %t}`, data.Error != "") }
+		id="resolution-x-form"
+		class="form-control"
+		if data.HXSwapOOB {
+			hx-swap-oob="true"
+		}
+	>
+		<div class="label">
+			<span
+				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
+				:class="{'text-error': error}"
+			>Width</span>
+		</div>
+		<input
+			id="resolution-x-field"
+			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
+			name="resolution_x"
+			type="number"
+			min="1"
+			@change="$el.setCustomValidity(''); this.error = false"
+			class={ utils.CXX(
+                "input input-bordered", true,
+                "text-error", data.Error != "",
+                "input-error", data.Error != "",
+            ) }
+			:class="{'text-error': error, 'input-error': error}"
+			if data.Value > 0 {
+				value={ strconv.Itoa(data.Value) }
+			}
+			placeholder="1920"
+			required
+		/>
+		<div class="label">
+			<span
+				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
+				:class="{'text-error': error}"
+			>
+				if data.Error != "" {
+					{ data.Error }
+				} else {
+					Your intended device width resolution.
+				}
+			</span>
+		</div>
+	</label>
+}
+
+templ ResolutionYInput(data ResolutionData) {
+	<label
+		x-data={ fmt.Sprintf(`{error: %t}`, data.Error != "") }
+		id="resolution-y-form"
+		class="form-control"
+		if data.HXSwapOOB {
+			hx-swap-oob="true"
+		}
+	>
+		<div class="label">
+			<span
+				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
+				:class="{'text-error': error}"
+			>Height</span>
+		</div>
+		<input
+			id="resolution-y-field"
+			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
+			name="resolution_y"
+			type="number"
+			min="1"
+			@change="$el.setCustomValidity(''); this.error = false"
+			class={ utils.CXX(
+                "input input-bordered", true,
+                "text-error", data.Error != "",
+                "input-error", data.Error != "",
+            ) }
+			:class="{'text-error': error, 'input-error': error}"
+			if data.Value > 0 {
+				value={ strconv.Itoa(data.Value) }
+			}
+			placeholder="1080"
+			required
+		/>
+		<div class="label">
+			<span
+				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
+				:class="{'text-error': error}"
+			>
+				if data.Error != "" {
+					{ data.Error }
+				} else {
+					Your intended device height resolution.
+				}
+			</span>
+		</div>
+	</label>
+}
