@@ -9,6 +9,7 @@ export GOOSE_MIGRATION_DIR=db/migrations
 
 export REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION=$(shell echo "$${REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION:-1.9.12}")
 export REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION=$(shell echo "$${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION:-1.11.10}")
+export REDMAGE_WEB_DEPENDENCIES_ALPINEJS_VERSION=$(shell echo "$${REDMAGE_WEB_DEPENDENCIES_ALPINEJS_VERSION:-3.13.10}")
 
 start: dev-dependencies
 	@tailwindcss -i views/style.css -o public/style.css --watch &
@@ -61,6 +62,11 @@ build-dependencies:
 		mkdir -p public
 		echo "Dayjs Timezone ${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION} plugin not found, installing it"
 		curl -o public/dayjs-timezone-${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}.min.js https://cdnjs.cloudflare.com/ajax/libs/dayjs/${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION}/plugin/timezone.min.js
+	fi
+	@if [ ! -f "public/alpinejs-${REDMAGE_WEB_DEPENDENCIES_ALPINEJS_VERSION}.min.js" ]; then
+		mkdir -p public
+		echo "Alpinejs ${REDMAGE_WEB_DEPENDENCIES_ALPINEJS_VERSION} not found, installing it"
+		curl -o public/alpinejs-${REDMAGE_WEB_DEPENDENCIES_ALPINEJS_VERSION}.min.js https://cdn.jsdelivr.net/npm/alpinejs@${REDMAGE_WEB_DEPENDENCIES_ALPINEJS_VERSION}/dist/cdn.min.js
 	fi
 
 build: build-dependencies prepare

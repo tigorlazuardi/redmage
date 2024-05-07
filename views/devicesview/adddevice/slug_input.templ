@@ -1,0 +1,58 @@
+package adddevice
+
+import "github.com/tigorlazuardi/redmage/views/utils"
+import "fmt"
+
+type SlugInputData struct {
+	Error     string
+	Value     string
+	Valid     string
+	HXSwapOOB bool
+}
+
+templ SlugInput(data SlugInputData) {
+	<label id="slug-input-form" class="form-control">
+		<div class="label">
+			<span
+				class={ utils.CXX(
+                    "label-text", true,
+                    "text-error", data.Error != "",
+                    "text-success", data.Valid != "",
+                ) }
+			>Slug</span>
+		</div>
+		<input
+			id="slug-input-field"
+			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
+			name="slug"
+			type="text"
+			@change="$el.setCustomValidity('')"
+			class={ utils.CXX(
+                "input input-bordered", true,
+                "text-error", data.Error != "",
+                "text-success", data.Valid != "",
+                "input-error", data.Error != "",
+                "input-success", data.Valid != "",
+            ) }
+			hx-post="/htmx/devices/add/validate/slug"
+			hx-trigger="change, input delay:200ms"
+			hx-target="#slug-input-form"
+			hx-target-409="#slug-input-form"
+			hx-swap="outerHTML"
+			value={ data.Value }
+			placeholder="my-awesome-device"
+		/>
+		<div class="label">
+			<span class={ utils.CXX("label-text", true, "text-error", data.Error != "", "text-success", data.Valid != "") }>
+				if data.Valid != "" {
+					{ data.Valid }
+				} else if data.Error != "" {
+					{ data.Error }
+				} else {
+					Unique identifier for the device.
+					Value must be lowercase english alphabet and supported separator is only 'dash' (-).
+				}
+			</span>
+		</div>
+	</label>
+}

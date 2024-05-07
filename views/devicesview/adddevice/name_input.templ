@@ -1,0 +1,39 @@
+package adddevice
+
+import "github.com/tigorlazuardi/redmage/views/utils"
+import "fmt"
+
+type NameInputData struct {
+	Error string
+	Value string
+}
+
+templ NameInput(data NameInputData) {
+	<label class="form-control">
+		<div class="label">
+			<span
+				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
+			>Name</span>
+		</div>
+		<input
+			id="name-input-field"
+			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
+			hx-post="/htmx/devices/add/validate/name"
+			hx-include="[name='slug']"
+			hx-trigger="change"
+			name="name"
+			type="text"
+			class={ utils.CXX("input input-bordered", true, "input-error", data.Error != "") }
+			value={ data.Value }
+			placeholder="My Awesome Device"
+			required
+		/>
+		<div class="label">
+			if data.Error != "" {
+				<span class="label-text text-error">{ data.Error }</span>
+			} else {
+				<span class="label-text">The display name for the device. Use distinguishable value for easy lookup.</span>
+			}
+		</div>
+	</label>
+}

@@ -13,6 +13,7 @@ templ Head(vc *views.Context, extras ...templ.Component) {
 		<link rel="icon" href="/public/favicon.svg"/>
 		@Dayjs(vc)
 		@HTMX(vc)
+		@AlpineJS(vc)
 		if vc.Config.Bool("http.hotreload") {
 			<script src="/public/hot_reload.js"></script>
 		}
