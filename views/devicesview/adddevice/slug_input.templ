@@ -25,7 +25,7 @@ templ SlugInput(data SlugInputData) {
                     "text-error", data.Error != "",
                     "text-success", data.Valid != "",
                 ) }
-			>Slug</span>
+			>Slug Identifier</span>
 		</div>
 		<input
 			id="slug-input-field"
@@ -48,7 +48,6 @@ templ SlugInput(data SlugInputData) {
 			value={ data.Value }
 			placeholder="my-awesome-device"
 			title="Url Friendly Characters Only"
-			pattern="^[a-z0-9-_]+$"
 			required
 		/>
 		<div class="label">
@@ -58,7 +57,7 @@ templ SlugInput(data SlugInputData) {
 				} else if data.Error != "" {
 					{ data.Error }
 				} else {
-					Unique identifier for the device.
+					URL friendly Unique identifier for the device.
 					Value must be lowercase english alphabet and supported separator is only 'dash' (-) and 'underscores' (_).
 				}
 			</span>
