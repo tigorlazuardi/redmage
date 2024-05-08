@@ -1,13 +1,13 @@
-package adddevice
+package put
 
 import "fmt"
 import "github.com/tigorlazuardi/redmage/views/utils"
 import "strconv"
 
-templ MinImageResolutionXInput(data ResolutionData) {
+templ MaxImageResolutionXInput(data ResolutionData) {
 	<label
 		x-data={ fmt.Sprintf(`{error: %t}`, data.Error != "") }
-		id="min-image-width-form"
+		id="max-image-width-form"
 		class="form-control"
 		if data.HXSwapOOB {
 			hx-swap-oob="true"
@@ -17,12 +17,12 @@ templ MinImageResolutionXInput(data ResolutionData) {
 			<span
 				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
 				:class="{'text-error': error}"
-			>Minimum Image Width</span>
+			>Maximum Image Width</span>
 		</div>
 		<input
-			id="min-image-width-field"
+			id="max-image-width-field"
 			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
-			name="min_x"
+			name="max_x"
 			type="number"
 			min="0"
 			@change="$el.setCustomValidity(''); this.error = false"
@@ -44,18 +44,17 @@ templ MinImageResolutionXInput(data ResolutionData) {
 				if data.Error != "" {
 					{ data.Error }
 				} else {
-					Minimum image width resolution to download for this device. Set to '0' to disable this filter. Recommended to set this value same as your device's width resolution
-					so you will get non-blurry images when used as wallpaper.
+					Maximum image width resolution to download for this device. Set to '0' to disable this filter. Set this value to avoid image sizes that are too big.
 				}
 			</span>
 		</div>
 	</label>
 }
 
-templ MinImageResolutionYInput(data ResolutionData) {
+templ MaxImageResolutionYInput(data ResolutionData) {
 	<label
 		x-data={ fmt.Sprintf(`{error: %t}`, data.Error != "") }
-		id="min-image-height-form"
+		id="max-image-height-form"
 		class="form-control"
 		if data.HXSwapOOB {
 			hx-swap-oob="true"
@@ -65,10 +64,10 @@ templ MinImageResolutionYInput(data ResolutionData) {
 			<span
 				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
 				:class="{'text-error': error}"
-			>Minimum Image Height</span>
+			>Maximum Image Height</span>
 		</div>
 		<input
-			id="min-image-height-field"
+			id="max-image-height-field"
 			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
 			name="min_y"
 			type="number"
@@ -92,8 +91,7 @@ templ MinImageResolutionYInput(data ResolutionData) {
 				if data.Error != "" {
 					{ data.Error }
 				} else {
-					Minimum image height resolution to download for this device. Set to '0' to disable this filter. Recommended to set this value same as your device's height resolution
-					so you will get non-blurry images when used as wallpaper.
+					Maximum image height resolution to download for this device. Set to '0' to disable this filter. Set this value to avoid image sizes that are too big.
 				}
 			</span>
 		</div>

@@ -1,0 +1,63 @@
+package put
+
+import "github.com/tigorlazuardi/redmage/views"
+import "github.com/tigorlazuardi/redmage/views/components"
+
+type Data struct {
+	PageTitle  string
+	PostAction string
+
+	NameInput                NameInputData
+	SlugInput                SlugInputData
+	ResolutionX              ResolutionData
+	ResolutionY              ResolutionData
+	AspectRatioTolerance     AspectRatioToleranceData
+	NSFWCheckbox             NSFWCheckboxData
+	WindowsWallpaperCheckbox WindowsWallpaperCheckboxData
+	MinImageResolutionXInput ResolutionData
+	MinImageResolutionYInput ResolutionData
+	MaxImageResolutionXInput ResolutionData
+	MaxImageResolutionYInput ResolutionData
+}
+
+templ View(c *views.Context, data Data) {
+	@components.Doctype() {
+		@components.Head(c, components.HeadTitle(data.PageTitle))
+		@components.Body(c) {
+			@Content(c, data)
+		}
+	}
+}
+
+templ Content(c *views.Context, data Data) {
+	<main class="prose min-w-full">
+		@components.Container() {
+			<h1>{ data.PageTitle }</h1>
+			<div class="divider"></div>
+			<form
+				method="post"
+				hx-post={ data.PostAction }
+				action={ templ.SafeURL(data.PostAction) }
+				class="grid sm:grid-cols-2 gap-4"
+				hx-target={ components.NotificationContainerID }
+				hx-target-error={ components.NotificationContainerID }
+				hx-swap="afterbegin"
+			>
+				@NameInput(data.NameInput)
+				@SlugInput(data.SlugInput)
+				@ResolutionXInput(data.ResolutionX)
+				@ResolutionYInput(data.ResolutionY)
+				<div class="divider my-auto sm:col-span-2"><h3 class="m-0 p-0">Filter</h3></div>
+				@AspectRatioToleranceInput(data.AspectRatioTolerance)
+				@NSFWCheckbox(data.NSFWCheckbox)
+				@WindowsWallpaperCheckbox(data.WindowsWallpaperCheckbox)
+				@MinImageResolutionXInput(data.MinImageResolutionXInput)
+				@MinImageResolutionYInput(data.MinImageResolutionYInput)
+				@MaxImageResolutionXInput(data.MaxImageResolutionXInput)
+				@MaxImageResolutionYInput(data.MaxImageResolutionYInput)
+				<button type="submit" class="btn btn-primary sm:col-span-2">Add</button>
+			</form>
+		}
+	</main>
+	@components.NotificationContainer()
+}

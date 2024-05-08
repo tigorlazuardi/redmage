@@ -1,19 +1,13 @@
-package adddevice
+package put
 
-import "github.com/tigorlazuardi/redmage/views/utils"
 import "fmt"
+import "github.com/tigorlazuardi/redmage/views/utils"
 import "strconv"
 
-type ResolutionData struct {
-	Error     string
-	Value     int
-	HXSwapOOB bool
-}
-
-templ ResolutionXInput(data ResolutionData) {
+templ MinImageResolutionXInput(data ResolutionData) {
 	<label
 		x-data={ fmt.Sprintf(`{error: %t}`, data.Error != "") }
-		id="resolution-x-form"
+		id="min-image-width-form"
 		class="form-control"
 		if data.HXSwapOOB {
 			hx-swap-oob="true"
@@ -23,14 +17,14 @@ templ ResolutionXInput(data ResolutionData) {
 			<span
 				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
 				:class="{'text-error': error}"
-			>Width</span>
+			>Minimum Image Width</span>
 		</div>
 		<input
-			id="resolution-x-field"
+			id="min-image-width-field"
 			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
-			name="resolution_x"
+			name="min_x"
 			type="number"
-			min="1"
+			min="0"
 			@change="$el.setCustomValidity(''); this.error = false"
 			class={ utils.CXX(
                 "input input-bordered", true,
@@ -38,10 +32,8 @@ templ ResolutionXInput(data ResolutionData) {
                 "input-error", data.Error != "",
             ) }
 			:class="{'text-error': error, 'input-error': error}"
-			if data.Value > 0 {
-				value={ strconv.Itoa(data.Value) }
-			}
-			placeholder="e.g. 1920"
+			value={ strconv.Itoa(data.Value) }
+			placeholder="0"
 			required
 		/>
 		<div class="label">
@@ -52,17 +44,18 @@ templ ResolutionXInput(data ResolutionData) {
 				if data.Error != "" {
 					{ data.Error }
 				} else {
-					Your intended device width resolution.
+					Minimum image width resolution to download for this device. Set to '0' to disable this filter. Recommended to set this value same as your device's width resolution
+					so you will get non-blurry images when used as wallpaper.
 				}
 			</span>
 		</div>
 	</label>
 }
 
-templ ResolutionYInput(data ResolutionData) {
+templ MinImageResolutionYInput(data ResolutionData) {
 	<label
 		x-data={ fmt.Sprintf(`{error: %t}`, data.Error != "") }
-		id="resolution-y-form"
+		id="min-image-height-form"
 		class="form-control"
 		if data.HXSwapOOB {
 			hx-swap-oob="true"
@@ -72,14 +65,14 @@ templ ResolutionYInput(data ResolutionData) {
 			<span
 				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
 				:class="{'text-error': error}"
-			>Height</span>
+			>Minimum Image Height</span>
 		</div>
 		<input
-			id="resolution-y-field"
+			id="min-image-height-field"
 			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
-			name="resolution_y"
+			name="min_y"
 			type="number"
-			min="1"
+			min="0"
 			@change="$el.setCustomValidity(''); this.error = false"
 			class={ utils.CXX(
                 "input input-bordered", true,
@@ -87,10 +80,8 @@ templ ResolutionYInput(data ResolutionData) {
                 "input-error", data.Error != "",
             ) }
 			:class="{'text-error': error, 'input-error': error}"
-			if data.Value > 0 {
-				value={ strconv.Itoa(data.Value) }
-			}
-			placeholder="e.g. 1080"
+			value={ strconv.Itoa(data.Value) }
+			placeholder="0"
 			required
 		/>
 		<div class="label">
@@ -101,7 +92,8 @@ templ ResolutionYInput(data ResolutionData) {
 				if data.Error != "" {
 					{ data.Error }
 				} else {
-					Your intended device height resolution.
+					Minimum image height resolution to download for this device. Set to '0' to disable this filter. Recommended to set this value same as your device's height resolution
+					so you will get non-blurry images when used as wallpaper.
 				}
 			</span>
 		</div>

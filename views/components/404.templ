@@ -1,0 +1,12 @@
+package components
+
+import "github.com/tigorlazuardi/redmage/views"
+
+templ Page404(c *views.Context, text string) {
+	@Doctype() {
+		@Head(c, HeadTitle(text))
+		@Body(c) {
+			<h1>{ text }</h1>
+		}
+	}
+}

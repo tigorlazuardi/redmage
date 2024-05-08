@@ -1,13 +1,19 @@
-package adddevice
+package put
 
-import "fmt"
 import "github.com/tigorlazuardi/redmage/views/utils"
+import "fmt"
 import "strconv"
 
-templ MaxImageResolutionXInput(data ResolutionData) {
+type ResolutionData struct {
+	Error     string
+	Value     int
+	HXSwapOOB bool
+}
+
+templ ResolutionXInput(data ResolutionData) {
 	<label
 		x-data={ fmt.Sprintf(`{error: %t}`, data.Error != "") }
-		id="max-image-width-form"
+		id="resolution-x-form"
 		class="form-control"
 		if data.HXSwapOOB {
 			hx-swap-oob="true"
@@ -17,14 +23,14 @@ templ MaxImageResolutionXInput(data ResolutionData) {
 			<span
 				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
 				:class="{'text-error': error}"
-			>Maximum Image Width</span>
+			>Width</span>
 		</div>
 		<input
-			id="max-image-width-field"
+			id="resolution-x-field"
 			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
-			name="max_x"
+			name="resolution_x"
 			type="number"
-			min="0"
+			min="1"
 			@change="$el.setCustomValidity(''); this.error = false"
 			class={ utils.CXX(
                 "input input-bordered", true,
@@ -32,8 +38,10 @@ templ MaxImageResolutionXInput(data ResolutionData) {
                 "input-error", data.Error != "",
             ) }
 			:class="{'text-error': error, 'input-error': error}"
-			value={ strconv.Itoa(data.Value) }
-			placeholder="0"
+			if data.Value > 0 {
+				value={ strconv.Itoa(data.Value) }
+			}
+			placeholder="e.g. 1920"
 			required
 		/>
 		<div class="label">
@@ -44,17 +52,17 @@ templ MaxImageResolutionXInput(data ResolutionData) {
 				if data.Error != "" {
 					{ data.Error }
 				} else {
-					Maximum image width resolution to download for this device. Set to '0' to disable this filter. Set this value to avoid image sizes that are too big.
+					Your intended device width resolution.
 				}
 			</span>
 		</div>
 	</label>
 }
 
-templ MaxImageResolutionYInput(data ResolutionData) {
+templ ResolutionYInput(data ResolutionData) {
 	<label
 		x-data={ fmt.Sprintf(`{error: %t}`, data.Error != "") }
-		id="max-image-height-form"
+		id="resolution-y-form"
 		class="form-control"
 		if data.HXSwapOOB {
 			hx-swap-oob="true"
@@ -64,14 +72,14 @@ templ MaxImageResolutionYInput(data ResolutionData) {
 			<span
 				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
 				:class="{'text-error': error}"
-			>Maximum Image Height</span>
+			>Height</span>
 		</div>
 		<input
-			id="max-image-height-field"
+			id="resolution-y-field"
 			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
-			name="min_y"
+			name="resolution_y"
 			type="number"
-			min="0"
+			min="1"
 			@change="$el.setCustomValidity(''); this.error = false"
 			class={ utils.CXX(
                 "input input-bordered", true,
@@ -79,8 +87,10 @@ templ MaxImageResolutionYInput(data ResolutionData) {
                 "input-error", data.Error != "",
             ) }
 			:class="{'text-error': error, 'input-error': error}"
-			value={ strconv.Itoa(data.Value) }
-			placeholder="0"
+			if data.Value > 0 {
+				value={ strconv.Itoa(data.Value) }
+			}
+			placeholder="e.g. 1080"
 			required
 		/>
 		<div class="label">
@@ -91,7 +101,7 @@ templ MaxImageResolutionYInput(data ResolutionData) {
 				if data.Error != "" {
 					{ data.Error }
 				} else {
-					Maximum image height resolution to download for this device. Set to '0' to disable this filter. Set this value to avoid image sizes that are too big.
+					Your intended device height resolution.
 				}
 			</span>
 		</div>
