@@ -1,8 +1,5 @@
 package devices
 
-import "github.com/tigorlazuardi/redmage/api"
-import "strconv"
-
 templ filter(data Data) {
 	<div
 		id="filter-bar"
@@ -36,24 +33,16 @@ templ filter(data Data) {
 			<label for="status">Status</label>
 			<select id="status" name="status" class="select select-bordered w-full">
 				<option value="">*No Filter</option>
-				<option value="2" selected?={ data.Params.Status == 2 }>Enabled</option>
-				<option value="1" selected?={ data.Params.Status == 1 }>Disabled</option>
+				<option value="1" selected?={ data.Params.Status == 1 }>Enabled</option>
+				<option value="0" selected?={ data.Params.Status == 0 }>Disabled</option>
 			</select>
 			<label for="limit">Limit</label>
 			<select id="limit" name="limit" class="select select-bordered w-full">
-				@limitOption(data.Params, 25)
-				@limitOption(data.Params, 50)
-				@limitOption(data.Params, 75)
-				@limitOption(data.Params, 100)
+				<option value="25" selected?={ data.Params.Limit == 25 }>25</option>
+				<option value="50" selected?={ data.Params.Limit == 50 }>50</option>
+				<option value="75" selected?={ data.Params.Limit == 75 }>75</option>
+				<option value="100" selected?={ data.Params.Limit == 100 }>100</option>
 			</select>
 		</div>
 	</div>
-}
-
-templ limitOption(params api.DevicesListParams, value int) {
-	if int(params.Limit) == value {
-		<option selected>{ strconv.Itoa(value) }</option>
-	} else {
-		<option>{ strconv.Itoa(value) }</option>
-	}
 }
