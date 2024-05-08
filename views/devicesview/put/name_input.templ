@@ -21,7 +21,7 @@ templ NameInput(data NameInputData) {
 			if !data.DisableValidation {
 				required
 				x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
-				hx-post="/htmx/devices/add/validate/name"
+				hx-get="/htmx/devices/add/validate/name"
 				hx-include="[name='slug']"
 				hx-trigger="change"
 				hx-target="#name-input-form"

@@ -49,10 +49,10 @@ templ SlugInput(data SlugInputData) {
 			if data.Disabled {
 				disabled
 			} else {
-				hx-post="/htmx/devices/add/validate/slug"
+				hx-get="/htmx/devices/add/validate/slug"
 				hx-trigger="change, input delay:2s"
 				hx-target="#slug-input-form"
-				hx-target-409="#slug-input-form"
+				hx-target-error="#slug-input-form"
 				hx-swap="outerHTML"
 				placeholder="my-awesome-device"
 				title="Url Friendly Characters Only"

@@ -63,9 +63,8 @@ func (routes *Routes) registerHTMXRoutes(router chi.Router) {
 	router.Post("/subreddits/check", routes.SubredditCheckHTMX)
 	router.Get("/subreddits/validate/schedule", routes.SubredditValidateScheduleHTMX)
 
-	router.Post("/devices/add", routes.DevicesCreateHTMX)
-	router.Post("/devices/add/validate/slug", routes.DevicesValidateSlugHTMX)
-	router.Post("/devices/add/validate/name", routes.DevicesValidateNameHTMX)
+	router.Get("/devices/add/validate/slug", routes.DevicesValidateSlugHTMX)
+	router.Get("/devices/add/validate/name", routes.DevicesValidateNameHTMX)
 }
 
 func (routes *Routes) registerWWWRoutes(router chi.Router) {
@@ -87,6 +86,7 @@ func (routes *Routes) registerWWWRoutes(router chi.Router) {
 		r.Get("/config", routes.PageConfig)
 		r.Get("/devices", routes.PageDevices)
 		r.Get("/devices/add", routes.PageDevicesAdd)
+		r.Post("/devices/add", routes.DevicesCreateHTMX)
 		r.Get("/devices/details/{slug}", routes.PageDeviceDetails)
 		r.Get("/schedules", routes.PageScheduleHistory)
 	})
