@@ -61,6 +61,9 @@ templ devicesList(data Data) {
 					</div>
 					<div class="divider">Filter</div>
 					<div class="flex flex-wrap gap-4">
+						if device.WindowsWallpaperMode == 1 {
+							<div class="badge badge-accent">Windows Wallpaper Mode</div>
+						}
 						if device.NSFW == 1 {
 							<div class="badge badge-accent">NSFW</div>
 						}
@@ -71,10 +74,10 @@ templ devicesList(data Data) {
 						if device.MaxY  > 0 {
 							<div class="badge badge-primary">Max Height: { strconv.Itoa(int(device.MaxY)) }px</div>
 						}
-						if  device.MinX  > 0 {
+						if device.MinX  > 0 {
 							<div class="badge badge-primary">Min Width: { strconv.Itoa(int(device.MinX)) }px</div>
 						}
-						if  device.MinY  > 0 {
+						if device.MinY  > 0 {
 							<div class="badge badge-primary">Min Height: { strconv.Itoa(int(device.MinY)) }px</div>
 						}
 					</div>
