@@ -29,6 +29,15 @@ func (routes *Routes) DevicesValidateNameHTMX(rw http.ResponseWriter, req *http.
 		Value:     s,
 		HXSwapOOB: true,
 	}
+
+	if s == "" {
+		slugData.Error = "Identifier resolves to empty value. Please set a valid identifier manually."
+		_ = nameComponent.Render(ctx, rw)
+		if err := adddevice.SlugInput(slugData).Render(ctx, rw); err != nil {
+			log.New(ctx).Err(err).Error("failed to render name input")
+		}
+		return
+	}
 	exist, err := routes.API.DevicesValidateSlug(ctx, s)
 	if err != nil {
 		log.New(ctx).Err(err).Error("failed to validate slug")
@@ -42,7 +51,6 @@ func (routes *Routes) DevicesValidateNameHTMX(rw http.ResponseWriter, req *http.
 
 	if exist {
 		slugData.Error = "Device with this identifier already exist. Please change the value manually."
-		// rw.WriteHeader(http.StatusConflict)
 		_ = nameComponent.Render(ctx, rw)
 		if err := adddevice.SlugInput(slugData).Render(ctx, rw); err != nil {
 			log.New(ctx).Err(err).Error("failed to render name input")
@@ -50,7 +58,7 @@ func (routes *Routes) DevicesValidateNameHTMX(rw http.ResponseWriter, req *http.
 		return
 	}
 
-	slugData.Valid = "Identifier is available"
+	slugData.Valid = "Identifier is available."
 
 	_ = nameComponent.Render(ctx, rw)
 	if err := adddevice.SlugInput(slugData).Render(ctx, rw); err != nil {

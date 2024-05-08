@@ -60,7 +60,7 @@ templ DetailsContent(c *views.Context, data Data) {
 				@showingImageFromTo(data)
 				<div class="flex flex-wrap gap-4 my-8 justify-around">
 					for _, image := range data.Images {
-						@components.ImageCard(image, 0)
+						@components.ImageCard(image, components.HideNothing.SetCond(components.HideDevice, data.Params.Device != ""))
 					}
 				</div>
 				<div class="flex w-full justify-center">

@@ -10,8 +10,16 @@ func (o ImageCardOption) Has(opt ImageCardOption) bool {
 	return o&opt != 0
 }
 
+func (o ImageCardOption) SetCond(opt ImageCardOption, cond bool) ImageCardOption {
+	if cond {
+		return o | opt
+	}
+	return o
+}
+
 const (
-	HideTitle ImageCardOption = 1 << iota
+	HideNothing ImageCardOption = 0
+	HideTitle   ImageCardOption = 1 << iota
 	HideSubreddit
 	HidePoster
 	HideDevice

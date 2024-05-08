@@ -1,26 +1,39 @@
 package adddevice
 
+import "fmt"
+
 type WindowsWallpaperCheckboxData struct {
 	Checked bool
 }
 
 templ WindowsWallpaperCheckbox(data WindowsWallpaperCheckboxData) {
-	<div class="form-control">
-		<div class="divider my-0 py-0"></div>
-		<div class="divider my-0 py-0"></div>
-		<label class="label cursor-pointer">
-			<span class="label-text">Windows Wallpaper Mode</span>
+	<div
+		x-data={ fmt.Sprintf(`{checked: %t}`, data.Checked) }
+		class="form-control"
+	>
+		<label
+			class="label cursor-pointer input input-bordered"
+			:class="{'input-secondary': checked}"
+		>
+			<span
+				class="label-text"
+				:class="{'text-secondary': checked}"
+			>Windows Wallpaper Mode</span>
 			<input
 				type="checkbox"
 				checked?={ data.Checked }
 				class="checkbox"
+				:class="{'checkbox-secondary': checked}"
 				name="windows_wallpaper_mode"
+				@change="checked = !checked"
 				value="1"
 			/>
 		</label>
-		<div class="divider my-0 py-0"></div>
-		<span class="label-text pl-1">
-			Windows Wallpaper Mode puts images under one folder instead of split by subreddits.
+		<span
+			class="label-text pl-1 mt-2"
+			:class="{'text-secondary': checked}"
+		>
+			Windows Wallpaper Mode puts images for this device under one folder instead of split by subreddits.
 			This allows the user to target Windows Wallpaper to the whole image collections.
 		</span>
 	</div>
