@@ -6,7 +6,7 @@ import (
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/views"
-	"github.com/tigorlazuardi/redmage/views/devicesview"
+	"github.com/tigorlazuardi/redmage/views/devices"
 )
 
 func (routes *Routes) PageDevices(rw http.ResponseWriter, req *http.Request) {
@@ -14,7 +14,7 @@ func (routes *Routes) PageDevices(rw http.ResponseWriter, req *http.Request) {
 	defer start.End()
 
 	vc := views.NewContext(routes.Config, req)
-	var data devicesview.Data
+	var data devices.Data
 	data.Params.FillFromQuery(req.URL.Query())
 
 	result, err := routes.API.DevicesList(ctx, data.Params)
@@ -23,14 +23,14 @@ func (routes *Routes) PageDevices(rw http.ResponseWriter, req *http.Request) {
 		code, message := errs.HTTPMessage(err)
 		rw.WriteHeader(code)
 		data.Error = message
-		if err := devicesview.Devices(vc, data).Render(ctx, rw); err != nil {
+		if err := devices.View(vc, data).Render(ctx, rw); err != nil {
 			log.New(ctx).Err(err).Error("failed to render devices error view")
 		}
 	}
 	data.Devices = result.Devices
 	data.Total = result.Total
 
-	if err := devicesview.Devices(vc, data).Render(ctx, rw); err != nil {
+	if err := devices.View(vc, data).Render(ctx, rw); err != nil {
 		log.New(ctx).Err(err).Error("failed to render devices view")
 	}
 }

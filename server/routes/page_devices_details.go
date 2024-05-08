@@ -7,7 +7,7 @@ import (
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/views"
-	"github.com/tigorlazuardi/redmage/views/devicesview/devicedetails"
+	"github.com/tigorlazuardi/redmage/views/devices/details"
 )
 
 func (routes *Routes) PageDeviceDetails(rw http.ResponseWriter, req *http.Request) {
@@ -18,7 +18,7 @@ func (routes *Routes) PageDeviceDetails(rw http.ResponseWriter, req *http.Reques
 
 	slug := chi.URLParam(req, "slug")
 
-	var data devicedetails.Data
+	var data details.Data
 	data.Params.FillFromQuery(req.URL.Query())
 
 	var err error
@@ -29,7 +29,7 @@ func (routes *Routes) PageDeviceDetails(rw http.ResponseWriter, req *http.Reques
 		code, message := errs.HTTPMessage(err)
 		rw.WriteHeader(code)
 		data.Error = message
-		if err := devicedetails.View(c, data).Render(ctx, rw); err != nil {
+		if err := details.View(c, data).Render(ctx, rw); err != nil {
 			log.New(ctx).Err(err).Error("failed to render device details page")
 		}
 		return
@@ -43,7 +43,7 @@ func (routes *Routes) PageDeviceDetails(rw http.ResponseWriter, req *http.Reques
 		code, message := errs.HTTPMessage(err)
 		rw.WriteHeader(code)
 		data.Error = message
-		if err := devicedetails.View(c, data).Render(ctx, rw); err != nil {
+		if err := details.View(c, data).Render(ctx, rw); err != nil {
 			log.New(ctx).Err(err).Error("failed to render device details page")
 		}
 		return
@@ -52,7 +52,7 @@ func (routes *Routes) PageDeviceDetails(rw http.ResponseWriter, req *http.Reques
 	data.Images = result.Images
 	data.TotalImages = result.Total
 
-	if err := devicedetails.View(c, data).Render(ctx, rw); err != nil {
+	if err := details.View(c, data).Render(ctx, rw); err != nil {
 		log.New(ctx).Err(err).Error("failed to render device details page")
 	}
 }

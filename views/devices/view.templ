@@ -1,4 +1,4 @@
-package  devicesview
+package devices
 
 import "github.com/tigorlazuardi/redmage/views"
 import "github.com/tigorlazuardi/redmage/views/components"
@@ -15,16 +15,16 @@ type Data struct {
 	Params  api.DevicesListParams
 }
 
-templ Devices(c *views.Context, data Data) {
+templ View(c *views.Context, data Data) {
 	@components.Doctype() {
 		@components.Head(c, components.HeadTitle("Redmage - Devices"))
 		@components.Body(c) {
-			@DevicesContent(c, data)
+			@Content(c, data)
 		}
 	}
 }
 
-templ DevicesContent(c *views.Context, data Data) {
+templ Content(c *views.Context, data Data) {
 	<main class="prose min-w-full">
 		@components.Container() {
 			if data.Error != "" {

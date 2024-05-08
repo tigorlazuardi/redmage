@@ -5,7 +5,7 @@ import (
 
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/views"
-	"github.com/tigorlazuardi/redmage/views/devicesview/put"
+	"github.com/tigorlazuardi/redmage/views/devices/put"
 )
 
 func (routes *Routes) PageDevicesAdd(rw http.ResponseWriter, req *http.Request) {

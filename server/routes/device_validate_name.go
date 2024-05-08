@@ -6,7 +6,7 @@ import (
 	"github.com/gosimple/slug"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
-	"github.com/tigorlazuardi/redmage/views/devicesview/put"
+	"github.com/tigorlazuardi/redmage/views/devices/put"
 )
 
 func (routes *Routes) DevicesValidateNameHTMX(rw http.ResponseWriter, req *http.Request) {

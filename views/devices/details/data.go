@@ -1,4 +1,4 @@
-package devicedetails
+package details
 
 import (
 	"github.com/tigorlazuardi/redmage/api"
