@@ -2,7 +2,7 @@ package components
 
 import "github.com/tigorlazuardi/redmage/views"
 
-templ Page404(c *views.Context, text string) {
+templ PageError(c *views.Context, text string) {
 	@Doctype() {
 		@Head(c, HeadTitle(text))
 		@Body(c) {

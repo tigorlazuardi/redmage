@@ -36,7 +36,9 @@ templ DetailsContent(c *views.Context, data Data) {
 			if data.Error != "" {
 				<h1>Error: { data.Error }</h1>
 			} else {
-				<h1>Subreddit { data.Subreddit.Name }</h1>
+				<div class="flex items-center justify-between">
+					<h1>Subreddit { data.Subreddit.Name }</h1>
+				</div>
 				<div class="flex flex-wrap justify-between content-center">
 					<h2 class="my-auto">
 						Total Images: 

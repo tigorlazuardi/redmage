@@ -1,15 +1,17 @@
 package put
 
 import "fmt"
+import "github.com/tigorlazuardi/redmage/views/utils"
 
 type NSFWCheckboxData struct {
-	Checked bool
+	Checked  bool
+	EditMode bool
 }
 
 templ NSFWCheckbox(data NSFWCheckboxData) {
 	<div
 		x-data={ fmt.Sprintf(`{checked: %t}`, data.Checked) }
-		class="form-control"
+		class={ utils.CXX("form-control", true, "col-span-2", data.EditMode) }
 	>
 		<label
 			class="label cursor-pointer border input input-bordered"

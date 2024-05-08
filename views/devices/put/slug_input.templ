@@ -4,12 +4,10 @@ import "github.com/tigorlazuardi/redmage/views/utils"
 import "fmt"
 
 type SlugInputData struct {
-	Error        string
-	Value        string
-	Valid        string
-	HXSwapOOB    bool
-	Disabled     bool
-	DisabledText string
+	Error     string
+	Value     string
+	Valid     string
+	HXSwapOOB bool
 }
 
 templ SlugInput(data SlugInputData) {
@@ -28,17 +26,14 @@ templ SlugInput(data SlugInputData) {
                     "text-success", data.Valid != "",
                 ) }
 			>Slug Identifier</span>
+			<span class="label-text-alt italic font-bold text-primary">NOTE: Slug Identifier cannot be changed after creation</span>
 		</div>
 		<input
 			id="slug-input-field"
-			if !data.Disabled {
-				x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
-			}
+			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
 			name="slug"
 			type="text"
-			if !data.Disabled {
-				@change="$el.setCustomValidity('')"
-			}
+			@change="$el.setCustomValidity('')"
 			class={ utils.CXX(
                 "input input-bordered", true,
                 "text-error", data.Error != "",
@@ -46,18 +41,14 @@ templ SlugInput(data SlugInputData) {
                 "input-error", data.Error != "",
                 "input-success", data.Valid != "",
             ) }
-			if data.Disabled {
-				disabled
-			} else {
-				hx-get="/htmx/devices/add/validate/slug"
-				hx-trigger="change, input delay:2s"
-				hx-target="#slug-input-form"
-				hx-target-error="#slug-input-form"
-				hx-swap="outerHTML"
-				placeholder="my-awesome-device"
-				title="Url Friendly Characters Only"
-				required
-			}
+			hx-get="/htmx/devices/add/validate/slug"
+			hx-trigger="change, input delay:2s"
+			hx-target="#slug-input-form"
+			hx-target-error="#slug-input-form"
+			hx-swap="outerHTML"
+			placeholder="my-awesome-device"
+			title="Url Friendly Characters Only"
+			required
 			value={ data.Value }
 		/>
 		<div class="label">
@@ -66,8 +57,6 @@ templ SlugInput(data SlugInputData) {
 					{ data.Valid }
 				} else if data.Error != "" {
 					{ data.Error }
-				} else if data.DisabledText != "" {
-					{ data.DisabledText }
 				} else {
 					URL friendly Unique identifier for the device.
 					Value must be lowercase english alphabet and supported separator is only 'dash' (-) and 'underscores' (_).

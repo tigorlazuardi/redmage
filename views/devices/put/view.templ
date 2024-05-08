@@ -6,6 +6,7 @@ import "github.com/tigorlazuardi/redmage/views/components"
 type Data struct {
 	PageTitle  string
 	PostAction string
+	EditMode   bool
 
 	NameInput                NameInputData
 	SlugInput                SlugInputData
@@ -38,24 +39,28 @@ templ Content(c *views.Context, data Data) {
 				method="post"
 				hx-post={ data.PostAction }
 				action={ templ.SafeURL(data.PostAction) }
-				class="grid sm:grid-cols-2 gap-4"
+				class="grid sm:grid-cols-2 gap-4 sm:gap-y-8"
 				hx-target={ components.NotificationContainerID }
 				hx-target-error={ components.NotificationContainerID }
 				hx-swap="afterbegin"
 			>
 				@NameInput(data.NameInput)
-				@SlugInput(data.SlugInput)
+				if !data.EditMode {
+					@SlugInput(data.SlugInput)
+				}
 				@ResolutionXInput(data.ResolutionX)
 				@ResolutionYInput(data.ResolutionY)
-				<div class="divider my-auto sm:col-span-2"><h3 class="m-0 p-0">Filter</h3></div>
+				<div class="divider my-auto sm:col-span-2 sm:my-8"><h3 class="m-0 p-0">Filter</h3></div>
 				@AspectRatioToleranceInput(data.AspectRatioTolerance)
 				@NSFWCheckbox(data.NSFWCheckbox)
-				@WindowsWallpaperCheckbox(data.WindowsWallpaperCheckbox)
+				if !data.EditMode {
+					@WindowsWallpaperCheckbox(data.WindowsWallpaperCheckbox)
+				}
 				@MinImageResolutionXInput(data.MinImageResolutionXInput)
 				@MinImageResolutionYInput(data.MinImageResolutionYInput)
 				@MaxImageResolutionXInput(data.MaxImageResolutionXInput)
 				@MaxImageResolutionYInput(data.MaxImageResolutionYInput)
-				<button type="submit" class="btn btn-primary sm:col-span-2">Add</button>
+				<button type="submit" class="btn btn-primary sm:col-span-2">Save</button>
 			</form>
 		}
 	</main>

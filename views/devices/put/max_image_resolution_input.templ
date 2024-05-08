@@ -69,7 +69,7 @@ templ MaxImageResolutionYInput(data ResolutionData) {
 		<input
 			id="max-image-height-field"
 			x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
-			name="min_y"
+			name="max_y"
 			type="number"
 			min="0"
 			@change="$el.setCustomValidity(''); this.error = false"

@@ -2,7 +2,7 @@ package components
 
 import "github.com/tigorlazuardi/redmage/models"
 import "fmt"
-import "github.com/tigorlazuardi/redmage/views/utils"
+import "time"
 
 type ImageCardOption uint
 
@@ -26,7 +26,18 @@ const (
 )
 
 templ ImageCard(data *models.Image, opts ImageCardOption) {
-	<div class="not-prose card card-bordered bg-base-100 hover:bg-base-200 shadow-xl min-w-[16rem] max-w-[16rem] rounded-xl top-0 hover:-top-1 hover:drop-shadow-2xl transition-all">
+	<div
+		x-data={ fmt.Sprintf(`{
+            time: %d,
+            get timeTooltip() {
+                return dayjs.unix(this.time).tz(dayjs.tz.guess()).format('ddd, D MMM YYYY HH:mm:ss Z')
+            },
+            get relativeTime() {
+                return dayjs.unix(this.time).tz(dayjs.tz.guess()).fromNow()
+            },
+        }`, data.CreatedAt) }
+		class="not-prose card card-bordered bg-base-100 hover:bg-base-200 shadow-xl min-w-[16rem] max-w-[16rem] rounded-xl top-0 hover:-top-1 hover:drop-shadow-2xl transition-all"
+	>
 		<figure>
 			<a
 				href={ templ.URL(fmt.Sprintf("/img/%s", data.ImageRelativePath)) }
@@ -51,7 +62,9 @@ templ ImageCard(data *models.Image, opts ImageCardOption) {
 			<a class="text-primary text-sm underline" href={ templ.URL(data.PostAuthorURL) }>{ data.PostAuthor }</a>
 			<div class="flex-1"></div>
 			<div class="flex">
-				@utils.RelativeTimeNode(fmt.Sprintf("relative-time-%s", data.PostName), data.CreatedAt, "text-sm")
+				<div class="tooltip" :data-tip="timeTooltip">
+					<span class="text-xs" :class="{ 'text-xs': false }" x-text="relativeTime">{ time.Unix(data.CreatedAt, 0).Format("Mon, _2 Jan 2006 15:04:05 MST") } </span>
+				</div>
 			</div>
 			<div class="grid grid-cols-2">
 				<p class="text-xs">{ fmt.Sprintf("%d \u00d7 %d", data.ImageWidth, data.ImageHeight) } px</p>

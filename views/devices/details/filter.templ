@@ -1,8 +1,9 @@
 package details
 
 import "fmt"
+import "github.com/tigorlazuardi/redmage/views"
 
-templ filter(data Data) {
+templ filter(c *views.Context, data Data) {
 	<div
 		id="filter-bar"
 		hx-get={ fmt.Sprintf("/devices/details/%s", data.Device.Slug) }
@@ -12,9 +13,9 @@ templ filter(data Data) {
 		hx-select="main"
 		hx-swap="outerHTML"
 		hx-push-url="true"
-		class="grid sm:grid-cols-2 md:grid-cols-4 gap-4"
+		class="grid md:grid-cols-2 gap-4 items-center"
 	>
-		<label class="input input-bordered flex items-center gap-2 sm:col-span-2 md:col-auto">
+		<label class="input input-bordered flex items-center gap-2">
 			<input
 				id="search"
 				type="text"
@@ -31,5 +32,32 @@ templ filter(data Data) {
 				class="w-4 h-4 opacity-70"
 			><path fill-rule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clip-rule="evenodd"></path></svg>
 		</label>
+		<div class="grid grid-cols-[1fr,3fr] sm:grid-cols-[1fr,3fr,1fr,3fr] gap-4 items-center">
+			<label for="limit">Limit</label>
+			<select id="limit" name="limit" class="select select-bordered w-full">
+				<option value="25" selected?={ data.Params.Limit == 25 }>25</option>
+				<option value="50" selected?={ data.Params.Limit == 50 }>50</option>
+				<option value="75" selected?={ data.Params.Limit == 75 }>75</option>
+				<option value="100" selected?={ data.Params.Limit == 100 }>100</option>
+			</select>
+			<label for="range">Range</label>
+			<select id="range" name="created_at" class="select select-bordered w-full">
+				@rangeOption(c, "-10800", "3 Hours")
+				@rangeOption(c, "-21600", "6 Hours")
+				@rangeOption(c, "-43200", "12 Hours")
+				<option
+					value="-86400"
+					selected?={ c.Request.URL.Query().Get("created_at") == "" || c.Request.URL.Query().Get("created_at") == "-86400" }
+				>1 Day</option>
+				@rangeOption(c, "-172800", "2 Days")
+				@rangeOption(c, "-259200", "3 Days")
+				@rangeOption(c, "-604800", "7 Days")
+				@rangeOption(c, "-2592000", "30 Days")
+			</select>
+		</div>
 	</div>
+}
+
+templ rangeOption(c *views.Context, value, display string) {
+	<option value={ value } selected?={ c.Request.URL.Query().Get("created_at") == value }>{ display }</option>
 }

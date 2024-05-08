@@ -4,13 +4,13 @@ import "github.com/tigorlazuardi/redmage/views/utils"
 import "fmt"
 
 type NameInputData struct {
-	Error             string
-	Value             string
-	DisableValidation bool
+	Error    string
+	Value    string
+	EditMode bool
 }
 
 templ NameInput(data NameInputData) {
-	<label id="name-input-form" class="form-control">
+	<label id="name-input-form" class={ utils.CXX("form-control", true, "col-span-2", data.EditMode) }>
 		<div class="label">
 			<span
 				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
@@ -18,7 +18,7 @@ templ NameInput(data NameInputData) {
 		</div>
 		<input
 			id="name-input-field"
-			if !data.DisableValidation {
+			if !data.EditMode {
 				required
 				x-data={ fmt.Sprintf(`{ init() { $el.setCustomValidity(%q) } }`, data.Error) }
 				hx-get="/htmx/devices/add/validate/name"

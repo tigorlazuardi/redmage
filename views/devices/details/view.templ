@@ -24,9 +24,15 @@ templ Content(c *views.Context, data Data) {
 			if data.Error != "" {
 				@components.ErrorToast(data.Error)
 			} else {
-				<h1>{ data.Device.Name }</h1>
+				<div class="flex justify-between items-center">
+					<h1 class="my-auto">{ data.Device.Name }</h1>
+					<a
+						href={ templ.SafeURL(fmt.Sprintf("/devices/edit/%s", data.Device.Slug)) }
+						class="btn btn-primary no-underline sm:w-24"
+					>Edit</a>
+				</div>
 				<div class="divider"></div>
-				@filter(data)
+				@filter(c, data)
 				for _, group := range data.splitImages() {
 					<h2>{ group.Subreddit }</h2>
 					@imageList(group.Images)

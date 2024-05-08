@@ -88,6 +88,8 @@ func (routes *Routes) registerWWWRoutes(router chi.Router) {
 		r.Get("/devices/add", routes.PageDevicesAdd)
 		r.Post("/devices/add", routes.DevicesCreateHTMX)
 		r.Get("/devices/details/{slug}", routes.PageDeviceDetails)
+		r.Get("/devices/edit/{slug}", routes.PageDevicesEdit)
+		r.Post("/devices/edit/{slug}", routes.DevicesUpdateHTMX)
 		r.Get("/schedules", routes.PageScheduleHistory)
 	})
 }
