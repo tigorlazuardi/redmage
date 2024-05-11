@@ -15,8 +15,8 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 COPY --from=web-builder /web/public ./public
-RUN --mount=type=cache,target=/root/.cache/go-build \
-    ./bin/templ generate && GOOS=linux GOARCH=amd64 go build -o /app/redmage main.go
+ENV REDMAGE_RUNTIME_VERSION=unknown
+RUN --mount=type=cache,target=/root/.cache/go-build make build-docker
 
 
 FROM gcr.io/distroless/base:nonroot

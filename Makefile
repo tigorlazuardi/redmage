@@ -10,10 +10,9 @@ export GOOSE_MIGRATION_DIR=db/migrations
 export REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION=$(shell echo "$${REDMAGE_WEB_DEPENDENCIES_HTMX_VERSION:-1.9.12}")
 export REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION=$(shell echo "$${REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION:-1.11.10}")
 export REDMAGE_WEB_DEPENDENCIES_ALPINEJS_VERSION=$(shell echo "$${REDMAGE_WEB_DEPENDENCIES_ALPINEJS_VERSION:-3.13.10}")
+export REDMAGE_RUNTIME_VERSION=$(shell echo "$${REDMAGE_RUNTIME_VERSION:-unknown}")
 
 start: dev-dependencies
-	@tailwindcss -i views/style.css -o public/style.css --watch &
-	@templ generate -watch &
 	air
 
 dev-dependencies: build-dependencies
@@ -83,8 +82,11 @@ web-build: web-dependencies
 build: web-dependencies build-dependencies prepare
 	go build -o redmage
 
-build-docker: migrate-up 
-	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o redmage
+build-docker:
+	goose up
+	templ generate
+	go run github.com/stephenafamo/bob/gen/bobgen-sqlite@latest
+	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w -X 'github.com/tigorlazuardi/redmage/config.Version=${REDMAGE_RUNTIME_VERSION}'" -o redmage
 
 prepare: gen
 	mkdir -p public

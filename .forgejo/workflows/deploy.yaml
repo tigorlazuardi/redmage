@@ -1,9 +1,7 @@
-# on:
-#   push:
-#     tags:
-#       - "v*"
-
-on: [push]
+on:
+  push:
+    tags:
+      - "v*.*.*"
 
 jobs:
   deploy:
@@ -12,4 +10,9 @@ jobs:
       image: docker:26.1.2
 
     steps:
-      - run: echo "Testing ${{ github.ref_name }}"
+      - run: echo "Deploying version ${{ github.ref_name }}"
+      - run: docker build -t git.tigor.web.id/tigor/redmage:${{ github.ref_name }} .
+      - run: docker build -t git.tigor.web.id/tigor/redmage:latest .
+      - run: docker push git.tigor.web.id/tigor/redmage:${{ github.ref_name }}
+      - run: docker push git.tigor.web.id/tigor/redmage:latest
+      - run: docker compose up -d

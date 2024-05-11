@@ -27,8 +27,10 @@ func (srv *Server) Start(exit <-chan struct{}) error {
 	caller := caller.New(3)
 	go func() {
 		log.New(context.Background()).Caller(caller).Info(
-			"starting http server", "address", "http://"+srv.server.Addr,
+			"starting http server",
+			"address", "http://"+srv.server.Addr,
 			"outbound_ip", "http://"+GetOutboundIP().String()+":"+srv.config.String("http.port"),
+			"version", srv.config.String("runtime.version"),
 		)
 		errch <- srv.server.ListenAndServe()
 	}()

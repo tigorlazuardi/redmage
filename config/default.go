@@ -6,6 +6,8 @@ import (
 	"github.com/adrg/xdg"
 )
 
+var Version string = "unknown"
+
 var DefaultConfig = map[string]any{
 	"flags.containerized": false,
 
@@ -60,6 +62,6 @@ var DefaultConfig = map[string]any{
 	"web.dependencies.dayjs.version":    "1.11.10",
 	"web.dependencies.alpinejs.version": "3.13.10",
 
-	"runtime.version":     "0.0.1",
+	"runtime.version":     Version,
 	"runtime.environment": "development",
 }
