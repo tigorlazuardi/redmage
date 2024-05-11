@@ -7,7 +7,7 @@ on: [push]
 
 jobs:
   deploy:
-    runs-on: default
+    runs-on: docker
     container:
       image: docker:26.1.2
       volumes:
