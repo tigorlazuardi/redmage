@@ -1,0 +1,16 @@
+# on:
+#   push:
+#     tags:
+#       - "v*"
+
+on: [push]
+
+jobs:
+  deploy:
+    runs-on: default
+    container:
+      image: docker:26.1.2
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    steps:
+      - run: echo "Testing ${{ github.ref_name }}"
