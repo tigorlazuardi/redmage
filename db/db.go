@@ -3,6 +3,8 @@ package db
 import (
 	"database/sql"
 	"io/fs"
+	"os"
+	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pressly/goose/v3"
@@ -19,11 +21,22 @@ var Migrations fs.FS
 func Open(cfg *config.Config) (*sql.DB, error) {
 	driver := cfg.String("db.driver")
 	dsn := cfg.String("db.string")
+	if driver == "sqlite3" {
+		path, err := filepath.Abs(dsn)
+		if err != nil {
+			return nil, errs.Wrapw(err, "failed to get absolute path of sqlite3 database", "path", dsn)
+		}
+		dir := filepath.Dir(path)
+		err = os.MkdirAll(dir, 0777)
+		if err != nil {
+			return nil, errs.Wrapw(err, "failed to create directory for sqlite3 database", "dir", dir)
+		}
+	}
 	db, err := otelsql.Open(driver, dsn, otelsql.WithAttributes(
 		semconv.DBSystemSqlite,
 	))
 	if err != nil {
-		return db, errs.Wrapw(err, "failed to open database", "driver", driver)
+		return db, errs.Wrapw(err, "failed to open database", "driver", driver, "db.string", dsn)
 	}
 	if cfg.Bool("db.automigrate") {
 		goose.SetLogger(goose.NopLogger())

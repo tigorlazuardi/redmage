@@ -27,8 +27,15 @@ build-dependencies:
 	@if ! command -v templ > /dev/null; then
 		mkdir -p bin
 		echo "Templ not found in PATH, installing it to $(shell pwd)/bin/templ"
-		go install github.com/a-h/templ/cmd/templ@v0.2.648
+		go install github.com/a-h/templ/cmd/templ@v0.2.663
 	fi
+	@if ! command -v goose > /dev/null; then
+		mkdir -p bin
+		echo "Goose not found in PATH, installing it to $(shell pwd)/bin/goose"
+		go install github.com/pressly/goose/v3/cmd/goose@latest
+	fi
+
+web-dependencies:
 	@if [ ! -d "node_modules" ]; then
 		echo "Node modules not found, installing them"
 		npm install
@@ -69,8 +76,15 @@ build-dependencies:
 		curl -o public/alpinejs-${REDMAGE_WEB_DEPENDENCIES_ALPINEJS_VERSION}.min.js https://cdn.jsdelivr.net/npm/alpinejs@${REDMAGE_WEB_DEPENDENCIES_ALPINEJS_VERSION}/dist/cdn.min.js
 	fi
 
-build: build-dependencies prepare
+web-build: web-dependencies
+	mkdir -p public
+	npx tailwindcss -i views/style.css -o public/style.css
+
+build: web-dependencies build-dependencies prepare
 	go build -o redmage
+
+build-docker: migrate-up 
+	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o redmage
 
 prepare: gen
 	mkdir -p public
