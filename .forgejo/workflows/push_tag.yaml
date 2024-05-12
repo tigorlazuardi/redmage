@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  push:
+    runs-on: docker
+    container:
+      image: docker:26.1.2
+
+    steps:
+      - run: echo "Building version ${{ github.ref_name }}"
+      - run: docker build -t git.tigor.web.id/tigor/redmage:${{ github.ref_name }} -t git.tigor.web.id/tigor/redmage:latest .
+      - run: docker image push --all-tags git.tigor.web.id/tigor/redmage
