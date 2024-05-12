@@ -12,6 +12,7 @@ jobs:
       image: docker:26.1.2
 
     steps:
+      - uses: actions/checkout@v4
       - run: echo "Building version ${{ github.ref_name }}"
       - run: ls -la
       - run: docker build -t git.tigor.web.id/tigor/redmage:${{ github.ref_name }} -t git.tigor.web.id/tigor/redmage:latest .
