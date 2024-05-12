@@ -1,0 +1,17 @@
+# This is an example of docker-compose.yaml file for redmage.
+
+services:
+  redmage:
+    image: git.tigor.web.id/tigor/redmage:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      # Database will be stored in this volume.
+      - db:/app/db
+
+      # Image downloads will be stored in this volume.
+      - downloads:/app/downloads
+
+volumes:
+  downloads:
+  db:
