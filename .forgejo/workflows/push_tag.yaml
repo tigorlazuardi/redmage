@@ -13,5 +13,6 @@ jobs:
 
     steps:
       - run: echo "Building version ${{ github.ref_name }}"
+      - run: ls -la
       - run: docker build -t git.tigor.web.id/tigor/redmage:${{ github.ref_name }} -t git.tigor.web.id/tigor/redmage:latest .
       - run: docker image push --all-tags git.tigor.web.id/tigor/redmage
