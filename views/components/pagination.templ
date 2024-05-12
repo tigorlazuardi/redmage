@@ -4,28 +4,131 @@ import "github.com/tigorlazuardi/redmage/views"
 import "strconv"
 import "github.com/tigorlazuardi/redmage/views/utils"
 import "strings"
+import "fmt"
 
 type PaginationData struct {
-	Offset  int64
-	Limit   int64
-	BaseURL string
-	Total   int64
-	Classes []string
+	Offset      int64
+	Limit       int64
+	BaseURL     string
+	Total       int64
+	Classes     []string
+	UnhideRange int
+}
+
+type pageStatus int
+
+const (
+	pageStatusShow = iota
+	pageStatusHidden
+	pageStatusDot
+)
+
+func (pgdata PaginationData) GetUnhideRange() int {
+	if pgdata.UnhideRange < 1 {
+		return 2
+	}
+	return pgdata.UnhideRange
+}
+
+func (pgdata PaginationData) getPageStatus(page int) pageStatus {
+	if page < 2 {
+		return pageStatusShow
+	}
+	lastPage := (pgdata.Total / max(pgdata.Limit, 1)) + 1
+	if page == int(lastPage) {
+		return pageStatusShow
+	}
+	current := pgdata.GetCurrentPage()
+	unhideRange := pgdata.GetUnhideRange()
+	if page == current-unhideRange-1 {
+		return pageStatusDot
+	}
+	if page == current+unhideRange+1 {
+		return pageStatusDot
+	}
+	if page >= current-unhideRange && page <= current+unhideRange {
+		return pageStatusShow
+	}
+
+	return pageStatusHidden
+}
+
+func (pgdata PaginationData) GetCurrentPage() int {
+	return int(pgdata.Offset/pgdata.Limit) + 1
+}
+
+func (pgdata PaginationData) GetTotalPage() int {
+	return int(pgdata.Total/max(pgdata.Limit, 1)) + 1
 }
 
 templ Pagination(c *views.Context, data PaginationData) {
 	if data.Total > data.Limit {
-		<div class="join">
-			for i, count := 1, int64(0); count < data.Total; i, count = i+1, count+data.Limit {
-				<a
-					href={ c.URLWithExtraQuery(data.BaseURL, "offset", strconv.FormatInt(count, 10)) }
-					class={ utils.CXX(
+		<div
+			x-data={ fmt.Sprintf(`{
+                    page: %d,
+                    qs: %s,
+                    max: %d,
+                    get vals() { return JSON.stringify({...this.qs, offset: (Math.max(1, Math.min(this.page, this.max))-1) * (this.qs.limit || 25)}) }
+                }`, data.GetCurrentPage(), c.JSONQuery(), data.GetTotalPage()) }
+		>
+			<div class="join">
+				for i, count := 1, int64(0); count < data.Total; i, count = i+1, count+data.Limit {
+					if data.GetTotalPage() <= 10 || data.getPageStatus(i) == pageStatusShow {
+						<a
+							href={ c.URLWithExtraQuery(data.BaseURL, "offset", strconv.FormatInt(count, 10)) }
+							class={ utils.CXX(
                         "join-item btn no-underline", true,
                         "btn-active", data.Offset <= count &&  data.Offset > count - data.Limit ,
                         strings.Join(data.Classes, " "), len(data.Classes) > 0,
                     ) }
-				>{ strconv.Itoa(i) }</a>
-			}
+						>{ strconv.Itoa(i) }</a>
+					} else if data.getPageStatus(i) == pageStatusDot {
+						<span @click="$refs.dialog.showModal()" class="join-item btn">...</span>
+					}
+				}
+			</div>
+			<dialog
+				onclick="if (event.target === this) this.close()"
+				x-ref="dialog"
+				class="modal"
+			>
+				<div class="modal-box">
+					<h2 class="my-2">Seek Page</h2>
+					<div
+						id="page-seeker"
+						class="join flex"
+					>
+						<input
+							type="number"
+							value={ strconv.Itoa(data.GetCurrentPage()) }
+							min="1"
+							max={ strconv.Itoa(data.GetTotalPage()) }
+							placeholder="Seek Page"
+							class="input input-bordered join-item w-full"
+							x-model="page"
+							hx-get={ c.Request.URL.Path }
+							hx-target="main"
+							hx-select="main"
+							hx-swap="outerHTML"
+							hx-push-url="true"
+							hx-trigger="custom"
+							@keyup.enter="htmx.trigger($el, 'custom')"
+							:hx-vals="vals"
+						/>
+						<button
+							hx-get={ c.Request.URL.Path }
+							hx-target="main"
+							hx-select="main"
+							hx-swap="outerHTML"
+							hx-push-url="true"
+							:hx-vals="vals"
+							hx-trigger="click"
+							type="button"
+							class="btn btn-primary join-item"
+						>Go</button>
+					</div>
+				</div>
+			</dialog>
 		</div>
 	}
 }

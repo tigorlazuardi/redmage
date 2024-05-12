@@ -71,8 +71,8 @@ templ ImageCard(data *models.Image, opts ImageCardOption) {
 				<p class="text-xs text-end">{ formatByteSize(data.ImageSize) }</p>
 			</div>
 			if data.R.Device != nil && !opts.Has(HideDevice) {
-				<a href={ templ.URL(fmt.Sprintf("/devices/details/%s", data.R.Device.Slug)) }>
-					<div class="divider text-accent underline">{ data.R.Device.Name }</div>
+				<a class="my-4" href={ templ.URL(fmt.Sprintf("/devices/details/%s", data.R.Device.Slug)) }>
+					<div class="divider text-accent underline text-wrap text-center">{ data.R.Device.Name }</div>
 				</a>
 			}
 		</div>

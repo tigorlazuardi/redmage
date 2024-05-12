@@ -1,6 +1,7 @@
 package views
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -33,6 +34,18 @@ func (c *Context) URLWithExtraQuery(baseUrl string, extraKeyValues ...string) te
 		query.Set(extraKeyValues[i], extraKeyValues[i+1])
 	}
 	return templ.SafeURL(fmt.Sprintf("%s?%s", baseUrl, query.Encode()))
+}
+
+func (c *Context) JSONQuery() string {
+	m := make(map[string]string, len(c.Query))
+	for k := range c.Query {
+		v := c.Query.Get(k)
+		if v != "" {
+			m[k] = v
+		}
+	}
+	v, _ := json.Marshal(m)
+	return string(v)
 }
 
 func NewContext(config *config.Config, request *http.Request) *Context {
