@@ -25,7 +25,7 @@ const (
 
 func (pgdata PaginationData) GetUnhideRange() int {
 	if pgdata.UnhideRange < 1 {
-		return 2
+		return 1
 	}
 	return pgdata.UnhideRange
 }
