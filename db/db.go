@@ -43,11 +43,11 @@ func Open(cfg *config.Config) (*sql.DB, error) {
 		goose.SetBaseFS(Migrations)
 
 		if err := goose.SetDialect(driver); err != nil {
-			return db, errs.Wrapw(err, "failed to set goose dialect", "dialect", driver)
+			return db, errs.Wrapw(err, "failed to set goose dialect", "dialect", driver, "dsn", dsn)
 		}
 
 		if err := goose.Up(db, "db/migrations"); err != nil {
-			return db, errs.Wrapw(err, "failed to migrate database", "dialect", driver)
+			return db, errs.Wrapw(err, "failed to migrate database", "dialect", driver, "dsn", dsn)
 		}
 	}
 	return db, err

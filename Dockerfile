@@ -19,7 +19,7 @@ ENV REDMAGE_RUNTIME_VERSION=unknown
 RUN --mount=type=cache,target=/root/.cache/go-build make build-docker
 
 
-FROM gcr.io/distroless/base:nonroot
+FROM gcr.io/distroless/base:latest
 WORKDIR /app
 COPY --from=builder /app/redmage /app/redmage
 ENV REDMAGE_FLAGS_CONTAINERIZED=true
