@@ -1,0 +1,31 @@
+package components
+
+import "github.com/tigorlazuardi/redmage/views"
+import "strconv"
+import "github.com/tigorlazuardi/redmage/views/utils"
+import "strings"
+
+type PaginationData struct {
+	Offset  int64
+	Limit   int64
+	BaseURL string
+	Total   int64
+	Classes []string
+}
+
+templ Pagination(c *views.Context, data PaginationData) {
+	if data.Total > data.Limit {
+		<div class="join">
+			for i, count := 1, int64(0); count < data.Total; i, count = i+1, count+data.Limit {
+				<a
+					href={ c.URLWithExtraQuery(data.BaseURL, "offset", strconv.FormatInt(count, 10)) }
+					class={ utils.CXX(
+                        "join-item btn no-underline", true,
+                        "btn-active", data.Offset <= count &&  data.Offset > count - data.Limit ,
+                        strings.Join(data.Classes, " "), len(data.Classes) > 0,
+                    ) }
+				>{ strconv.Itoa(i) }</a>
+			}
+		</div>
+	}
+}

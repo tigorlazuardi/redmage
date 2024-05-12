@@ -42,13 +42,11 @@ templ filter(c *views.Context, data Data) {
 			</select>
 			<label for="range">Range</label>
 			<select id="range" name="created_at" class="select select-bordered w-full">
+				@rangeOption(c, "", "*No Filter")
 				@rangeOption(c, "-10800", "3 Hours")
 				@rangeOption(c, "-21600", "6 Hours")
 				@rangeOption(c, "-43200", "12 Hours")
-				<option
-					value="-86400"
-					selected?={ c.Request.URL.Query().Get("created_at") == "" || c.Request.URL.Query().Get("created_at") == "-86400" }
-				>1 Day</option>
+				@rangeOption(c, "-86400", "1 Day")
 				@rangeOption(c, "-172800", "2 Days")
 				@rangeOption(c, "-259200", "3 Days")
 				@rangeOption(c, "-604800", "7 Days")
