@@ -73,7 +73,7 @@ templ Pagination(c *views.Context, data PaginationData) {
 		>
 			<div class="join">
 				for i, count := 1, int64(0); count < data.Total; i, count = i+1, count+data.Limit {
-					if data.GetTotalPage() <= 10 || data.getPageStatus(i) == pageStatusShow {
+					if data.GetTotalPage() <= 5 || data.getPageStatus(i) == pageStatusShow {
 						<a
 							href={ c.URLWithExtraQuery(data.BaseURL, "offset", strconv.FormatInt(count, 10)) }
 							class={ utils.CXX(
