@@ -135,7 +135,9 @@ templ Pagination(c *views.Context, data PaginationData) {
 				}
 			</div>
 			<dialog
-				onclick="if (event.target === this) this.close()"
+				onclick="if (event.target === this && window.matchMedia('(max-width: 600px)').matches) {
+                    this.close()
+                }"
 				x-ref="dialog"
 				class="modal"
 			>
@@ -161,6 +163,7 @@ templ Pagination(c *views.Context, data PaginationData) {
 							hx-trigger="custom"
 							@keyup.enter="htmx.trigger($el, 'custom')"
 							:hx-vals="vals"
+							onfocus="this.select()"
 						/>
 						<button
 							hx-get={ c.Request.URL.Path }
@@ -173,6 +176,9 @@ templ Pagination(c *views.Context, data PaginationData) {
 							type="button"
 							class="btn btn-primary join-item"
 						>Go</button>
+					</div>
+					<div class="mt-4 grid justify-center">
+						<button type="button" @click="$refs.dialog.close()" class="btn btn-secondary mx-auto">Cancel</button>
 					</div>
 				</div>
 			</dialog>
