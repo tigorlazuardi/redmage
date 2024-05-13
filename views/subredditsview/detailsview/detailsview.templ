@@ -58,7 +58,14 @@ templ DetailsContent(c *views.Context, data Data) {
 				</div>
 				<div class="divider"></div>
 				@FilterBar(c, data)
-				@paginationButtons(c, data)
+				<div class="grid justify-center my-4">
+					@components.Pagination(c, components.PaginationData{
+						Offset:  data.Params.Offset,
+						Limit:   data.Params.Limit,
+						BaseURL: fmt.Sprintf("/subreddits/details/%s", data.Subreddit.Name),
+						Total:   data.TotalImages,
+					})
+				</div>
 				@showingImageFromTo(data)
 				<div class="flex flex-wrap gap-4 my-8 justify-around">
 					for _, image := range data.Images {
@@ -66,7 +73,12 @@ templ DetailsContent(c *views.Context, data Data) {
 					}
 				</div>
 				<div class="flex w-full justify-center">
-					@paginationButtons(c, data)
+					@components.Pagination(c, components.PaginationData{
+						Offset:  data.Params.Offset,
+						Limit:   data.Params.Limit,
+						BaseURL: fmt.Sprintf("/subreddits/details/%s", data.Subreddit.Name),
+						Total:   data.TotalImages,
+					})
 				</div>
 			}
 		}
@@ -125,28 +137,6 @@ templ FilterBar(c *views.Context, data Data) {
 			</select>
 		</label>
 	</div>
-}
-
-templ paginationButtons(_ *views.Context, data Data) {
-	if data.TotalImages > data.Params.Limit {
-		<div class="flex justify-center my-4">
-			<div class="join">
-				for i, count := 1, int64(0); count < data.TotalImages; i, count = i+1, count+data.Params.Limit {
-					if data.Params.Offset <= count && data.Params.Offset > count-data.Params.Limit {
-						<a href={ buildURL(data.Subreddit.Name, data.Params, "offset", strconv.FormatInt(count, 10)) } class="join-item btn btn-active no-underline">{ strconv.Itoa(i) }</a>
-					} else {
-						<a href={ buildURL(data.Subreddit.Name, data.Params, "offset", strconv.FormatInt(count, 10)) } class="join-item btn no-underline">{ strconv.Itoa(i) }</a>
-					}
-				}
-			</div>
-		</div>
-	}
-}
-
-func buildURL(subreddit string, params api.SubredditGetByNameImageParams, extraQueries ...string) templ.SafeURL {
-	queries := params.IntoQueryWith(extraQueries...)
-
-	return templ.SafeURL(fmt.Sprintf("/subreddits/details/%s?%s", subreddit, queries.Encode()))
 }
 
 templ limitOption(params api.SubredditGetByNameImageParams, value int) {
