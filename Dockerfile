@@ -3,6 +3,7 @@ WORKDIR /web
 COPY package.json package-lock.json ./
 RUN npm install
 COPY Makefile ./
+RUN make web-dependencies
 COPY views ./views
 COPY tailwind.config.js ./
 RUN make web-build

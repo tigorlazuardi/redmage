@@ -79,6 +79,10 @@ web-build: web-dependencies
 	mkdir -p public
 	npx tailwindcss -i views/style.css -o public/style.css
 
+web-build-docker:
+	mkdir -p public
+	npx tailwindcss -i views/style.css -o public/style.css
+
 build: web-dependencies build-dependencies prepare
 	go build -o redmage
 
