@@ -30,6 +30,11 @@ func (c *Context) AppendQuery(keyValue ...string) string {
 // extraKeyValues is an alternating key-value pair.
 func (c *Context) URLWithExtraQuery(baseUrl string, extraKeyValues ...string) templ.SafeURL {
 	query := c.Request.URL.Query()
+	for k := range query {
+		if query.Get(k) == "" {
+			delete(query, k)
+		}
+	}
 	for i := 0; i < len(extraKeyValues); i += 2 {
 		query.Set(extraKeyValues[i], extraKeyValues[i+1])
 	}
