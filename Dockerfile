@@ -15,7 +15,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 COPY --from=web-builder /web/public ./public
-ENV REDMAGE_RUNTIME_VERSION=unknown
+ARG REDMAGE_RUNTIME_VERSION=unknown
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg/mod \
     make build-docker && \
