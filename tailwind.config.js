@@ -2,7 +2,11 @@
 module.exports = {
   content: ["./views/**/*.templ"],
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        xs: "480px",
+      },
+    },
   },
   plugins: [
     require("daisyui"),

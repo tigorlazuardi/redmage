@@ -39,7 +39,7 @@ templ DetailsContent(c *views.Context, data Data) {
 				<div class="flex items-center justify-between">
 					<h1>Subreddit { data.Subreddit.Name }</h1>
 				</div>
-				<div class="flex flex-wrap justify-between content-center">
+				<div class="flex flex-wrap justify-center xs:justify-between content-center gap-4">
 					<h2 class="my-auto">
 						Total Images: 
 						{ strconv.FormatInt(data.TotalImages, 10) }

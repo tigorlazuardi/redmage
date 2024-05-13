@@ -101,6 +101,10 @@ func New(ctx context.Context) *Entry {
 	return &Entry{ctx: ctx, handler: h, time: time.Now()}
 }
 
+func (entry *Entry) Accept(lvl slog.Level) bool {
+	return entry.handler.Enabled(entry.ctx, lvl)
+}
+
 func (entry *Entry) Caller(caller caller.Caller) *Entry {
 	entry.caller = caller
 	return entry

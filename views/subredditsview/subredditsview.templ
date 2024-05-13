@@ -24,7 +24,7 @@ templ SubredditContent(c *views.Context, data Data) {
 				<h3>No Subreddits Found</h3>
 				<p>Click <a class="text-primary" href="/subreddits/add">here</a> to add a new subreddit.</p>
 			} else {
-				<div class="flex justify-between flex-wrap">
+				<div class="flex justify-center sm:justify-between flex-wrap gap-4">
 					<h2 class="my-auto">{ strconv.FormatInt(data.Subreddits.Total, 10) } Subreddits Registered</h2>
 					<a class="btn btn-primary text-base-100 no-underline" href="/subreddits/add">Add Subreddit</a>
 				</div>
@@ -40,31 +40,28 @@ templ SubredditContent(c *views.Context, data Data) {
 }
 
 templ SubredditCard(c *views.Context, data *models.Subreddit) {
-	<div class="not-prose card card-bordered bg-base-100 hover:bg-base-200 shadow-xl w-80 top-0 hover:-top-1 transition-all rounded-none">
+	<a
+		href={ templ.URL(fmt.Sprintf("/subreddits/details/%s", data.Name)) }
+		class="not-prose card card-bordered bg-base-100 hover:bg-base-200 shadow-xl xs:w-80 w-full max-w-full top-0 hover:-top-1 transition-all rounded-none"
+	>
 		if len(data.R.Images) > 0 {
 			<figure class="p-8">
-				<a class="flex content-center" href={ templ.URL(fmt.Sprintf("/subreddits/details/%s", data.Name)) }>
-					<img
-						class="object-contain max-w-[16rem] max-h-[16rem]"
-						src={ fmt.Sprintf("/img/%s", data.R.Images[0].ThumbnailRelativePath) }
-						alt={ data.Name }
-					/>
-				</a>
+				<img
+					class="object-contain xs:max-w-[16rem] max-h-[16rem]"
+					src={ fmt.Sprintf("/img/%s", data.R.Images[0].ThumbnailRelativePath) }
+					alt={ data.Name }
+				/>
 			</figure>
 		} else {
 			<figure class="p-8">
-				<a href={ templ.URL(fmt.Sprintf("/subreddits/details/%s", data.Name)) }>
-					@imagePlaceholder()
-				</a>
+				@imagePlaceholder()
 			</figure>
 		}
 		<div class="card-body">
 			<div class="flex-1"></div>
-			<a href={ templ.URL(fmt.Sprintf("/subreddits/details/%s", data.Name)) }>
-				<p class="text-center my-4 underline text-primary">{ data.Name }</p>
-			</a>
+			<p class="text-center my-4 underline text-primary">{ data.Name }</p>
 		</div>
-	</div>
+	</a>
 }
 
 templ imagePlaceholder() {

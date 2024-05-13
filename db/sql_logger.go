@@ -14,8 +14,6 @@ type sqlLogger struct{}
 func (sqlLogger) Log(ctx context.Context, level sqldblogger.Level, msg string, data map[string]interface{}) {
 	var lvl slog.Level
 
-	msg = strings.TrimSpace(msg)
-
 	switch level {
 	case sqldblogger.LevelDebug, sqldblogger.LevelTrace, sqldblogger.LevelInfo:
 		lvl = slog.LevelDebug
@@ -23,5 +21,9 @@ func (sqlLogger) Log(ctx context.Context, level sqldblogger.Level, msg string, d
 		lvl = slog.LevelError
 	}
 
-	log.New(ctx).With("sql", data).Level(lvl).Log(msg)
+	entry := log.New(ctx)
+	if entry.Accept(lvl) {
+		msg = strings.TrimSpace(msg)
+		entry.With("sql", data).Level(lvl).Log(msg)
+	}
 }
