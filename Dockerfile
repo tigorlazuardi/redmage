@@ -7,7 +7,7 @@ COPY views ./views
 COPY tailwind.config.js ./
 RUN make web-build
 
-FROM golang:1.22.1 AS builder
+FROM devopsworks/golang-upx:1.22.1 AS builder
 WORKDIR /app
 COPY Makefile ./
 RUN make build-dependencies
@@ -16,8 +16,11 @@ RUN go mod download
 COPY . .
 COPY --from=web-builder /web/public ./public
 ENV REDMAGE_RUNTIME_VERSION=unknown
-RUN --mount=type=cache,target=/root/.cache/go-build make build-docker
-
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
+    make build-docker && \
+    strip /app/redmage && \
+    /usr/local/bin/upx -9 /app/redmage
 
 FROM gcr.io/distroless/base:latest
 WORKDIR /app
