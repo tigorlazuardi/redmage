@@ -7,12 +7,13 @@ import "strings"
 import "fmt"
 
 type PaginationData struct {
-	Offset      int64
-	Limit       int64
-	BaseURL     string
-	Total       int64
-	Classes     []string
-	UnhideRange int
+	Offset            int64
+	Limit             int64
+	BaseURL           string
+	Total             int64
+	Classes           []string
+	UnhideRange       int
+	MobileUnhideRange int
 }
 
 type pageStatus int
@@ -25,9 +26,16 @@ const (
 
 func (pgdata PaginationData) GetUnhideRange() int {
 	if pgdata.UnhideRange < 1 {
-		return 1
+		return 2
 	}
 	return pgdata.UnhideRange
+}
+
+func (pgdata PaginationData) GetMobileUnhideRange() int {
+	if pgdata.MobileUnhideRange < 1 {
+		return 1
+	}
+	return pgdata.MobileUnhideRange
 }
 
 func (pgdata PaginationData) getPageStatus(page int) pageStatus {
@@ -40,6 +48,29 @@ func (pgdata PaginationData) getPageStatus(page int) pageStatus {
 	}
 	current := pgdata.GetCurrentPage()
 	unhideRange := pgdata.GetUnhideRange()
+	if page == current-unhideRange-1 {
+		return pageStatusDot
+	}
+	if page == current+unhideRange+1 {
+		return pageStatusDot
+	}
+	if page >= current-unhideRange && page <= current+unhideRange {
+		return pageStatusShow
+	}
+
+	return pageStatusHidden
+}
+
+func (pgdata PaginationData) getMobilePageStatus(page int) pageStatus {
+	if page < 2 {
+		return pageStatusShow
+	}
+	lastPage := (pgdata.Total / max(pgdata.Limit, 1)) + 1
+	if page == int(lastPage) {
+		return pageStatusShow
+	}
+	current := pgdata.GetCurrentPage()
+	unhideRange := pgdata.GetMobileUnhideRange()
 	if page == current-unhideRange-1 {
 		return pageStatusDot
 	}
@@ -71,7 +102,7 @@ templ Pagination(c *views.Context, data PaginationData) {
                     get vals() { return JSON.stringify({...this.qs, offset: (Math.max(1, Math.min(this.page, this.max))-1) * (this.qs.limit || 25)}) }
                 }`, data.GetCurrentPage(), c.JSONQuery(), data.GetTotalPage()) }
 		>
-			<div class="join">
+			<div class="hidden sm:join">
 				for i, count := 1, int64(0); count < data.Total; i, count = i+1, count+data.Limit {
 					if data.GetTotalPage() <= 5 || data.getPageStatus(i) == pageStatusShow {
 						<a
@@ -84,6 +115,22 @@ templ Pagination(c *views.Context, data PaginationData) {
 						>{ strconv.Itoa(i) }</a>
 					} else if data.getPageStatus(i) == pageStatusDot {
 						<span @click="$refs.dialog.showModal()" class="join-item btn">...</span>
+					}
+				}
+			</div>
+			<div class="join sm:hidden">
+				for i, count := 1, int64(0); count < data.Total; i, count = i+1, count+data.Limit {
+					if data.GetTotalPage() <= 5 || data.getMobilePageStatus(i) == pageStatusShow {
+						<a
+							href={ c.URLWithExtraQuery(data.BaseURL, "offset", strconv.FormatInt(count, 10)) }
+							class={ utils.CXX(
+                        "join-item btn no-underline btn-sm", true,
+                        "btn-active", data.Offset <= count &&  data.Offset > count - data.Limit ,
+                        strings.Join(data.Classes, " "), len(data.Classes) > 0,
+                    ) }
+						>{ strconv.Itoa(i) }</a>
+					} else if data.getMobilePageStatus(i) == pageStatusDot {
+						<span @click="$refs.dialog.showModal()" class="join-item btn btn-sm">...</span>
 					}
 				}
 			</div>
