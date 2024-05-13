@@ -24,8 +24,9 @@ type API struct {
 	db    bob.Executor
 	sqldb *sql.DB
 
-	scheduler   *cron.Cron
-	scheduleMap map[cron.EntryID]*models.Subreddit
+	scheduleStopper func()
+	scheduler       *cron.Cron
+	scheduleMap     map[cron.EntryID]*models.Subreddit
 
 	downloadBroadcast *broadcast.Relay[bmessage.ImageDownloadMessage]
 
@@ -67,9 +68,7 @@ func New(deps Dependencies) *API {
 		publisher:         deps.Publisher,
 	}
 
-	if err := api.StartScheduler(context.Background()); err != nil {
-		panic(err)
-	}
+	api.scheduleStopper = api.startScheduler()
 	go api.StartSubredditDownloadPubsub(ch)
 	return api
 }
@@ -105,4 +104,8 @@ func (api *API) scheduleSubreddit(subreddit *models.Subreddit) error {
 	api.scheduleMap[id] = subreddit
 
 	return nil
+}
+
+func (api *API) Close() {
+	api.scheduleStopper()
 }
