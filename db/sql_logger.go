@@ -17,10 +17,8 @@ func (sqlLogger) Log(ctx context.Context, level sqldblogger.Level, msg string, d
 	msg = strings.TrimSpace(msg)
 
 	switch level {
-	case sqldblogger.LevelDebug, sqldblogger.LevelTrace:
+	case sqldblogger.LevelDebug, sqldblogger.LevelTrace, sqldblogger.LevelInfo:
 		lvl = slog.LevelDebug
-	case sqldblogger.LevelInfo:
-		lvl = slog.LevelInfo
 	case sqldblogger.LevelError:
 		lvl = slog.LevelError
 	}
