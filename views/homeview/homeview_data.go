@@ -15,7 +15,8 @@ type Data struct {
 	TotalImages         int64
 	Error               string
 	Now                 time.Time
-	SFW                 bool
+	ListSubredditParams api.ListSubredditsParams
+	ImageListParams     api.ImageListParams
 }
 
 type RecentlyAddedImages = []RecentlyAddedImage

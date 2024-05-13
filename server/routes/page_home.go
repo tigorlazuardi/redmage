@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/tigorlazuardi/redmage/api"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/views"
@@ -19,9 +18,9 @@ func (routes *Routes) PageHome(rw http.ResponseWriter, r *http.Request) {
 
 	vc := views.NewContext(routes.Config, r)
 
-	listSubredditParams := parseSubredditListQuery(r)
-
-	list, err := routes.API.ListSubreddits(ctx, listSubredditParams)
+	data.ListSubredditParams.FillFromQuery(r.URL.Query())
+	data.ListSubredditParams.Limit = 0
+	list, err := routes.API.ListSubreddits(ctx, data.ListSubredditParams)
 	if err != nil {
 		log.New(ctx).Err(err).Error("failed to list subreddits")
 		code, message := errs.HTTPMessage(err)
@@ -33,14 +32,13 @@ func (routes *Routes) PageHome(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	imageListParams := api.ImageListParams{}
-	imageListParams.FillFromQuery(r.URL.Query())
-	if imageListParams.CreatedAt.IsZero() {
-		imageListParams.CreatedAt = time.Now().Add(-time.Hour * 24) // images in the last 24 hours
+	data.ImageListParams.FillFromQuery(r.URL.Query())
+	if data.ImageListParams.CreatedAt.IsZero() {
+		data.ImageListParams.CreatedAt = time.Now().Add(-time.Hour * 24) // images in the last 24 hours
 	}
-	imageListParams.Limit = 0
+	data.ImageListParams.Limit = 0
 
-	imageList, err := routes.API.ImagesListWithDevicesAndSubreddits(ctx, imageListParams)
+	imageList, err := routes.API.ImagesListWithDevicesAndSubreddits(ctx, data.ImageListParams)
 	if err != nil {
 		log.New(ctx).Err(err).Error("failed to list subreddits")
 		code, message := errs.HTTPMessage(err)
