@@ -23,8 +23,8 @@ templ ScheduleHistoriesContent(c *views.Context, data Data) {
 			if data.Error != "" {
 				@components.ErrorToast(data.Error)
 			} else {
-				<h1>Schedule History</h1>
-				<div class="divider"></div>
+				<h1>Schedule History ({ time.Local.String() })</h1>
+				<div class="divider my-0"></div>
 				if data.Total < 1 {
 					<h2>There are no history schedules to be found. You can populate this page's history by manually trigger a <a href="/subreddits" class="text-primary">Subreddit</a> { "for" } downloading.</h2>
 				}
@@ -33,12 +33,12 @@ templ ScheduleHistoriesContent(c *views.Context, data Data) {
 						for _, scheduleGroup := range data.splitByDays() {
 							<h2>{ scheduleGroup.Day.Format("Monday, _2 January 2006") }</h2>
 							<div class="divider"></div>
-							<div class="hidden sm:grid sm:grid-cols-[1fr,3fr]">
+							<div class="hidden sm:grid sm:grid-cols-[8rem,auto]">
 								<span class="font-bold">Time</span>
 								<span class="font-bold">Event</span>
 							</div>
 							for _, schedule := range scheduleGroup.Schedules {
-								<div class="grid sm:grid-cols-[1fr,3fr] mb-4 sm:mb-2">
+								<div class="grid sm:grid-cols-[8rem,auto] mb-4 sm:mb-2">
 									<span>
 										<div
 											data-name="schedule-tooltip"
