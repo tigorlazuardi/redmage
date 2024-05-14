@@ -12,7 +12,7 @@ export REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION=$(shell echo "$${REDMAGE_WEB_DEPEN
 export REDMAGE_WEB_DEPENDENCIES_ALPINEJS_VERSION=$(shell echo "$${REDMAGE_WEB_DEPENDENCIES_ALPINEJS_VERSION:-3.13.10}")
 export REDMAGE_RUNTIME_VERSION=$(shell echo "$${REDMAGE_RUNTIME_VERSION:-unknown}")
 
-start: dev-dependencies
+start: dev-dependencies web-dependencies migrate-up
 	air
 
 dev-dependencies: build-dependencies
