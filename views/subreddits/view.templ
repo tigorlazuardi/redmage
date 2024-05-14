@@ -1,0 +1,18 @@
+package subreddits
+
+import "github.com/tigorlazuardi/redmage/views"
+import "github.com/tigorlazuardi/redmage/views/components"
+import "github.com/tigorlazuardi/redmage/api"
+
+type Data struct {
+	Subreddits api.ListSubredditsResult
+	Error      string
+}
+
+templ View(c *views.Context) {
+	@components.Doctype() {
+		@components.Head(c, components.HeadTitle("Redmage - Subreddits"))
+		@components.Body(c) {
+		}
+	}
+}
