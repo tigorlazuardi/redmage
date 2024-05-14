@@ -11,6 +11,10 @@ import (
 //
 // If job already exists, it will be replaced.
 func (scheduler *Scheduler) Put(subreddit string, schedule string) (job *Job, err error) {
+	return scheduler.put(subreddit, schedule, true)
+}
+
+func (scheduler *Scheduler) put(subreddit string, schedule string, lock bool) (job *Job, err error) {
 	sched, err := cron.ParseStandard(schedule)
 	if err != nil {
 		return nil, errs.
@@ -18,17 +22,19 @@ func (scheduler *Scheduler) Put(subreddit string, schedule string) (job *Job, er
 			Code(http.StatusBadRequest)
 	}
 
-	scheduler.Delete(subreddit)
+	scheduler.delete(subreddit, false)
 
 	id := scheduler.scheduler.Schedule(sched, cron.FuncJob(func() { scheduler.run(subreddit) }))
 
 	e := scheduler.scheduler.Entry(id)
 	job = &Job{ID: id, Entry: e}
 
-	scheduler.mu.Lock()
-	defer scheduler.mu.Unlock()
+	if lock {
+		scheduler.mu.Lock()
+		defer scheduler.mu.Unlock()
+	}
 
-	scheduler.list[subreddit] = job
+	scheduler.entries[subreddit] = job
 
 	return job, nil
 }

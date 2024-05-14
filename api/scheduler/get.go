@@ -2,11 +2,17 @@ package scheduler
 
 // List returns a copy of the list of jobs.
 func (scheduler *Scheduler) List() map[string]*Job {
-	scheduler.mu.RLock()
-	defer scheduler.mu.RUnlock()
+	return scheduler.list(true)
+}
 
-	m := make(map[string]*Job, len(scheduler.list))
-	for k, v := range scheduler.list {
+func (scheduler *Scheduler) list(lock bool) map[string]*Job {
+	if lock {
+		scheduler.mu.RLock()
+		defer scheduler.mu.RUnlock()
+	}
+
+	m := make(map[string]*Job, len(scheduler.entries))
+	for k, v := range scheduler.entries {
 		m[k] = v.clone()
 	}
 
@@ -17,10 +23,16 @@ func (scheduler *Scheduler) List() map[string]*Job {
 //
 // Returns nil if the subreddit is not found or active.
 func (scheduler *Scheduler) Get(subreddit string) *Job {
-	scheduler.mu.RLock()
-	defer scheduler.mu.RUnlock()
+	return scheduler.get(subreddit, true)
+}
 
-	schedule := scheduler.list[subreddit]
+func (scheduler *Scheduler) get(subreddit string, lock bool) *Job {
+	if lock {
+		scheduler.mu.RLock()
+		defer scheduler.mu.RUnlock()
+	}
+
+	schedule := scheduler.entries[subreddit]
 	if schedule != nil {
 		return schedule.clone()
 	}
@@ -28,10 +40,16 @@ func (scheduler *Scheduler) Get(subreddit string) *Job {
 }
 
 func (scheduler *Scheduler) Iter(f func(string, *Job) bool) {
-	scheduler.mu.RLock()
-	defer scheduler.mu.RUnlock()
+	scheduler.iter(f, true)
+}
 
-	for k, v := range scheduler.list {
+func (scheduler *Scheduler) iter(f func(string, *Job) bool, lock bool) {
+	if lock {
+		scheduler.mu.RLock()
+		defer scheduler.mu.RUnlock()
+	}
+
+	for k, v := range scheduler.entries {
 		if !f(k, v.clone()) {
 			break
 		}

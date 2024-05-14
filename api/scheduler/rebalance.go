@@ -33,7 +33,7 @@ func (scheduler *Scheduler) Sync(ctx context.Context, db bob.Executor) (err erro
 	var errcoll error
 
 	for _, sub := range subs {
-		_, err := scheduler.Put(sub.Name, sub.Schedule)
+		_, err := scheduler.put(sub.Name, sub.Schedule, false)
 		if err != nil {
 			errcoll = errors.Join(errcoll, errs.Wrapw(err, "scheduler: rebalance: failed to add job", "subreddit", sub.Name, "schedule", sub.Schedule))
 		}

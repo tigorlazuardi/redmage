@@ -66,7 +66,7 @@ func New(deps Dependencies) *API {
 	if err := api.scheduler.Sync(context.Background(), api.db); err != nil {
 		panic(err)
 	}
-	api.scheduler.Start()
+	go api.scheduler.Start()
 
 	go api.StartSubredditDownloadPubsub(ch)
 	return api

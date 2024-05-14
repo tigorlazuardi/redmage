@@ -11,7 +11,7 @@ type Runner = func(subreddit string)
 type Scheduler struct {
 	scheduler *cron.Cron
 	mu        sync.RWMutex
-	list      map[string]*Job
+	entries   map[string]*Job
 	run       Runner
 }
 
@@ -30,7 +30,7 @@ func (job *Job) clone() *Job {
 func New(runner Runner) *Scheduler {
 	return &Scheduler{
 		scheduler: cron.New(),
-		list:      make(map[string]*Job),
+		entries:   make(map[string]*Job),
 		run:       runner,
 	}
 }
