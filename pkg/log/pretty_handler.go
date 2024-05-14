@@ -3,7 +3,6 @@ package log
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"io"
 	"log/slog"
 	"os"
@@ -11,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/fatih/color"
+	"github.com/tidwall/pretty"
 	"github.com/tigorlazuardi/redmage/pkg/caller"
 )
 
@@ -69,6 +69,25 @@ func putBuffer(buf *bytes.Buffer) {
 	}
 }
 
+var jsonColorStyle = &pretty.Style{
+	Key:      [2]string{"\x1B[95m", "\x1B[0m"},
+	String:   [2]string{"\x1B[32m", "\x1B[0m"},
+	Number:   [2]string{"\x1B[33m", "\x1B[0m"},
+	True:     [2]string{"\x1B[36m", "\x1B[0m"},
+	False:    [2]string{"\x1B[36m", "\x1B[0m"},
+	Null:     [2]string{"\x1B[2m", "\x1B[0m"},
+	Escape:   [2]string{"\x1B[35m", "\x1B[0m"},
+	Brackets: [2]string{"\x1B[0m", "\x1B[0m"},
+	Append:   pretty.TerminalStyle.Append,
+}
+
+var jsonPrettyOpts = &pretty.Options{
+	Width:    80,
+	Prefix:   "",
+	Indent:   "  ",
+	SortKeys: false,
+}
+
 // Handle implements slog.Handler interface.
 func (pr *PrettyHandler) Handle(ctx context.Context, record slog.Record) error {
 	var levelColor *color.Color
@@ -117,7 +136,10 @@ func (pr *PrettyHandler) Handle(ctx context.Context, record slog.Record) error {
 	serializer := pr.createSerializer(jsonBuf)
 	_ = serializer.Handle(ctx, record)
 	if jsonBuf.Len() > 3 { // Ignore empty json like "{}\n"
-		_ = json.Indent(buf, jsonBuf.Bytes(), "", "  ")
+		jsonData := jsonBuf.Bytes()
+		jsonData = pretty.PrettyOptions(jsonData, jsonPrettyOpts)
+		jsonData = pretty.Color(jsonData, jsonColorStyle)
+		buf.Write(jsonData)
 	}
 	buf.WriteByte('\n')
 

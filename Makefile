@@ -13,7 +13,7 @@ export REDMAGE_WEB_DEPENDENCIES_ALPINEJS_VERSION=$(shell echo "$${REDMAGE_WEB_DE
 export REDMAGE_RUNTIME_VERSION=$(shell echo "$${REDMAGE_RUNTIME_VERSION:-unknown}")
 
 start: dev-dependencies web-dependencies migrate-up
-	air
+	REDMAGE_RUNTIME_VERSION=$(shell git describe --tags --abbrev=0) air
 
 dev-dependencies: build-dependencies
 	@if ! command -v air > /dev/null; then
