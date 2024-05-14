@@ -3,20 +3,16 @@ package api
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
-	"fmt"
 
-	"github.com/robfig/cron/v3"
 	"github.com/stephenafamo/bob"
 	"github.com/teivah/broadcast"
 	"github.com/tigorlazuardi/redmage/api/bmessage"
 	"github.com/tigorlazuardi/redmage/api/reddit"
+	"github.com/tigorlazuardi/redmage/api/scheduler"
 	"github.com/tigorlazuardi/redmage/config"
-	"github.com/tigorlazuardi/redmage/models"
-	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
+	"go.opentelemetry.io/otel/attribute"
 
-	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
 )
 
@@ -24,9 +20,7 @@ type API struct {
 	db    bob.Executor
 	sqldb *sql.DB
 
-	scheduleStopper func()
-	scheduler       *cron.Cron
-	scheduleMap     map[cron.EntryID]*models.Subreddit
+	scheduler *scheduler.Scheduler
 
 	downloadBroadcast *broadcast.Relay[bmessage.ImageDownloadMessage]
 
@@ -55,11 +49,10 @@ func New(deps Dependencies) *API {
 	if err != nil {
 		panic(err)
 	}
+
 	api := &API{
 		db:                bob.New(deps.DB),
 		sqldb:             deps.DB,
-		scheduler:         cron.New(),
-		scheduleMap:       make(map[cron.EntryID]*models.Subreddit, 8),
 		downloadBroadcast: broadcast.NewRelay[bmessage.ImageDownloadMessage](),
 		config:            deps.Config,
 		imageSemaphore:    make(chan struct{}, deps.Config.Int("download.concurrency.images")),
@@ -68,44 +61,29 @@ func New(deps Dependencies) *API {
 		publisher:         deps.Publisher,
 	}
 
-	api.scheduleStopper = api.startScheduler()
+	api.scheduler = scheduler.New(api.scheduleRun)
+
+	if err := api.scheduler.Sync(context.Background(), api.db); err != nil {
+		panic(err)
+	}
+	api.scheduler.Start()
+
 	go api.StartSubredditDownloadPubsub(ch)
 	return api
 }
 
-func (api *API) StartScheduler(ctx context.Context) error {
-	subreddits, err := models.Subreddits.Query(ctx, api.db, models.SelectWhere.Subreddits.EnableSchedule.EQ(1)).All()
+func (api *API) scheduleRun(subreddit string) {
+	ctx, cancel := context.WithTimeout(context.Background(), api.config.Duration("scheduler.timeout"))
+	defer cancel()
+
+	ctx, span := tracer.Start(ctx, "*API.scheduleRun")
+	defer span.End()
+	span.SetAttributes(attribute.String("subreddit", subreddit))
+
+	log.New(ctx).Info("api: schedule run", "subreddit", subreddit)
+
+	err := api.PubsubStartDownloadSubreddit(ctx, PubsubStartDownloadSubredditParams{Subreddit: subreddit})
 	if err != nil {
-		return errs.Wrapw(err, "failed to get all subreddits")
+		log.New(ctx).Err(err).Error("api: failed to start download subreddit", "subreddit", subreddit)
 	}
-
-	for _, subreddit := range subreddits {
-		err := api.scheduleSubreddit(subreddit)
-		if err != nil {
-			log.New(ctx).Err(err).Error(
-				fmt.Sprintf("failed to start scheduler for subreddit '%s'", subreddit.Name),
-				"subreddit", subreddit,
-			)
-			continue
-		}
-	}
-
-	return nil
-}
-
-func (api *API) scheduleSubreddit(subreddit *models.Subreddit) error {
-	id, err := api.scheduler.AddFunc(subreddit.Schedule, func() {
-		payload, _ := json.Marshal(subreddit)
-		_ = api.publisher.Publish(downloadTopic, message.NewMessage(watermill.NewUUID(), payload))
-	})
-	if err != nil {
-		return errs.Wrap(err)
-	}
-	api.scheduleMap[id] = subreddit
-
-	return nil
-}
-
-func (api *API) Close() {
-	api.scheduleStopper()
 }
