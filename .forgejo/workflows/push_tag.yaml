@@ -17,6 +17,11 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - uses: actions/checkout@v4
-      - run: echo "Building version ${{ github.ref_name }}"
-      - run: docker build --build-arg REDMAGE_RUNTIME_VERSION=${{ github.ref_name }} -t git.tigor.web.id/tigor/redmage:${{ github.ref_name }} -t git.tigor.web.id/tigor/redmage:latest .
-      - run: docker image push --all-tags git.tigor.web.id/tigor/redmage
+      - name: Echo Build Version ${{ github.ref_name }}
+        run: echo "Building version ${{ github.ref_name }}"
+      - name: Docker Build
+        run: docker build --build-arg REDMAGE_RUNTIME_VERSION=${{ github.ref_name }} -t git.tigor.web.id/tigor/redmage:${{ github.ref_name }} -t git.tigor.web.id/tigor/redmage:latest .
+      - name: Docker Push Image Version ${{ github.ref_name }}
+        run: docker image push git.tigor.web.id/tigor/redmage:${{ github.ref_name }}
+      - name: Docker Push Image Latest
+        run: docker image push git.tigor.web.id/tigor/redmage:latest
