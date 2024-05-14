@@ -68,25 +68,34 @@ func (er *Err) LogValue() slog.Value {
 	return slog.GroupValue(values...)
 }
 
-func (er *Err) Error() string {
+func (e *Err) Error() string {
 	s := strings.Builder{}
-	if er.message != "" {
-		s.WriteString(er.message)
-		if er.origin != nil {
+	if e.message != "" {
+		s.WriteString(e.message)
+		if e.origin != nil {
 			s.WriteString(": ")
 		}
 	}
-	for unwrap := errors.Unwrap(er); unwrap != nil; {
+	unwrap := errors.Unwrap(e)
+	for unwrap != nil {
+		var current string
 		if e, ok := unwrap.(Error); ok && e.GetMessage() != "" {
-			s.WriteString(e.GetMessage())
-			s.WriteString(": ")
-			continue
+			current = e.GetMessage()
+		} else {
+			current = unwrap.Error()
 		}
-		s.WriteString(unwrap.Error())
 		next := errors.Unwrap(unwrap)
 		if next != nil {
-			s.WriteString(": ")
+			current, _ = strings.CutSuffix(current, next.Error())
+			current, _ = strings.CutSuffix(current, ": ")
 		}
+		if current != "" {
+			s.WriteString(current)
+			if next != nil {
+				s.WriteString(": ")
+			}
+		}
+
 		unwrap = next
 	}
 	return s.String()
