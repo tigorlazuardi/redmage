@@ -46,5 +46,12 @@ func (api *API) SubredditsCreate(ctx context.Context, params *models.Subreddit) 
 		return subreddit, errs.Wrapw(err, "failed to set schedule status")
 	}
 
+	if params.EnableSchedule == 1 {
+		_, err = api.scheduler.Put(subreddit.Name, subreddit.Schedule)
+		if err != nil {
+			return subreddit, errs.Wrapw(err, "failed to put job to scheduler")
+		}
+	}
+
 	return subreddit, nil
 }

@@ -2,6 +2,7 @@ package config
 
 import (
 	"path"
+	"time"
 
 	"github.com/adrg/xdg"
 )
@@ -64,4 +65,6 @@ var DefaultConfig = map[string]any{
 
 	"runtime.version":     Version,
 	"runtime.environment": "development",
+
+	"scheduler.timeout": time.Second * 10,
 }
