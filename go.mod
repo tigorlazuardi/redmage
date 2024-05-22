@@ -36,9 +36,14 @@ require (
 )
 
 require (
+	github.com/ThreeDotsLabs/watermill-sql v1.4.0 // indirect
+	github.com/ThreeDotsLabs/watermill-sql/v2 v2.0.0 // indirect
+	github.com/ThreeDotsLabs/watermill-sql/v3 v3.0.1 // indirect
 	github.com/aarondl/json v0.0.0-20221020222930-8b0db17ef1bf // indirect
 	github.com/boreq/errors v0.1.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
+	github.com/davidroman0O/comfylite3 v0.0.0-20240407174050-258b1d250c5c // indirect
+	github.com/davidroman0O/watermill-comfymill v0.0.0-20240407180750-95e860f9d005 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gosimple/slug v1.14.0 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
