@@ -34,18 +34,18 @@ var serveCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		pubsubDB, err := pubsub.NewSqlite(cfg)
+		pubsubDB, err := pubsub.NewDB(cfg)
 		if err != nil {
 			log.New(cmd.Context()).Err(err).Error("failed to open connection to pubsub database")
 			os.Exit(1)
 		}
 
-		publisher, err := pubsub.NewSQLPublisher(pubsubDB)
+		publisher, err := pubsub.NewPublisher(pubsubDB)
 		if err != nil {
 			log.New(cmd.Context()).Err(err).Error("failed to create publisher")
 			os.Exit(1)
 		}
-		subscriber, err := pubsub.NewSQLSubscriber(cfg, pubsubDB)
+		subscriber, err := pubsub.NewSubscriber(pubsubDB)
 		if err != nil {
 			log.New(cmd.Context()).Err(err).Error("failed to create subscriber")
 			os.Exit(1)
