@@ -54,6 +54,9 @@ func (sl *OpenObserveHandler) Handle(ctx context.Context, record slog.Record) er
 			if b[len(b)-1] == ',' {
 				b = b[:len(b)-1]
 			}
+			if b[len(b)-1] == '\n' {
+				b = b[:len(b)-1]
+			}
 			b = append(b, ']')
 			sl.semaphore <- struct{}{}
 			go func() {
