@@ -2,9 +2,9 @@ package api
 
 import (
 	"context"
-	"database/sql"
 	"sync"
 
+	"github.com/davidroman0O/comfylite3"
 	"github.com/stephenafamo/bob"
 	"github.com/teivah/broadcast"
 	"github.com/tigorlazuardi/redmage/api/bmessage"
@@ -18,8 +18,8 @@ import (
 )
 
 type API struct {
-	db    bob.Executor
-	sqldb *sql.DB
+	db     bob.Executor
+	txAble txAble
 
 	scheduler *scheduler.Scheduler
 
@@ -38,7 +38,7 @@ type API struct {
 }
 
 type Dependencies struct {
-	DB         *sql.DB
+	DB         *comfylite3.ComfyDB
 	Config     *config.Config
 	Reddit     *reddit.Reddit
 	Publisher  message.Publisher
@@ -55,7 +55,7 @@ func New(deps Dependencies) *API {
 
 	api := &API{
 		db:                bob.New(deps.DB),
-		sqldb:             deps.DB,
+		txAble:            deps.DB,
 		downloadBroadcast: broadcast.NewRelay[bmessage.ImageDownloadMessage](),
 		config:            deps.Config,
 		imageSemaphore:    make(chan struct{}, deps.Config.Int("download.concurrency.images")),

@@ -28,11 +28,17 @@ var serveCmd = &cobra.Command{
 		}
 		defer tele.Close()
 
-		database, err := db.Open(cfg)
+		database, err := db.NewComfy(cfg)
 		if err != nil {
-			log.New(cmd.Context()).Err(err).Error("failed to open connection to database")
+			log.New(cmd.Context()).Err(err).Error("failed to open database")
 			os.Exit(1)
 		}
+
+		// database, err := db.Open(cfg)
+		// if err != nil {
+		// 	log.New(cmd.Context()).Err(err).Error("failed to open connection to database")
+		// 	os.Exit(1)
+		// }
 
 		pubsubDB, err := pubsub.New(cfg)
 		if err != nil {
@@ -51,18 +57,18 @@ var serveCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		loggedDb := db.ApplyLogger(cfg, database)
-		if err != nil {
-			log.New(cmd.Context()).Err(err).Error("failed to connect database")
-			os.Exit(1)
-		}
+		// loggedDb := db.ApplyLogger(cfg, database)
+		// if err != nil {
+		// 	log.New(cmd.Context()).Err(err).Error("failed to connect database")
+		// 	os.Exit(1)
+		// }
 		red := &reddit.Reddit{
 			Client: reddit.NewRedditHTTPClient(cfg),
 			Config: cfg,
 		}
 
 		api := api.New(api.Dependencies{
-			DB:         loggedDb,
+			DB:         database,
 			Config:     cfg,
 			Reddit:     red,
 			Publisher:  publisher,
