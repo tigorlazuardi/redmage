@@ -60,12 +60,19 @@ func (api *API) StartSubredditDownloadPubsub(messages <-chan *message.Message) {
 
 			devices, err := models.Devices.Query(ctx, api.db, models.SelectWhere.Devices.Enable.EQ(1)).All()
 			if err != nil {
+				msg.Nack()
 				log.New(ctx).Err(err).Error("failed to query devices")
 				return
 			}
 
 			err = api.DownloadSubredditImages(ctx, subreddit, devices)
 			if err != nil {
+				if errs.HasCode(err, http.StatusTooManyRequests) {
+					msg.Nack()
+				}
+				if errs.Source(err).Error() == "database is locked" {
+					msg.Nack()
+				}
 				log.New(ctx).Err(err).Error("failed to download subreddit images", "subreddit", subreddit)
 				return
 			}
