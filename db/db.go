@@ -38,9 +38,6 @@ func Open(cfg *config.Config) (*sql.DB, error) {
 	if err != nil {
 		return db, errs.Wrapw(err, "failed to open database", "driver", driver, "db.string", dsn)
 	}
-	if driver == "sqlite3" {
-		db.SetMaxOpenConns(1) // SQLITE is not thread safe. This is to prevent database is locked error.
-	}
 	if cfg.Bool("db.automigrate") {
 		goose.SetLogger(goose.NopLogger())
 		goose.SetBaseFS(Migrations)

@@ -246,7 +246,9 @@ func (api *API) saveImageToFSAndDatabase(ctx context.Context, image io.ReadClose
 	}
 
 	log.New(ctx).Debug("inserting images to database", "images", many)
-	_, err = models.Images.InsertMany(ctx, api.db, many...)
+	api.lockf(func() {
+		_, err = models.Images.InsertMany(ctx, api.db, many...)
+	})
 	if err != nil {
 		return errs.Wrapw(err, "failed to insert images to database", "params", many)
 	}

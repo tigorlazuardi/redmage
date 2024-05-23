@@ -15,7 +15,9 @@ func (api *API) DevicesUpdate(ctx context.Context, slug string, update *models.D
 
 	device = &models.Device{Slug: slug}
 
-	err = models.Devices.Update(ctx, api.db, update, device)
+	api.lockf(func() {
+		err = models.Devices.Update(ctx, api.db, update, device)
+	})
 	if err != nil {
 		var sqliteErr sqlite3.Error
 		if errors.As(err, &sqliteErr) {

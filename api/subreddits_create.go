@@ -27,7 +27,9 @@ func (api *API) SubredditsCreate(ctx context.Context, params *models.Subreddit) 
 		UpdatedAt:      omit.From(now.Unix()),
 	}
 
-	subreddit, err = models.Subreddits.Insert(ctx, api.db, set)
+	api.lockf(func() {
+		subreddit, err = models.Subreddits.Insert(ctx, api.db, set)
+	})
 	if err != nil {
 		var sqliteErr sqlite3.Error
 		if errors.As(err, &sqliteErr) {

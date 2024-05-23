@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"database/sql"
+	"sync"
 
 	"github.com/stephenafamo/bob"
 	"github.com/teivah/broadcast"
@@ -32,6 +33,8 @@ type API struct {
 
 	subscriber message.Subscriber
 	publisher  message.Publisher
+
+	mu *sync.Mutex
 }
 
 type Dependencies struct {
@@ -59,6 +62,7 @@ func New(deps Dependencies) *API {
 		reddit:            deps.Reddit,
 		subscriber:        deps.Subscriber,
 		publisher:         deps.Publisher,
+		mu:                &sync.Mutex{},
 	}
 
 	api.scheduler = scheduler.New(api.scheduleRun)

@@ -23,11 +23,13 @@ func (api *API) scheduleHistoryInsert(ctx context.Context, exec bob.Executor, pa
 
 	now := time.Now()
 
-	history, err = models.ScheduleHistories.Insert(ctx, exec, &models.ScheduleHistorySetter{
-		Subreddit:    omit.FromCond(params.Subreddit, params.Subreddit != ""),
-		Status:       omit.From(params.Status.Int8()),
-		ErrorMessage: omit.FromCond(params.ErrorMessage, params.Status == ScheduleStatusError),
-		CreatedAt:    omit.From(now.Unix()),
+	api.lockf(func() {
+		history, err = models.ScheduleHistories.Insert(ctx, exec, &models.ScheduleHistorySetter{
+			Subreddit:    omit.FromCond(params.Subreddit, params.Subreddit != ""),
+			Status:       omit.From(params.Status.Int8()),
+			ErrorMessage: omit.FromCond(params.ErrorMessage, params.Status == ScheduleStatusError),
+			CreatedAt:    omit.From(now.Unix()),
+		})
 	})
 	if err != nil {
 		return history, errs.Wrapw(err, "failed to insert schedule history", "params", params)
