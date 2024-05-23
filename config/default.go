@@ -24,9 +24,12 @@ var DefaultConfig = map[string]any{
 	"db.string":      "data.db",
 	"db.automigrate": true,
 
-	"pubsub.db.name":      "pubsub.db",
-	"pubsub.db.timeout":   "5s",
-	"pubsub.ack.deadline": "30m",
+	"pubsub.db.name":        "pubsub.db",
+	"pubsub.db.timeout":     "5s",
+	"pubsub.ack.deadline":   "10m",
+	"pubsub.retry.interval": "1m",
+	"pubsub.poll.interval":  "1s",
+	"pubsub.consumer.group": "redmage",
 
 	"download.concurrency.images":     5,
 	"download.concurrency.subreddits": 3,

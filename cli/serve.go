@@ -34,7 +34,7 @@ var serveCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		pubsubDB, err := pubsub.NewDB(cfg)
+		pubsubDB, err := pubsub.New(cfg)
 		if err != nil {
 			log.New(cmd.Context()).Err(err).Error("failed to open connection to pubsub database")
 			os.Exit(1)
@@ -45,7 +45,7 @@ var serveCmd = &cobra.Command{
 			log.New(cmd.Context()).Err(err).Error("failed to create publisher")
 			os.Exit(1)
 		}
-		subscriber, err := pubsub.NewSubscriber(pubsubDB)
+		subscriber, err := pubsub.NewSubscriber(cfg, pubsubDB)
 		if err != nil {
 			log.New(cmd.Context()).Err(err).Error("failed to create subscriber")
 			os.Exit(1)
