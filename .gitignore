@@ -30,8 +30,6 @@ public/htmx*.js
 /tmp
 db/queries/**/*.go
 /*.db
-/*.db-shm
-/*.db-wal
 
 public/*.min.js
 
