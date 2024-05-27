@@ -5,6 +5,8 @@ import "github.com/tigorlazuardi/redmage/views/components"
 
 type Data struct {
 	Title          string
+	EditMode       bool
+	PostAction     string
 	NameInput      NameInputData
 	TypeInput      TypeInputData
 	ScheduleInput  ScheduleInputData
@@ -24,33 +26,44 @@ templ View(c *views.Context, data Data) {
 templ Content(c *views.Context, data Data) {
 	<main class="prose min-w-full">
 		@components.Container() {
-			<h1>Add Subreddit</h1>
+			<h1>{ data.Title }</h1>
 			<div class="divider"></div>
 			<form
-				action="/htmx/subreddits/add"
+				action={ templ.SafeURL(data.PostAction) }
 				method="POST"
-				onkeydown="return event.key !== 'Enter'"
-				hx-post="/htmx/subreddits/add"
+				hx-post={ data.PostAction }
 				hx-target-error={ components.NotificationContainerID }
 			>
 				<div
 					class="grid grid-cols-1 sm:grid-cols-2 gap-4"
 				>
-					@NameInput(data.NameInput)
-					@TypeInput(data.TypeInput)
+					if !data.EditMode {
+						@NameInput(data.NameInput)
+					}
+					if !data.EditMode {
+						@TypeInput(data.TypeInput)
+					}
 					<div class="sm:col-span-2">
 						@ScheduleInput(data.ScheduleInput)
 					</div>
 					<div class="sm:col-span-2">
 						@CountbackInput(data.CountbackInput)
 					</div>
-					<div class="sm:col-span-2">
-						<div class="max-w-xs mx-auto">
-							@FetchCheckbox()
+					if !data.EditMode {
+						<div class="sm:col-span-2">
+							<div class="max-w-xs mx-auto">
+								@FetchCheckbox()
+							</div>
 						</div>
-					</div>
+					}
 				</div>
-				<button type="submit" class="block btn btn-primary mx-auto w-full max-w-xs mt-8 text-primary-content">Add</button>
+				<button type="submit" class="block btn btn-primary mx-auto w-full max-w-xs mt-8 text-primary-content">
+					if data.EditMode {
+						Save
+					} else {
+						Add
+					}
+				</button>
 			</form>
 		}
 	</main>

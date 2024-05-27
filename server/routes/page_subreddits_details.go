@@ -21,6 +21,7 @@ func (routes *Routes) PageSubredditsDetails(rw http.ResponseWriter, r *http.Requ
 	params.FillFromQuery(r.URL.Query())
 
 	var data detailsview.Data
+	data.FlashMessageSuccess = r.Header.Get("X-Flash-Message-Success")
 	var err error
 	data.Params = params
 

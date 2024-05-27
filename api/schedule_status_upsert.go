@@ -20,20 +20,22 @@ func (api *API) scheduleStatusUpsert(ctx context.Context, exec bob.Executor, par
 	ctx, span := tracer.Start(ctx, "*API.createNewScheduleStatus")
 	defer span.End()
 	now := time.Now()
-	ss, err := models.ScheduleStatuses.Upsert(ctx, exec, true, []string{"subreddit"}, []string{
-		"subreddit",
-		"status",
-		"error_message",
-		"updated_at",
-	}, &models.ScheduleStatusSetter{
-		Subreddit:    omit.FromCond(params.Subreddit, params.Subreddit != ""),
-		Status:       omit.From(params.Status.Int8()),
-		ErrorMessage: omit.From(params.ErrorMessage),
-		CreatedAt:    omit.From(now.Unix()),
-		UpdatedAt:    omit.From(now.Unix()),
+	api.lockf(func() {
+		schedule, err = models.ScheduleStatuses.Upsert(ctx, exec, true, []string{"subreddit"}, []string{
+			"subreddit",
+			"status",
+			"error_message",
+			"updated_at",
+		}, &models.ScheduleStatusSetter{
+			Subreddit:    omit.FromCond(params.Subreddit, params.Subreddit != ""),
+			Status:       omit.From(params.Status.Int8()),
+			ErrorMessage: omit.From(params.ErrorMessage),
+			CreatedAt:    omit.From(now.Unix()),
+			UpdatedAt:    omit.From(now.Unix()),
+		})
 	})
 	if err != nil {
-		return ss, errs.Wrapw(err, "failed to upsert schedule status", "params", params)
+		return schedule, errs.Wrapw(err, "failed to upsert schedule status", "params", params)
 	}
-	return ss, err
+	return schedule, err
 }

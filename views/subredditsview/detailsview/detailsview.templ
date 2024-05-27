@@ -6,14 +6,16 @@ import "github.com/tigorlazuardi/redmage/views/components"
 import "strconv"
 import "github.com/tigorlazuardi/redmage/api"
 import "fmt"
+import "github.com/tigorlazuardi/redmage/views/icons"
 
 type Data struct {
-	Subreddit   *models.Subreddit
-	Devices     models.DeviceSlice
-	Images      models.ImageSlice
-	TotalImages int64
-	Error       string
-	Params      api.SubredditGetByNameImageParams
+	Subreddit           *models.Subreddit
+	Devices             models.DeviceSlice
+	Images              models.ImageSlice
+	TotalImages         int64
+	Error               string
+	Params              api.SubredditGetByNameImageParams
+	FlashMessageSuccess string
 }
 
 templ Detailsview(c *views.Context, data Data) {
@@ -25,7 +27,11 @@ templ Detailsview(c *views.Context, data Data) {
 		}
 		@components.Body(c) {
 			@DetailsContent(c, data)
-			@components.NotificationContainer()
+			@components.NotificationContainer() {
+				if data.FlashMessageSuccess != "" {
+					@components.SuccessNotification(data.FlashMessageSuccess)
+				}
+			}
 		}
 	}
 }
@@ -44,17 +50,32 @@ templ DetailsContent(c *views.Context, data Data) {
 						Total Images: 
 						{ strconv.FormatInt(data.TotalImages, 10) }
 					</h2>
-					<button
-						hx-post="/htmx/subreddits/start"
-						hx-include="this"
-						class="btn btn-primary text-base-100"
-						hx-target={ components.NotificationContainerID }
-						hx-target-error={ components.NotificationContainerID }
-						hx-swap="afterbegin"
-					>
-						Start Download
-						<input type="hidden" name="subreddit" value={ data.Subreddit.Name }/>
-					</button>
+					<div class="dropdown dropdown-hover dropdown-end">
+						<div tabindex="0" role="button" class="btn m-1">
+							@icons.Kebab("h-8 w-8")
+						</div>
+						<ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-0">
+							<li>
+								<button
+									hx-post="/htmx/subreddits/start"
+									hx-include="this"
+									hx-target={ components.NotificationContainerID }
+									hx-target-error={ components.NotificationContainerID }
+									hx-swap="afterbegin"
+									class="btn btn-ghost"
+								>
+									Start Download
+									<input type="hidden" name="subreddit" value={ data.Subreddit.Name }/>
+								</button>
+							</li>
+							<li>
+								<a
+									href={ templ.SafeURL(fmt.Sprintf("/subreddits/edit/%s", data.Subreddit.Name)) }
+									class="btn btn-ghost no-underline"
+								>Edit</a>
+							</li>
+						</ul>
+					</div>
 				</div>
 				<div class="divider"></div>
 				@FilterBar(c, data)

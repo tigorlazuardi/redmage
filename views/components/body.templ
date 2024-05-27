@@ -7,7 +7,7 @@ templ Body(c *views.Context) {
 		@Navigation(c) {
 			<div class="flex">
 				@Navbar(c)
-				<div class="flex-grow">
+				<div id="root-content" class="flex-grow">
 					{ children... }
 				</div>
 			</div>

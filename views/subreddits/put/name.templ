@@ -4,19 +4,15 @@ import "github.com/tigorlazuardi/redmage/views/utils"
 import "fmt"
 
 type NameInputData struct {
-	Value     string
-	Error     string
-	Valid     string
-	HXSwapOOB string
+	Value string
+	Error string
+	Valid string
 }
 
 templ NameInput(data NameInputData) {
 	<label
 		id="name-input-label"
 		class="form-control w-full"
-		if data.HXSwapOOB != "" {
-			hx-swap-oob={ data.HXSwapOOB }
-		}
 	>
 		<div class="label">
 			<span

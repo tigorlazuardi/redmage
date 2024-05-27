@@ -85,7 +85,7 @@ func (pgdata PaginationData) getMobilePageStatus(page int) pageStatus {
 }
 
 func (pgdata PaginationData) GetCurrentPage() int {
-	return int(pgdata.Offset/pgdata.Limit) + 1
+	return int(pgdata.Offset/max(pgdata.Limit, 1)) + 1
 }
 
 func (pgdata PaginationData) GetTotalPage() int {

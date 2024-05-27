@@ -14,7 +14,7 @@ import (
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/views/components"
-	"github.com/tigorlazuardi/redmage/views/subredditsview/addview"
+	"github.com/tigorlazuardi/redmage/views/subreddits/put"
 )
 
 func (routes *Routes) SubredditsCreateAPI(rw http.ResponseWriter, req *http.Request) {
@@ -87,11 +87,9 @@ func (routes *Routes) SubredditsCreateHTMX(rw http.ResponseWriter, r *http.Reque
 	if err != nil {
 		rw.WriteHeader(http.StatusBadRequest)
 		log.New(ctx).Err(err).Error("subreddit check returns error")
-		renderer := addview.SubredditInputForm(addview.SubredditInputData{
-			Value:     sub.Name,
-			Error:     err.Error(),
-			Type:      reddit.SubredditType(sub.Subtype),
-			HXSwapOOB: "true",
+		renderer := put.NameInput(put.NameInputData{
+			Value: sub.Name,
+			Error: err.Error(),
 		})
 		if err := renderer.Render(ctx, rw); err != nil {
 			log.New(ctx).Err(err).Error("failed to render error")

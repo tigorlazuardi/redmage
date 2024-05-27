@@ -2,6 +2,7 @@ package details
 
 import "github.com/tigorlazuardi/redmage/views"
 import "github.com/tigorlazuardi/redmage/views/components"
+import "github.com/tigorlazuardi/redmage/views/icons"
 import "fmt"
 import "github.com/tigorlazuardi/redmage/models"
 import "strconv"
@@ -27,10 +28,14 @@ templ Content(c *views.Context, data Data) {
 			} else {
 				<div class="flex justify-between items-center">
 					<h1 class="my-auto">{ data.Device.Name }</h1>
-					<a
-						href={ templ.SafeURL(fmt.Sprintf("/devices/edit/%s", data.Device.Slug)) }
-						class="btn btn-primary no-underline sm:w-24"
-					>Edit</a>
+					<div class="tooltip" data-tip="Edit">
+						<a
+							href={ templ.SafeURL(fmt.Sprintf("/devices/edit/%s", data.Device.Slug)) }
+							class="btn btn-primary no-underline"
+						>
+							@icons.Gear("w-8 h-8 text-primary-content")
+						</a>
+					</div>
 				</div>
 				<div class="divider"></div>
 				@filter(c, data)

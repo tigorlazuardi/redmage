@@ -83,6 +83,8 @@ func (routes *Routes) registerWWWRoutes(router chi.Router) {
 		r.Get("/subreddits", routes.PageSubreddits)
 		r.Get("/subreddits/details/{name}", routes.PageSubredditsDetails)
 		r.Get("/subreddits/add", routes.PageSubredditsAdd)
+		r.Get("/subreddits/edit/{name}", routes.PageSubredditsEdit)
+		r.Post("/subreddits/edit/{name}", routes.SubredditsEditHTMX)
 		r.Get("/config", routes.PageConfig)
 		r.Get("/devices", routes.PageDevices)
 		r.Get("/devices/add", routes.PageDevicesAdd)
