@@ -1,0 +1,57 @@
+package put
+
+import "github.com/tigorlazuardi/redmage/views"
+import "github.com/tigorlazuardi/redmage/views/components"
+
+type Data struct {
+	Title          string
+	NameInput      NameInputData
+	TypeInput      TypeInputData
+	ScheduleInput  ScheduleInputData
+	CountbackInput CountbackInputData
+}
+
+templ View(c *views.Context, data Data) {
+	@components.Doctype() {
+		@components.Head(c, components.HeadTitle(data.Title))
+		@components.Body(c) {
+			@Content(c, data)
+			@components.NotificationContainer()
+		}
+	}
+}
+
+templ Content(c *views.Context, data Data) {
+	<main class="prose min-w-full">
+		@components.Container() {
+			<h1>Add Subreddit</h1>
+			<div class="divider"></div>
+			<form
+				action="/htmx/subreddits/add"
+				method="POST"
+				onkeydown="return event.key !== 'Enter'"
+				hx-post="/htmx/subreddits/add"
+				hx-target-error={ components.NotificationContainerID }
+			>
+				<div
+					class="grid grid-cols-1 sm:grid-cols-2 gap-4"
+				>
+					@NameInput(data.NameInput)
+					@TypeInput(data.TypeInput)
+					<div class="sm:col-span-2">
+						@ScheduleInput(data.ScheduleInput)
+					</div>
+					<div class="sm:col-span-2">
+						@CountbackInput(data.CountbackInput)
+					</div>
+					<div class="sm:col-span-2">
+						<div class="max-w-xs mx-auto">
+							@FetchCheckbox()
+						</div>
+					</div>
+				</div>
+				<button type="submit" class="block btn btn-primary mx-auto w-full max-w-xs mt-8 text-primary-content">Add</button>
+			</form>
+		}
+	</main>
+}

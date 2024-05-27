@@ -1,0 +1,44 @@
+package put
+
+import "strconv"
+
+type CountbackInputData struct {
+	Value int64
+}
+
+func (c *CountbackInputData) GetValue() string {
+	if c.Value < 1 {
+		return "100"
+	}
+	return strconv.FormatInt(c.Value, 10)
+}
+
+templ CountbackInput(data CountbackInputData) {
+	<label
+		id="countback-input"
+		class="form-control w-full"
+	>
+		<div class="label">
+			<span class="label-text text-base">Countback</span>
+			<span class="label-text-alt">
+				NOTE: Non image posts are also counted in the countback!
+			</span>
+		</div>
+		<input
+			name="countback"
+			type="number"
+			class="input input-bordered"
+			value={ data.GetValue() }
+			placeholder="100"
+			min="1"
+			required
+		/>
+		<div class="label">
+			<span class="label-text">
+				Number of posts to lookup for whenever the scheduler runs this task or triggered manually by you. 
+				The bigger the number, the longer it takes to finish the task.
+				You should adjust this number based on how active the subreddit is, how often the scheduler runs this task (if enabled), and your internet speed.
+			</span>
+		</div>
+	</label>
+}

@@ -7,7 +7,7 @@ import (
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/views"
-	"github.com/tigorlazuardi/redmage/views/subredditsview"
+	"github.com/tigorlazuardi/redmage/views/subreddits"
 )
 
 func (routes *Routes) PageSubreddits(rw http.ResponseWriter, r *http.Request) {
@@ -19,7 +19,7 @@ func (routes *Routes) PageSubreddits(rw http.ResponseWriter, r *http.Request) {
 	var params api.ListSubredditsParams
 	params.FillFromQuery(r.URL.Query())
 
-	var data subredditsview.Data
+	var data subreddits.Data
 	var err error
 
 	data.Subreddits, err = routes.API.ListSubredditsWithCover(ctx, params)
@@ -28,13 +28,13 @@ func (routes *Routes) PageSubreddits(rw http.ResponseWriter, r *http.Request) {
 		code, message := errs.HTTPMessage(err)
 		rw.WriteHeader(code)
 		data.Error = message
-		if err := subredditsview.Subreddit(c, data).Render(ctx, rw); err != nil {
+		if err := subreddits.View(c, data).Render(ctx, rw); err != nil {
 			log.New(ctx).Err(err).Error("failed to render subreddits")
 		}
 		return
 	}
 
-	if err := subredditsview.Subreddit(c, data).Render(r.Context(), rw); err != nil {
+	if err := subreddits.View(c, data).Render(r.Context(), rw); err != nil {
 		log.New(ctx).Err(err).Error("failed to render subreddits view")
 		rw.WriteHeader(http.StatusInternalServerError)
 	}

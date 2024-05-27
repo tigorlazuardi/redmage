@@ -3,16 +3,76 @@ package subreddits
 import "github.com/tigorlazuardi/redmage/views"
 import "github.com/tigorlazuardi/redmage/views/components"
 import "github.com/tigorlazuardi/redmage/api"
+import "github.com/tigorlazuardi/redmage/models"
+import "fmt"
+import "strconv"
 
 type Data struct {
 	Subreddits api.ListSubredditsResult
 	Error      string
 }
 
-templ View(c *views.Context) {
+templ View(c *views.Context, data Data) {
 	@components.Doctype() {
 		@components.Head(c, components.HeadTitle("Redmage - Subreddits"))
 		@components.Body(c) {
+			@Content(c, data)
 		}
 	}
+}
+
+templ Content(c *views.Context, data Data) {
+	<main class="prose min-w-full">
+		@components.Container() {
+			<h1>Subreddits</h1>
+			if data.Subreddits.Total == 0 {
+				<div class="divider"></div>
+				<h3>No Subreddits Found</h3>
+				<p>Click <a class="text-primary" href="/subreddits/add">here</a> to add a new subreddit.</p>
+			} else {
+				<div class="flex justify-center sm:justify-between flex-wrap gap-4">
+					<h2 class="my-auto">{ strconv.FormatInt(data.Subreddits.Total, 10) } Subreddits Registered</h2>
+					<a class="btn btn-primary text-base-100 no-underline" href="/subreddits/add">Add Subreddit</a>
+				</div>
+				<div class="divider"></div>
+			}
+			<div class="flex flex-wrap gap-1 justify-around" hx-boost="true">
+				for _, subreddit := range data.Subreddits.Data {
+					@SubredditCard(c, subreddit)
+				}
+			</div>
+		}
+	</main>
+}
+
+templ SubredditCard(c *views.Context, data *models.Subreddit) {
+	<a
+		href={ templ.URL(fmt.Sprintf("/subreddits/details/%s", data.Name)) }
+		class="not-prose card card-bordered bg-base-100 hover:bg-base-200 shadow-xl xs:w-80 w-full max-w-full top-0 hover:-top-1 transition-all rounded-none"
+	>
+		if len(data.R.Images) > 0 {
+			<figure class="p-8">
+				<img
+					class="object-contain xs:max-w-[16rem] max-h-[16rem]"
+					src={ fmt.Sprintf("/img/%s", data.R.Images[0].ThumbnailRelativePath) }
+					alt={ data.Name }
+				/>
+			</figure>
+		} else {
+			<figure class="p-8 mx-auto">
+				@imagePlaceholder()
+			</figure>
+		}
+		<div class="card-body">
+			<div class="flex-1"></div>
+			<p class="text-center my-4 underline text-primary">{ data.Name }</p>
+		</div>
+	</a>
+}
+
+templ imagePlaceholder() {
+	<svg xmlns="http://www.w3.org/2000/svg" class="w-full" viewBox="0 0 120 120" fill="none">
+		<rect width="120" height="120" fill="#EFF1F3"></rect>
+		<path fill-rule="evenodd" clip-rule="evenodd" d="M33.2503 38.4816C33.2603 37.0472 34.4199 35.8864 35.8543 35.875H83.1463C84.5848 35.875 85.7503 37.0431 85.7503 38.4816V80.5184C85.7403 81.9528 84.5807 83.1136 83.1463 83.125H35.8543C34.4158 83.1236 33.2503 81.957 33.2503 80.5184V38.4816ZM80.5006 41.1251H38.5006V77.8751L62.8921 53.4783C63.9172 52.4536 65.5788 52.4536 66.6039 53.4783L80.5006 67.4013V41.1251ZM43.75 51.6249C43.75 54.5244 46.1005 56.8749 49 56.8749C51.8995 56.8749 54.25 54.5244 54.25 51.6249C54.25 48.7254 51.8995 46.3749 49 46.3749C46.1005 46.3749 43.75 48.7254 43.75 51.6249Z" fill="#687787"></path>
+	</svg>
 }

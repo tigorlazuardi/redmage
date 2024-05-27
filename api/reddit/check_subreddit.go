@@ -25,7 +25,7 @@ func (reddit *Reddit) CheckSubreddit(ctx context.Context, params CheckSubredditP
 
 	ctx = caller.WithContext(ctx, caller.New(2))
 
-	url := fmt.Sprintf("https://reddit.com/%s/%s.json?limit=1", params.SubredditType, params.Subreddit)
+	url := fmt.Sprintf("https://reddit.com/%s/%s.json?limit=1", params.SubredditType.Code(), params.Subreddit)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
 		return actual, errs.Wrapw(err, "failed to create request", "url", url, "params", params)

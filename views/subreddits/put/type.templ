@@ -1,0 +1,26 @@
+package put
+
+import "github.com/tigorlazuardi/redmage/api/reddit"
+
+type TypeInputData struct {
+	Value reddit.SubredditType
+}
+
+templ TypeInput(data TypeInputData) {
+	<label
+		id="type-input"
+		class="form-control w-full"
+	>
+		<div class="label">
+			<span class="label-text text-base">Subreddit Type</span>
+		</div>
+		<select
+			onchange="htmx.trigger('#name', 'on-demand')"
+			name="type"
+			class="select select-bordered"
+		>
+			<option value="0" selected?={ data.Value == 0 }>Subreddit</option>
+			<option value="1" selected?={ data.Value == 1 }>User</option>
+		</select>
+	</label>
+}

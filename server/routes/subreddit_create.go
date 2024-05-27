@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/a-h/templ"
 	"github.com/robfig/cron/v3"
 	"github.com/tigorlazuardi/redmage/api"
 	"github.com/tigorlazuardi/redmage/api/reddit"
@@ -72,13 +71,12 @@ func (routes *Routes) SubredditsCreateHTMX(rw http.ResponseWriter, r *http.Reque
 	ctx, span := tracer.Start(r.Context(), "*Routes.SubredditsCreateHTMX")
 	defer span.End()
 
-	sub, errComponents := subredditsDataFromRequest(r)
-	if len(errComponents) > 0 {
-		rw.WriteHeader(http.StatusBadRequest)
-		for _, err := range errComponents {
-			if e := err.Render(ctx, rw); e != nil {
-				log.New(ctx).Err(e).Error("failed to render error")
-			}
+	sub, err := subredditsDataFromRequest(r)
+	if err != nil {
+		code, message := errs.HTTPMessage(err)
+		rw.WriteHeader(code)
+		if err := components.ErrorNotication(message).Render(ctx, rw); err != nil {
+			log.New(ctx).Err(err).Error("failed to render error notification")
 		}
 		return
 	}
@@ -113,36 +111,31 @@ func (routes *Routes) SubredditsCreateHTMX(rw http.ResponseWriter, r *http.Reque
 		}
 		return
 	}
+	if fetch, _ := strconv.ParseBool(r.FormValue("fetch")); fetch {
+		_ = routes.API.PubsubStartDownloadSubreddit(ctx, api.PubsubStartDownloadSubredditParams{
+			Subreddit: sub.Name,
+		})
+	}
 	rw.Header().Set("HX-Redirect", "/subreddits")
 	rw.WriteHeader(http.StatusCreated)
 	_, _ = rw.Write([]byte("Subreddit created"))
 }
 
-func subredditsDataFromRequest(r *http.Request) (sub *models.Subreddit, errs []templ.Component) {
+func subredditsDataFromRequest(r *http.Request) (sub *models.Subreddit, err error) {
 	sub = &models.Subreddit{}
 
 	var t reddit.SubredditType
-	err := t.Parse(r.FormValue("type"))
+	err = t.Parse(r.FormValue("type"))
 	if err != nil {
-		errs = append(errs, addview.SubredditTypeInput(addview.SubredditTypeData{
-			Value:     strconv.Itoa(int(t)),
-			Error:     err.Error(),
-			HXSwapOOB: "true",
-		}))
-
-		return nil, errs
+		return nil, errs.
+			Wrapw(err, "invalid subreddit type", "type", r.FormValue("type")).
+			Code(http.StatusBadRequest)
 	}
 	sub.Subtype = int32(t)
 
 	sub.Name = r.FormValue("name")
 	if sub.Name == "" {
-		errs = append(errs, addview.SubredditInputForm(addview.SubredditInputData{
-			Value:     sub.Name,
-			Error:     "name is required",
-			Type:      t,
-			HXSwapOOB: "true",
-		}))
-		return nil, errs
+		return nil, errs.Fail("name is required").Code(http.StatusBadRequest)
 	}
 
 	enableSchedule, _ := strconv.Atoi(r.FormValue("enable_schedule"))
@@ -157,27 +150,21 @@ func subredditsDataFromRequest(r *http.Request) (sub *models.Subreddit, errs []t
 	}
 
 	if sub.EnableSchedule == 1 {
-		sub.Schedule = r.FormValue("schedule")
-		_, err = cronParser.Parse(sub.Schedule)
+		schedule := r.FormValue("schedule")
+		_, err = cron.ParseStandard(schedule)
 		if err != nil {
-			errs = append(errs, addview.ScheduleInput(addview.ScheduleInputData{
-				Value:     sub.Schedule,
-				Error:     fmt.Sprintf("invalid cron schedule: %s", err),
-				HXSwapOOB: "true",
-			}))
+			return nil, errs.Wrapf(err, "invalid cron schedule: %s", err).Code(http.StatusBadRequest)
 		}
+		sub.Schedule = schedule
 	}
 
 	countback, _ := strconv.Atoi(r.FormValue("countback"))
 	sub.Countback = int32(countback)
 	if sub.Countback < 1 {
-		errs = append(errs, addview.CountbackInput(addview.CountbackInputData{
-			Value: int64(sub.Countback),
-			Error: "countback must be 1 or higher",
-		}))
+		return nil, errs.Fail("countback must be 1 or higher").Code(http.StatusBadRequest)
 	}
 
-	return sub, errs
+	return sub, nil
 }
 
 var cronParser = cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor)

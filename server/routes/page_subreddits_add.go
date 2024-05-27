@@ -5,7 +5,7 @@ import (
 
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/views"
-	"github.com/tigorlazuardi/redmage/views/subredditsview/addview"
+	"github.com/tigorlazuardi/redmage/views/subreddits/put"
 )
 
 func (routes *Routes) PageSubredditsAdd(rw http.ResponseWriter, r *http.Request) {
@@ -14,7 +14,13 @@ func (routes *Routes) PageSubredditsAdd(rw http.ResponseWriter, r *http.Request)
 
 	c := views.NewContext(routes.Config, r)
 
-	if err := addview.Addview(c).Render(ctx, rw); err != nil {
+	data := put.Data{Title: "Add Subreddit"}
+
+	if err := put.View(c, data).Render(ctx, rw); err != nil {
 		log.New(ctx).Err(err).Error("failed to render subreddits add page")
 	}
+
+	// if err := addview.Addview(c).Render(ctx, rw); err != nil {
+	// 	log.New(ctx).Err(err).Error("failed to render subreddits add page")
+	// }
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/tigorlazuardi/redmage/api/reddit"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
-	"github.com/tigorlazuardi/redmage/views/subredditsview/addview"
+	"github.com/tigorlazuardi/redmage/views/subreddits/put"
 )
 
 func (routes *Routes) SubredditsCheckAPI(rw http.ResponseWriter, r *http.Request) {
@@ -48,17 +48,15 @@ func (routes *Routes) SubredditsCheckAPI(rw http.ResponseWriter, r *http.Request
 }
 
 func (routes *Routes) SubredditCheckHTMX(rw http.ResponseWriter, r *http.Request) {
-	var data addview.SubredditInputData
-	name := r.FormValue("name")
-	data.Value = name
-
-	var subtype reddit.SubredditType
+	var (
+		data    put.NameInputData
+		subtype reddit.SubredditType
+	)
+	data.Value = r.FormValue("name")
 	_ = subtype.Parse(r.FormValue("type"))
 
-	data.Type = subtype
-
-	if name == "" {
-		if err := addview.SubredditInputForm(data).Render(r.Context(), rw); err != nil {
+	if data.Value == "" {
+		if err := put.NameInput(data).Render(r.Context(), rw); err != nil {
 			log.New(r.Context()).Err(err).Error("failed to render subreddit input form")
 		}
 		return
@@ -68,7 +66,7 @@ func (routes *Routes) SubredditCheckHTMX(rw http.ResponseWriter, r *http.Request
 	defer span.End()
 
 	params := api.SubredditCheckParam{
-		Subreddit:     name,
+		Subreddit:     data.Value,
 		SubredditType: subtype,
 	}
 
@@ -78,7 +76,7 @@ func (routes *Routes) SubredditCheckHTMX(rw http.ResponseWriter, r *http.Request
 		code, message := errs.HTTPMessage(err)
 		rw.WriteHeader(code)
 		data.Error = message
-		if err := addview.SubredditInputForm(data).Render(r.Context(), rw); err != nil {
+		if err := put.NameInput(data).Render(r.Context(), rw); err != nil {
 			log.New(r.Context()).Err(err).Error("failed to render subreddit input form")
 		}
 		return
@@ -92,7 +90,7 @@ func (routes *Routes) SubredditCheckHTMX(rw http.ResponseWriter, r *http.Request
 		code, message := errs.HTTPMessage(err)
 		rw.WriteHeader(code)
 		data.Error = message
-		if err := addview.SubredditInputForm(data).Render(r.Context(), rw); err != nil {
+		if err := put.NameInput(data).Render(r.Context(), rw); err != nil {
 			log.New(r.Context()).Err(err).Error("failed to render subreddit input form")
 		}
 		return
@@ -101,15 +99,15 @@ func (routes *Routes) SubredditCheckHTMX(rw http.ResponseWriter, r *http.Request
 	if exist {
 		rw.WriteHeader(http.StatusConflict)
 		data.Error = "subreddit already registered"
-		if err := addview.SubredditInputForm(data).Render(r.Context(), rw); err != nil {
+		if err := put.NameInput(data).Render(r.Context(), rw); err != nil {
 			log.New(r.Context()).Err(err).Error("failed to render subreddit input form")
 		}
 		return
 	}
 
-	data.Valid = true
+	data.Valid = fmt.Sprintf("%s is valid", subtype)
 
-	if err := addview.SubredditInputForm(data).Render(r.Context(), rw); err != nil {
+	if err := put.NameInput(data).Render(r.Context(), rw); err != nil {
 		log.New(r.Context()).Err(err).Error("failed to render subreddit input form")
 	}
 }

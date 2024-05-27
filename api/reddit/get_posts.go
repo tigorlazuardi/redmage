@@ -57,7 +57,12 @@ func (s SubredditType) Code() string {
 }
 
 func (s SubredditType) String() string {
-	return s.Code()
+	switch s {
+	case SubredditTypeUser:
+		return "User"
+	default:
+		return "Subreddit"
+	}
 }
 
 type GetPostsParam struct {

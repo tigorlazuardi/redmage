@@ -1,0 +1,68 @@
+package put
+
+import "github.com/tigorlazuardi/redmage/views/utils"
+import "fmt"
+
+type NameInputData struct {
+	Value     string
+	Error     string
+	Valid     string
+	HXSwapOOB string
+}
+
+templ NameInput(data NameInputData) {
+	<label
+		id="name-input-label"
+		class="form-control w-full"
+		if data.HXSwapOOB != "" {
+			hx-swap-oob={ data.HXSwapOOB }
+		}
+	>
+		<div class="label">
+			<span
+				class={ utils.CXX(
+                "label-text text-base", true,
+                "text-error", data.Error != "",
+                "text-success", data.Valid != "",
+            ) }
+			>
+				Subreddit Name
+			</span>
+		</div>
+		<input
+			type="text"
+			id="name"
+			name="name"
+			hx-get="/htmx/subreddits/check"
+			hx-target-error="#name-input-label"
+			hx-target="#name-input-label"
+			hx-trigger="change, on-demand"
+			hx-include="[name='type']"
+			hx-swap="outerHTML"
+			value={ data.Value }
+			placeholder="e.g. 'wallpaper' or 'EarthPorn'"
+			class={ utils.CXX(
+                "input input-bordered", true,
+                "input-error text-error", data.Error != "",
+                "input-success text-success", data.Valid != "",
+            ) }
+			required
+			x-data={ fmt.Sprintf(`{ init() {$el.setCustomValidity(%q)} }`, data.Error) }
+		/>
+		<div class="label">
+			<span
+				class={ utils.CXX(
+                "label-text min-h-[1rem]", true,
+                "text-error", data.Error != "",
+                "text-success", data.Valid != "",
+            ) }
+			>
+				if data.Error != "" {
+					{ data.Error }
+				} else {
+					{ data.Valid }
+				}
+			</span>
+		</div>
+	</label>
+}
