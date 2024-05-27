@@ -2,6 +2,7 @@ package errs
 
 import (
 	"errors"
+	"net/http"
 )
 
 func FindCodeOrDefault(err error, def int) int {
@@ -51,4 +52,23 @@ func HTTPMessage(err error) (code int, message string) {
 	}
 	message = FindMessage(err)
 	return code, message
+}
+
+func HasCode(err error, code int) bool {
+	return FindCodeOrDefault(err, http.StatusInternalServerError) == code
+}
+
+func Source(err error) error {
+	if err == nil {
+		return nil
+	}
+	if _, ok := err.(Error); !ok {
+		return err
+	}
+	for unwrap := errors.Unwrap(err); unwrap != nil; unwrap = errors.Unwrap(unwrap) {
+		if _, ok := unwrap.(Error); !ok {
+			return unwrap
+		}
+	}
+	return err
 }
