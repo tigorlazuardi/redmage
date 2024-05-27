@@ -11,7 +11,7 @@ require (
 	github.com/alecthomas/units v0.0.0-20231202071711-9a357b53e9c9
 	github.com/fatih/color v1.16.0
 	github.com/go-chi/chi/v5 v5.0.12
-	github.com/google/go-cmp v0.6.0
+	github.com/gosimple/slug v1.14.0
 	github.com/jaswdr/faker/v2 v2.2.0
 	github.com/joho/godotenv v1.5.1
 	github.com/knadh/koanf/parsers/json v0.1.0
@@ -32,7 +32,9 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stephenafamo/bob v0.25.0
 	github.com/teivah/broadcast v0.1.0
+	github.com/tidwall/pretty v1.2.1
 	go.etcd.io/bbolt v1.3.9
+	golang.org/x/net v0.24.0
 )
 
 require (
@@ -40,7 +42,6 @@ require (
 	github.com/boreq/errors v0.1.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/gosimple/slug v1.14.0 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1 // indirect
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
@@ -49,11 +50,9 @@ require (
 	github.com/qdm12/reprint v0.0.0-20200326205758-722754a53494 // indirect
 	github.com/samber/lo v1.39.0 // indirect
 	github.com/stephenafamo/scan v0.5.0 // indirect
-	github.com/tidwall/pretty v1.2.1 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.26.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.2.0 // indirect
 	golang.org/x/image v0.15.0 // indirect
-	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240415180920-8c6c420018be // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240415180920-8c6c420018be // indirect

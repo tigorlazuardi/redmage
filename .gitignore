@@ -29,7 +29,9 @@ public/htmx*.js
 .direnv
 /tmp
 db/queries/**/*.go
-/*.db
+*.db
+*.db-shm
+*.db-wal
 
 public/*.min.js
 
