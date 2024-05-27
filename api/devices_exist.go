@@ -1,9 +1,10 @@
 package api
 
 import (
+	"context"
+
 	"github.com/tigorlazuardi/redmage/models"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
-	"golang.org/x/net/context"
 )
 
 func (api *API) DevicesExist(ctx context.Context, slug string) (exist bool, err error) {
