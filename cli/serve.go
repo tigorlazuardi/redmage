@@ -28,11 +28,6 @@ var serveCmd = &cobra.Command{
 		}
 		defer tele.Close()
 
-		if err := db.RunMigrations(cfg); err != nil {
-			log.New(cmd.Context()).Err(err).Error("failed to run migrations")
-			os.Exit(1)
-		}
-
 		database, err := db.NewComfy(cfg)
 		if err != nil {
 			log.New(cmd.Context()).Err(err).Error("failed to open database")

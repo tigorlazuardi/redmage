@@ -69,26 +69,3 @@ func ApplyLogger(cfg *config.Config, db *sql.DB) *sql.DB {
 		sqldblogger.WithSQLQueryAsMessage(true),
 	)
 }
-
-func RunMigrations(cfg *config.Config) error {
-	if cfg.Bool("db.automigrate") {
-		driver := cfg.String("db.driver")
-		dsn := cfg.String("db.string")
-		db, err := sql.Open(driver, dsn)
-		if err != nil {
-			return errs.Wrapw(err, "migration: failed to open database", "driver", driver, "db.string", dsn)
-		}
-		defer db.Close()
-		goose.SetLogger(goose.NopLogger())
-		goose.SetBaseFS(Migrations)
-
-		if err := goose.SetDialect(driver); err != nil {
-			return errs.Wrapw(err, "failed to set goose dialect", "dialect", driver, "dsn", dsn)
-		}
-
-		if err := goose.Up(db, "db/migrations"); err != nil {
-			return errs.Wrapw(err, "failed to migrate database", "dialect", driver, "dsn", dsn)
-		}
-	}
-	return nil
-}
