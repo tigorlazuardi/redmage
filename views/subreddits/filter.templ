@@ -1,0 +1,60 @@
+package subreddits
+
+import "github.com/tigorlazuardi/redmage/api"
+
+templ Filter(params api.ListSubredditsParams) {
+	<div
+		id="filter-bar"
+		hx-get="/subreddits"
+		hx-target="#subreddits-list"
+		hx-select="#subreddits-list"
+		hx-trigger="change,input delay:300ms"
+		hx-include="this"
+		hx-push-url="true"
+		hx-swap="outerHTML"
+		class="grid grid-cols-[1fr,4fr] sm:grid-cols-[1fr,4fr,1fr,4fr] items-center gap-4"
+	>
+		@searchInput(params)
+		@nsfwSelect(params)
+		@orderInput(params)
+		@sortInput(params)
+	</div>
+}
+
+templ searchInput(params api.ListSubredditsParams) {
+	<label for="search" class="label">Search</label>
+	<input
+		type="text"
+		id="search"
+		name="q"
+		class="input input-bordered"
+		value={ params.Q }
+		placeholder="Filter Subreddit"
+	/>
+}
+
+templ nsfwSelect(params api.ListSubredditsParams) {
+	<label for="nsfw" class="label">NSFW</label>
+	<select id="nsfw" name="nsfw" class="select select-bordered">
+		<option value="-1" selected?={ params.NSFW < 0 || params.NSFW > 1 }>*No Filter</option>
+		<option value="0" selected?={ params.NSFW == 0 }>Hide</option>
+		<option value="1" selected?={ params.NSFW == 1 }>Show Only</option>
+	</select>
+}
+
+templ orderInput(params api.ListSubredditsParams) {
+	<label for="order" class="label">Order By</label>
+	<select id="order" name="order_by" class="select select-bordered">
+		<option value="updated_at" selected?={ params.OrderBy == "updated_at" }>Latest Update</option>
+		<option value="created_at" selected?={ params.OrderBy == "created_at" }>Created</option>
+		<option value="name" selected?={ params.OrderBy == "name" }>Name</option>
+	</select>
+}
+
+templ sortInput(params api.ListSubredditsParams) {
+	<label for="sort" class="label">Sort</label>
+	<select id="sort" name="sort" class="select select-bordered">
+		<option value="desc" selected?={ params.Sort == "desc" }>Descending</option>
+		<option value="asc" selected?={ params.Sort == "asc" }>Ascending</option>
+	</select>
+}

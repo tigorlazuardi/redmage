@@ -20,6 +20,7 @@ type ListSubredditsParams struct {
 	Offset  int64
 	OrderBy string
 	Sort    string
+	NSFW    int
 }
 
 func (l *ListSubredditsParams) FillFromQuery(q Queryable) {
@@ -37,6 +38,11 @@ func (l *ListSubredditsParams) FillFromQuery(q Queryable) {
 	}
 	l.OrderBy = q.Get("order_by")
 	l.Sort = strings.ToLower(q.Get("sort"))
+	if nsfw, err := strconv.Atoi(q.Get("nsfw")); err == nil {
+		l.NSFW = nsfw
+	} else {
+		l.NSFW = -1
+	}
 }
 
 func (l ListSubredditsParams) Query() (expr []bob.Mod[*dialect.SelectQuery]) {
@@ -56,9 +62,20 @@ func (l ListSubredditsParams) Query() (expr []bob.Mod[*dialect.SelectQuery]) {
 			expr = append(expr, sm.OrderBy(sqlite.Quote(l.OrderBy)).Asc())
 		}
 	} else {
-		expr = append(expr, sm.OrderBy(models.SubredditColumns.Name).Asc())
+		expr = append(expr, sm.OrderBy(models.SubredditColumns.UpdatedAt).Desc())
 	}
 
+	return expr
+}
+
+func (l ListSubredditsParams) ImageCoverQuery(subname string) (expr []bob.Mod[*dialect.SelectQuery]) {
+	expr = make([]bob.Mod[*dialect.SelectQuery], 0, 4)
+	expr = append(expr, models.SelectWhere.Images.Subreddit.EQ(subname))
+	if l.NSFW >= 0 {
+		expr = append(expr, models.SelectWhere.Images.NSFW.EQ(int32(l.NSFW)))
+	}
+	expr = append(expr, sm.Limit(1))
+	expr = append(expr, sm.OrderBy(models.ImageColumns.CreatedAt).Desc())
 	return expr
 }
 
@@ -112,11 +129,7 @@ func (api *API) ListSubredditsWithCover(ctx context.Context, arg ListSubredditsP
 	//
 	// Subreddit list is expected to be small, so this should be fine since SQLITE has no network latency.
 	for _, subreddit := range result.Data {
-		subreddit.R.Images, err = models.Images.Query(ctx, api.db,
-			models.SelectWhere.Images.Subreddit.EQ(subreddit.Name),
-			sm.Limit(1),
-			sm.OrderBy(models.ImageColumns.CreatedAt).Desc(),
-		).All()
+		subreddit.R.Images, err = models.Images.Query(ctx, api.db, arg.ImageCoverQuery(subreddit.Name)...).All()
 	}
 
 	return result, nil

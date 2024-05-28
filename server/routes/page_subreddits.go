@@ -3,7 +3,6 @@ package routes
 import (
 	"net/http"
 
-	"github.com/tigorlazuardi/redmage/api"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/views"
@@ -15,14 +14,11 @@ func (routes *Routes) PageSubreddits(rw http.ResponseWriter, r *http.Request) {
 	defer span.End()
 
 	c := views.NewContext(routes.Config, r)
-
-	var params api.ListSubredditsParams
-	params.FillFromQuery(r.URL.Query())
-
 	var data subreddits.Data
-	var err error
+	data.Params.FillFromQuery(r.URL.Query())
 
-	data.Subreddits, err = routes.API.ListSubredditsWithCover(ctx, params)
+	var err error
+	data.Subreddits, err = routes.API.ListSubredditsWithCover(ctx, data.Params)
 	if err != nil {
 		log.New(ctx).Err(err).Error("failed to list subreddits")
 		code, message := errs.HTTPMessage(err)

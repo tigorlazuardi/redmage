@@ -11,6 +11,7 @@ import "github.com/tigorlazuardi/redmage/views/icons"
 type Data struct {
 	Subreddits api.ListSubredditsResult
 	Error      string
+	Params     api.ListSubredditsParams
 }
 
 templ View(c *views.Context, data Data) {
@@ -34,16 +35,21 @@ templ Content(c *views.Context, data Data) {
 				</div>
 			</div>
 			<div class="divider"></div>
-			if data.Subreddits.Total == 0 {
-				<h3>No Subreddits Found</h3>
-				<p>Click <a class="text-primary" href="/subreddits/add">here</a> to add a new subreddit.</p>
-			} else {
-				<h2>{ strconv.FormatInt(data.Subreddits.Total, 10) } Subreddits Registered</h2>
+			if data.Subreddits.Total > 0 {
+				@Filter(data.Params)
 			}
-			<div class="flex flex-wrap gap-1 justify-around" hx-boost="true">
-				for _, subreddit := range data.Subreddits.Data {
-					@SubredditCard(c, subreddit)
+			<div id="subreddits-list">
+				if data.Subreddits.Total == 0 {
+					<h3>No Subreddits Found</h3>
+					<p>Click <a class="text-primary" href="/subreddits/add">here</a> to add a new subreddit.</p>
+				} else {
+					<h2 class="my-4">{ strconv.FormatInt(data.Subreddits.Total, 10) } Subreddits Registered</h2>
 				}
+				<div class="flex flex-wrap gap-1 justify-around" hx-boost="true">
+					for _, subreddit := range data.Subreddits.Data {
+						@SubredditCard(c, subreddit)
+					}
+				</div>
 			</div>
 		}
 	</main>
