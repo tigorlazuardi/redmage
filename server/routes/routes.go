@@ -60,6 +60,7 @@ func (routes *Routes) registerHTMXRoutes(router chi.Router) {
 
 	router.Post("/subreddits/add", routes.SubredditsCreateHTMX)
 	router.Post("/subreddits/start", routes.SubredditStartDownloadHTMX)
+	router.Get("/subreddits/start", routes.SubredditStartDownloadHTMX)
 	router.Get("/subreddits/check", routes.SubredditCheckHTMX)
 	router.Get("/subreddits/validate/schedule", routes.SubredditValidateScheduleHTMX)
 

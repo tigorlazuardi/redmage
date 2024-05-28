@@ -46,21 +46,28 @@ templ DetailsContent(c *views.Context, data Data) {
 					<h1 class="my-auto">Subreddit { data.Subreddit.Name }</h1>
 					<div class="max-xs:toast max-xs:z-40">
 						<div class="dropdown dropdown-hover dropdown-top xs:dropdown-bottom dropdown-end">
-							<div tabindex="0" role="button" class="btn btn-primary max-xs:btn-circle btn-square xs:btn-outline m-1 max-xs:border-none">
+							<div
+								tabindex="0"
+								role="button"
+								class="btn btn-primary max-xs:btn-circle max-lg:btn-square xs:btn-outline m-1 max-xs:border-none"
+							>
 								@icons.Kebab("h-8 w-8")
 							</div>
-							<ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 m-0 border-primary border-2">
+							<ul
+								tabindex="0"
+								class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 m-0 border-primary border-2"
+								onclick="document.activeElement.blur()"
+							>
 								<li class="m-0 p-0 hover:bg-primary rounded-btn">
 									<button
-										hx-post="/htmx/subreddits/start"
-										hx-include="this"
+										hx-get="/htmx/subreddits/start"
 										hx-target={ components.NotificationContainerID }
 										hx-target-error={ components.NotificationContainerID }
 										hx-swap="afterbegin"
+										hx-vals={ fmt.Sprintf(`{"subreddit":%q}`, data.Subreddit.Name) }
 										class="btn btn-ghost btn-sm m-0"
 									>
 										Start Download
-										<input type="hidden" name="subreddit" value={ data.Subreddit.Name }/>
 									</button>
 								</li>
 								<div class="divider m-0 p-0"></div>
@@ -69,6 +76,13 @@ templ DetailsContent(c *views.Context, data Data) {
 										href={ templ.SafeURL(fmt.Sprintf("/subreddits/edit/%s", data.Subreddit.Name)) }
 										class="btn btn-ghost btn-sm no-underline m-0"
 									>Edit</a>
+								</li>
+								<div class="xs:hidden divider m-0 p-0"></div>
+								<li class="xs:hidden m-0 p-0 hover:bg-primary rounded-btn">
+									<button
+										class="btn btn-ghost btn-sm m-0"
+										onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+									>Scroll to Top</button>
 								</li>
 							</ul>
 						</div>
