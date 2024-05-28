@@ -43,7 +43,7 @@ templ Content(c *views.Context, data Data) {
 					<h3>No Subreddits Found</h3>
 					<p>Click <a class="text-primary" href="/subreddits/add">here</a> to add a new subreddit.</p>
 				} else {
-					<h2 class="my-4">{ strconv.FormatInt(data.Subreddits.Total, 10) } Subreddits Registered</h2>
+					<h2 class="my-8">{ strconv.FormatInt(data.Subreddits.Total, 10) } Subreddits Registered</h2>
 				}
 				<div class="flex flex-wrap gap-1 justify-around" hx-boost="true">
 					for _, subreddit := range data.Subreddits.Data {
