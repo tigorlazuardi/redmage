@@ -7,6 +7,7 @@ import "github.com/tigorlazuardi/redmage/api"
 import "strconv"
 import "fmt"
 import "github.com/tigorlazuardi/redmage/views/utils"
+import "github.com/tigorlazuardi/redmage/views/icons"
 
 type Data struct {
 	Error   string
@@ -32,7 +33,11 @@ templ Content(c *views.Context, data Data) {
 			} else {
 				<div class="flex justify-between items-center">
 					<h1 class="my-auto">Devices</h1>
-					<a href="/devices/add" class="btn btn-primary no-underline text-base-100">Add Device</a>
+					<div class="tooltip" data-tip="Add Device">
+						<a href="/devices/add" class="btn btn-primary btn-outline btn-square text-base-100">
+							@icons.PlusCircleFill("w-6 h-6")
+						</a>
+					</div>
 				</div>
 				<div class="divider"></div>
 				@filter(data)

@@ -6,6 +6,7 @@ import "github.com/tigorlazuardi/redmage/api"
 import "github.com/tigorlazuardi/redmage/models"
 import "fmt"
 import "strconv"
+import "github.com/tigorlazuardi/redmage/views/icons"
 
 type Data struct {
 	Subreddits api.ListSubredditsResult
@@ -24,17 +25,20 @@ templ View(c *views.Context, data Data) {
 templ Content(c *views.Context, data Data) {
 	<main class="prose min-w-full">
 		@components.Container() {
-			<h1>Subreddits</h1>
+			<div class="flex justify-between items-center">
+				<h1 class="my-0">Subreddits</h1>
+				<div class="tooltip" data-tip="Add Subreddit">
+					<a class="btn btn-primary btn-outline" href="/subreddits/add">
+						@icons.PlusCircleFill("w-6 h-6")
+					</a>
+				</div>
+			</div>
+			<div class="divider"></div>
 			if data.Subreddits.Total == 0 {
-				<div class="divider"></div>
 				<h3>No Subreddits Found</h3>
 				<p>Click <a class="text-primary" href="/subreddits/add">here</a> to add a new subreddit.</p>
 			} else {
-				<div class="flex justify-center sm:justify-between flex-wrap gap-4">
-					<h2 class="my-auto">{ strconv.FormatInt(data.Subreddits.Total, 10) } Subreddits Registered</h2>
-					<a class="btn btn-primary text-base-100 no-underline" href="/subreddits/add">Add Subreddit</a>
-				</div>
-				<div class="divider"></div>
+				<h2>{ strconv.FormatInt(data.Subreddits.Total, 10) } Subreddits Registered</h2>
 			}
 			<div class="flex flex-wrap gap-1 justify-around" hx-boost="true">
 				for _, subreddit := range data.Subreddits.Data {

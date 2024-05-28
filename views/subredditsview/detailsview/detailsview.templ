@@ -43,40 +43,41 @@ templ DetailsContent(c *views.Context, data Data) {
 				<h1>Error: { data.Error }</h1>
 			} else {
 				<div class="flex items-center justify-between">
-					<h1>Subreddit { data.Subreddit.Name }</h1>
-				</div>
-				<div class="flex flex-wrap justify-center xs:justify-between content-center gap-4">
-					<h2 class="my-auto">
-						Total Images: 
-						{ strconv.FormatInt(data.TotalImages, 10) }
-					</h2>
-					<div class="dropdown dropdown-hover dropdown-end">
-						<div tabindex="0" role="button" class="btn m-1">
-							@icons.Kebab("h-8 w-8")
+					<h1 class="my-auto">Subreddit { data.Subreddit.Name }</h1>
+					<div class="max-xs:toast max-xs:z-40">
+						<div class="dropdown dropdown-hover dropdown-top xs:dropdown-bottom dropdown-end">
+							<div tabindex="0" role="button" class="btn btn-primary max-xs:btn-circle btn-square xs:btn-outline m-1 max-xs:border-none">
+								@icons.Kebab("h-8 w-8")
+							</div>
+							<ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 m-0 border-primary border-2">
+								<li class="m-0 p-0 hover:bg-primary rounded-btn">
+									<button
+										hx-post="/htmx/subreddits/start"
+										hx-include="this"
+										hx-target={ components.NotificationContainerID }
+										hx-target-error={ components.NotificationContainerID }
+										hx-swap="afterbegin"
+										class="btn btn-ghost btn-sm m-0"
+									>
+										Start Download
+										<input type="hidden" name="subreddit" value={ data.Subreddit.Name }/>
+									</button>
+								</li>
+								<div class="divider m-0 p-0"></div>
+								<li class="m-0 p-0 hover:bg-primary rounded-btn">
+									<a
+										href={ templ.SafeURL(fmt.Sprintf("/subreddits/edit/%s", data.Subreddit.Name)) }
+										class="btn btn-ghost btn-sm no-underline m-0"
+									>Edit</a>
+								</li>
+							</ul>
 						</div>
-						<ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-0">
-							<li>
-								<button
-									hx-post="/htmx/subreddits/start"
-									hx-include="this"
-									hx-target={ components.NotificationContainerID }
-									hx-target-error={ components.NotificationContainerID }
-									hx-swap="afterbegin"
-									class="btn btn-ghost"
-								>
-									Start Download
-									<input type="hidden" name="subreddit" value={ data.Subreddit.Name }/>
-								</button>
-							</li>
-							<li>
-								<a
-									href={ templ.SafeURL(fmt.Sprintf("/subreddits/edit/%s", data.Subreddit.Name)) }
-									class="btn btn-ghost no-underline"
-								>Edit</a>
-							</li>
-						</ul>
 					</div>
 				</div>
+				<h2 class="my-8">
+					Total Images: 
+					{ strconv.FormatInt(data.TotalImages, 10) }
+				</h2>
 				<div class="divider"></div>
 				@FilterBar(c, data)
 				<div class="grid justify-center my-4">
