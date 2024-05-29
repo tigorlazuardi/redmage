@@ -29,6 +29,7 @@ templ HomeContent(c *views.Context, data Data) {
 			} else {
 				<section class="mb-4 mx-auto">
 					<h1 class="mb-4">Recently Added</h1>
+					<div class="divider"></div>
 					@filterBar(c, data)
 					<div id="recently-added-images">
 						if data.TotalImages <= 0 {
@@ -48,7 +49,6 @@ templ HomeContent(c *views.Context, data Data) {
 							})
 						</div>
 						for _, recently := range data.RecentlyAddedImages {
-							<div class="divider"></div>
 							<h2 class="mt-4">{ recently.Device.Name }</h2>
 							for _, subreddit := range recently.Subreddits {
 								<h4>
