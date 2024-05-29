@@ -31,7 +31,7 @@ templ searchInput(params api.SubredditGetByNameImageParams) {
 	<input
 		id="search"
 		type="text"
-		class="grow input input-bordered"
+		class="grow input input-bordered w-full"
 		placeholder="Search"
 		name="q"
 		value={ params.Q }
@@ -42,7 +42,7 @@ templ nsfwInput(params api.SubredditGetByNameImageParams) {
 	<label for="nsfw" class="label">
 		NSFW
 	</label>
-	<select id="nsfw" name="nsfw" class="select select-bordered">
+	<select id="nsfw" name="nsfw" class="select select-bordered w-full">
 		<option value="-1" selected?={ params.NSFW == -1 }>*No Filter</option>
 		<option value="0" selected?={ params.NSFW == 0 }>Hide</option>
 		<option value="1" selected?={ params.NSFW == 1 }>Show Only</option>
@@ -62,16 +62,12 @@ templ limitInput(params api.SubredditGetByNameImageParams) {
 }
 
 templ limitOption(params api.SubredditGetByNameImageParams, value int) {
-	if int(params.Limit) == value {
-		<option selected>{ strconv.Itoa(value) }</option>
-	} else {
-		<option>{ strconv.Itoa(value) }</option>
-	}
+	<option selected?={ params.Limit == int64(value) }>{ strconv.Itoa(value) }</option>
 }
 
 templ deviceInput(data Data) {
 	<label for="devices" class="label">Device</label>
-	<select id="devices" name="device" class="select select-bordered">
+	<select id="devices" name="device" class="select select-bordered w-full">
 		if len(data.Devices) == 0 {
 			<option disabled selected>No Devices</option>
 		} else {

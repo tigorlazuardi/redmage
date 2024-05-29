@@ -28,11 +28,7 @@ templ Content(c *views.Context, data Data) {
 		@components.Container() {
 			<div class="flex justify-between items-center">
 				<h1 class="my-0">Subreddits</h1>
-				<div class="tooltip" data-tip="Add Subreddit">
-					<a class="btn btn-primary btn-outline" href="/subreddits/add">
-						@icons.PlusCircleFill("w-6 h-6")
-					</a>
-				</div>
+				@actionButton()
 			</div>
 			<div class="divider"></div>
 			if data.Subreddits.Total > 0 {
@@ -85,4 +81,37 @@ templ imagePlaceholder() {
 		<rect width="120" height="120" fill="#EFF1F3"></rect>
 		<path fill-rule="evenodd" clip-rule="evenodd" d="M33.2503 38.4816C33.2603 37.0472 34.4199 35.8864 35.8543 35.875H83.1463C84.5848 35.875 85.7503 37.0431 85.7503 38.4816V80.5184C85.7403 81.9528 84.5807 83.1136 83.1463 83.125H35.8543C34.4158 83.1236 33.2503 81.957 33.2503 80.5184V38.4816ZM80.5006 41.1251H38.5006V77.8751L62.8921 53.4783C63.9172 52.4536 65.5788 52.4536 66.6039 53.4783L80.5006 67.4013V41.1251ZM43.75 51.6249C43.75 54.5244 46.1005 56.8749 49 56.8749C51.8995 56.8749 54.25 54.5244 54.25 51.6249C54.25 48.7254 51.8995 46.3749 49 46.3749C46.1005 46.3749 43.75 48.7254 43.75 51.6249Z" fill="#687787"></path>
 	</svg>
+}
+
+templ actionButton() {
+	<div class="max-xs:toast max-xs:z-40">
+		<div class="dropdown dropdown-hover dropdown-top xs:dropdown-bottom dropdown-end">
+			<div
+				tabindex="0"
+				role="button"
+				class="btn btn-primary max-xs:btn-circle max-lg:btn-square xs:btn-outline m-1 max-xs:border-none"
+			>
+				@icons.Kebab("h-8 w-8")
+			</div>
+			<ul
+				tabindex="0"
+				class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 m-0 border-primary border-2"
+				onclick="document.activeElement.blur()"
+			>
+				<li class="m-0 p-0 hover:bg-primary rounded-btn">
+					<a
+						href="/subreddits/add"
+						class="btn btn-ghost btn-sm no-underline m-0"
+					>Add New Subreddit</a>
+				</li>
+				<div class="xs:hidden divider m-0 p-0"></div>
+				<li class="xs:hidden m-0 p-0 hover:bg-primary rounded-btn">
+					<button
+						class="btn btn-ghost btn-sm m-0"
+						onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+					>Scroll to Top</button>
+				</li>
+			</ul>
+		</div>
+	</div>
 }

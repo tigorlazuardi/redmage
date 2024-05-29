@@ -27,7 +27,7 @@ templ searchInput(params api.ListSubredditsParams) {
 		type="text"
 		id="search"
 		name="q"
-		class="input input-bordered"
+		class="input input-bordered w-full"
 		value={ params.Q }
 		placeholder="Filter Subreddit"
 	/>
@@ -35,7 +35,7 @@ templ searchInput(params api.ListSubredditsParams) {
 
 templ nsfwSelect(params api.ListSubredditsParams) {
 	<label for="nsfw" class="label">NSFW</label>
-	<select id="nsfw" name="nsfw" class="select select-bordered">
+	<select id="nsfw" name="nsfw" class="select select-bordered w-full">
 		<option value="-1" selected?={ params.NSFW < 0 || params.NSFW > 1 }>*No Filter</option>
 		<option value="0" selected?={ params.NSFW == 0 }>Hide</option>
 		<option value="1" selected?={ params.NSFW == 1 }>Show Only</option>
@@ -44,7 +44,7 @@ templ nsfwSelect(params api.ListSubredditsParams) {
 
 templ orderInput(params api.ListSubredditsParams) {
 	<label for="order" class="label">Order By</label>
-	<select id="order" name="order_by" class="select select-bordered">
+	<select id="order" name="order_by" class="select select-bordered w-full">
 		<option value="updated_at" selected?={ params.OrderBy == "updated_at" }>Latest Update</option>
 		<option value="created_at" selected?={ params.OrderBy == "created_at" }>Created</option>
 		<option value="name" selected?={ params.OrderBy == "name" }>Name</option>
@@ -53,7 +53,7 @@ templ orderInput(params api.ListSubredditsParams) {
 
 templ sortInput(params api.ListSubredditsParams) {
 	<label for="sort" class="label">Sort</label>
-	<select id="sort" name="sort" class="select select-bordered">
+	<select id="sort" name="sort" class="select select-bordered w-full">
 		<option value="desc" selected?={ params.Sort == "desc" }>Descending</option>
 		<option value="asc" selected?={ params.Sort == "asc" }>Ascending</option>
 	</select>
