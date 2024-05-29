@@ -1,0 +1,92 @@
+package details
+
+import "github.com/tigorlazuardi/redmage/views"
+import "fmt"
+import "github.com/tigorlazuardi/redmage/api"
+import "strconv"
+import "github.com/tigorlazuardi/redmage/models"
+
+templ FilterBar(c *views.Context, data Data) {
+	<div
+		id="filter-bar"
+		hx-get={ fmt.Sprintf("/subreddits/details/%s", data.Subreddit.Name) }
+		hx-include="this"
+		hx-trigger="change, input delay:200ms"
+		hx-target="#image-content"
+		hx-select="#image-content"
+		hx-push-url="true"
+		class="grid grid-cols-[1fr,3fr] sm:grid-cols-[1fr,4fr,1fr,4fr] gap-4 items-center"
+	>
+		@searchInput(data.Params)
+		@nsfwInput(data.Params)
+		@limitInput(data.Params)
+		@deviceInput(data)
+	</div>
+}
+
+templ searchInput(params api.SubredditGetByNameImageParams) {
+	<label class="label" for="search">
+		Search
+	</label>
+	<input
+		id="search"
+		type="text"
+		class="grow input input-bordered"
+		placeholder="Search"
+		name="q"
+		value={ params.Q }
+	/>
+}
+
+templ nsfwInput(params api.SubredditGetByNameImageParams) {
+	<label for="nsfw" class="label">
+		NSFW
+	</label>
+	<select id="nsfw" name="nsfw" class="select select-bordered">
+		<option value="-1" selected?={ params.NSFW == -1 }>*No Filter</option>
+		<option value="0" selected?={ params.NSFW == 0 }>Hide</option>
+		<option value="1" selected?={ params.NSFW == 1 }>Show Only</option>
+	</select>
+}
+
+templ limitInput(params api.SubredditGetByNameImageParams) {
+	<label for="limit" class="label">
+		Limit
+	</label>
+	<select id="limit" name="limit" class="select select-bordered w-full">
+		@limitOption(params, 25)
+		@limitOption(params, 50)
+		@limitOption(params, 75)
+		@limitOption(params, 100)
+	</select>
+}
+
+templ limitOption(params api.SubredditGetByNameImageParams, value int) {
+	if int(params.Limit) == value {
+		<option selected>{ strconv.Itoa(value) }</option>
+	} else {
+		<option>{ strconv.Itoa(value) }</option>
+	}
+}
+
+templ deviceInput(data Data) {
+	<label for="devices" class="label">Device</label>
+	<select id="devices" name="device" class="select select-bordered">
+		if len(data.Devices) == 0 {
+			<option disabled selected>No Devices</option>
+		} else {
+			<option value="" selected?={ data.Params.Device == "" }>*No Filter</option>
+		}
+		for _, device := range data.Devices {
+			@deviceOption(data.Params, device)
+		}
+	</select>
+}
+
+templ deviceOption(params api.SubredditGetByNameImageParams, device *models.Device) {
+	if params.Device == device.Slug {
+		<option value={ device.Slug } selected>{ device.Name }</option>
+	} else {
+		<option value={ device.Slug }>{ device.Name }</option>
+	}
+}

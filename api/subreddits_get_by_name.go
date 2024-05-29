@@ -37,7 +37,7 @@ type SubredditGetByNameImageParams struct {
 	Offset  int64
 	OrderBy string
 	Sort    string
-	SFW     int
+	NSFW    int
 	After   time.Time
 	Device  string
 }
@@ -103,11 +103,10 @@ func (sgb *SubredditGetByNameImageParams) FillFromQuery(query Queryable) {
 		sgb.After = time.Now().Add(time.Duration(afterint) * time.Second)
 	}
 
-	sgb.SFW, _ = strconv.Atoi(query.Get("sfw"))
-	if sgb.SFW < 0 {
-		sgb.SFW = 0
-	} else if sgb.SFW > 1 {
-		sgb.SFW = 1
+	if nsfw, err := strconv.Atoi(query.Get("nsfw")); err == nil {
+		sgb.NSFW = nsfw
+	} else {
+		sgb.NSFW = -1
 	}
 }
 
@@ -132,8 +131,8 @@ func (sgb *SubredditGetByNameImageParams) CountQuery() (expr []bob.Mod[*dialect.
 		expr = append(expr, models.SelectWhere.Images.CreatedAt.GTE(sgb.After.Unix()))
 	}
 
-	if sgb.SFW == 1 {
-		expr = append(expr, models.SelectWhere.Images.NSFW.EQ(0))
+	if sgb.NSFW >= 0 {
+		expr = append(expr, models.SelectWhere.Images.NSFW.EQ(int32(sgb.NSFW)))
 	}
 
 	return expr

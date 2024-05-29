@@ -1,0 +1,144 @@
+package details
+
+import "github.com/tigorlazuardi/redmage/views"
+import "github.com/tigorlazuardi/redmage/models"
+import "github.com/tigorlazuardi/redmage/views/components"
+import "strconv"
+import "github.com/tigorlazuardi/redmage/api"
+import "fmt"
+import "github.com/tigorlazuardi/redmage/views/icons"
+
+type Data struct {
+	Subreddit           *models.Subreddit
+	Devices             models.DeviceSlice
+	Images              models.ImageSlice
+	TotalImages         int64
+	Error               string
+	Params              api.SubredditGetByNameImageParams
+	FlashMessageSuccess string
+}
+
+templ View(c *views.Context, data Data) {
+	@components.Doctype() {
+		if data.Subreddit != nil {
+			@components.Head(c, components.HeadTitle(fmt.Sprintf("Subreddit - %s", data.Subreddit.Name)))
+		} else {
+			@components.Head(c, components.HeadTitle("Subreddit - 404 NOT FOUND"))
+		}
+		@components.Body(c) {
+			@Content(c, data)
+			@components.NotificationContainer() {
+				if data.FlashMessageSuccess != "" {
+					@components.SuccessNotification(data.FlashMessageSuccess)
+				}
+			}
+		}
+	}
+}
+
+templ Content(c *views.Context, data Data) {
+	<main class="prose min-w-full">
+		@components.Container() {
+			if data.Error != "" {
+				<h1>Error: { data.Error }</h1>
+			} else {
+				<div class="flex items-center justify-between">
+					<h1 class="my-auto">Subreddit { data.Subreddit.Name }</h1>
+					@actionButton(data)
+				</div>
+				<div class="divider"></div>
+				@FilterBar(c, data)
+				<div id="image-content">
+					<h2 class="mt-8">
+						Total Images: 
+						{ strconv.FormatInt(data.TotalImages, 10) }
+					</h2>
+					<div class="grid justify-center my-4">
+						@components.Pagination(c, components.PaginationData{
+							Offset:  data.Params.Offset,
+							Limit:   data.Params.Limit,
+							BaseURL: fmt.Sprintf("/subreddits/details/%s", data.Subreddit.Name),
+							Total:   data.TotalImages,
+						})
+					</div>
+					@showingImageFromTo(data)
+					<div class="flex flex-wrap gap-4 my-8 justify-around">
+						for _, image := range data.Images {
+							@components.ImageCard(image, components.HideNothing.SetCond(components.HideDevice, data.Params.Device != ""))
+						}
+					</div>
+					<div class="flex w-full justify-center">
+						@components.Pagination(c, components.PaginationData{
+							Offset:  data.Params.Offset,
+							Limit:   data.Params.Limit,
+							BaseURL: fmt.Sprintf("/subreddits/details/%s", data.Subreddit.Name),
+							Total:   data.TotalImages,
+						})
+					</div>
+				</div>
+			}
+		}
+	</main>
+}
+
+templ actionButton(data Data) {
+	<div class="max-xs:toast max-xs:z-40">
+		<div class="dropdown dropdown-hover dropdown-top xs:dropdown-bottom dropdown-end">
+			<div
+				tabindex="0"
+				role="button"
+				class="btn btn-primary max-xs:btn-circle max-lg:btn-square xs:btn-outline m-1 max-xs:border-none"
+			>
+				@icons.Kebab("h-8 w-8")
+			</div>
+			<ul
+				tabindex="0"
+				class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 m-0 border-primary border-2"
+				onclick="document.activeElement.blur()"
+			>
+				<li class="m-0 p-0 hover:bg-primary rounded-btn">
+					<button
+						hx-get="/htmx/subreddits/start"
+						hx-target={ components.NotificationContainerID }
+						hx-target-error={ components.NotificationContainerID }
+						hx-swap="afterbegin"
+						hx-vals={ fmt.Sprintf(`{"subreddit":%q}`, data.Subreddit.Name) }
+						class="btn btn-ghost btn-sm m-0"
+					>
+						Start Download
+					</button>
+				</li>
+				<div class="divider m-0 p-0"></div>
+				<li class="m-0 p-0 hover:bg-primary rounded-btn">
+					<a
+						href={ templ.SafeURL(fmt.Sprintf("/subreddits/edit/%s", data.Subreddit.Name)) }
+						class="btn btn-ghost btn-sm no-underline m-0"
+					>Edit</a>
+				</li>
+				<div class="xs:hidden divider m-0 p-0"></div>
+				<li class="xs:hidden m-0 p-0 hover:bg-primary rounded-btn">
+					<button
+						class="btn btn-ghost btn-sm m-0"
+						onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+					>Scroll to Top</button>
+				</li>
+			</ul>
+		</div>
+	</div>
+}
+
+templ showingImageFromTo(data Data) {
+	if data.TotalImages > 1 {
+		<p class="text-center my-4">{ showingFromToImages(data) }</p>
+	}
+}
+
+func showingFromToImages(data Data) string {
+	params := data.Params
+	start := params.Offset + 1
+	end := params.Limit + params.Offset
+	if end > data.TotalImages {
+		end = data.TotalImages
+	}
+	return fmt.Sprintf("Showing from %d to %d", start, end)
+}
