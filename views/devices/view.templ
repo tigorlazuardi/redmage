@@ -7,13 +7,13 @@ import "github.com/tigorlazuardi/redmage/api"
 import "strconv"
 import "fmt"
 import "github.com/tigorlazuardi/redmage/views/utils"
-import "github.com/tigorlazuardi/redmage/views/icons"
 
 type Data struct {
-	Error   string
-	Devices models.DeviceSlice
-	Total   int64
-	Params  api.DevicesListParams
+	Error               string
+	Devices             models.DeviceSlice
+	Total               int64
+	Params              api.DevicesListParams
+	FlashMessageSuccess string
 }
 
 templ View(c *views.Context, data Data) {
@@ -21,6 +21,11 @@ templ View(c *views.Context, data Data) {
 		@components.Head(c, components.HeadTitle("Redmage - Devices"))
 		@components.Body(c) {
 			@Content(c, data)
+			@components.NotificationContainer() {
+				if data.FlashMessageSuccess != "" {
+					@components.SuccessToast(data.FlashMessageSuccess)
+				}
+			}
 		}
 	}
 }
@@ -33,11 +38,7 @@ templ Content(c *views.Context, data Data) {
 			} else {
 				<div class="flex justify-between items-center">
 					<h1 class="my-auto">Devices</h1>
-					<div class="tooltip" data-tip="Add Device">
-						<a href="/devices/add" class="btn btn-primary btn-outline btn-square text-base-100">
-							@icons.PlusCircleFill("w-6 h-6")
-						</a>
-					</div>
+					@components.ActionButton(addNewDeviceButton())
 				</div>
 				<div class="divider"></div>
 				@filter(data)
@@ -46,6 +47,13 @@ templ Content(c *views.Context, data Data) {
 			}
 		}
 	</main>
+}
+
+templ addNewDeviceButton() {
+	<a
+		href="/devices/add"
+		class="btn btn-ghost btn-sm no-underline m-0"
+	>Add New Device</a>
 }
 
 templ devicesList(data Data) {
