@@ -17,7 +17,7 @@ import (
 
 type ImageListParams struct {
 	Q         string
-	SFW       bool
+	NSFW      int32
 	OrderBy   string
 	Sort      string
 	Offset    int64
@@ -29,14 +29,15 @@ type ImageListParams struct {
 
 func (ilp *ImageListParams) FillFromQuery(query Queryable) {
 	ilp.Q = query.Get("q")
-	ilp.SFW, _ = strconv.ParseBool(query.Get("sfw"))
+	if nsfw, err := strconv.Atoi(query.Get("nsfw")); err == nil {
+		ilp.NSFW = int32(nsfw)
+	} else {
+		ilp.NSFW = -1
+	}
 	ilp.OrderBy = query.Get("order_by")
 	ilp.Sort = strings.ToLower(query.Get("sort"))
 	ilp.Offset, _ = strconv.ParseInt(query.Get("offset"), 10, 64)
 	ilp.Limit, _ = strconv.ParseInt(query.Get("limit"), 10, 64)
-	if ilp.Limit > 100 {
-		ilp.Limit = 100
-	}
 	if ilp.Limit < 1 {
 		ilp.Limit = 25
 	}
@@ -64,8 +65,8 @@ func (ilp ImageListParams) CountQuery() (expr []bob.Mod[*dialect.SelectQuery]) {
 		)
 	}
 
-	if ilp.SFW {
-		expr = append(expr, models.SelectWhere.Images.NSFW.EQ(0))
+	if ilp.NSFW >= 0 {
+		expr = append(expr, models.SelectWhere.Images.NSFW.EQ(ilp.NSFW))
 	}
 
 	if len(ilp.Device) > 0 {

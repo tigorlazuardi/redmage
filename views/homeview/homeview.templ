@@ -5,6 +5,7 @@ import "github.com/tigorlazuardi/redmage/views"
 import "github.com/tigorlazuardi/redmage/views/utils"
 import "strconv"
 import "fmt"
+import "github.com/tigorlazuardi/redmage/api"
 
 templ Home(c *views.Context, data Data) {
 	@components.Doctype() {
@@ -83,8 +84,22 @@ templ filterBar(c *views.Context, data Data) {
 		class="grid grid-cols-[1fr,4fr] sm:grid-cols-[1fr,4fr,1fr,4fr] items-center gap-4"
 	>
 		@nsfwToggle(data)
+		@limitInput(data.ImageListParams)
 		@recentRangeInput(c.Query.Get("created_at"))
 	</div>
+}
+
+templ limitInput(params api.ImageListParams) {
+	<label for="limit" class="label">Limit</label>
+	<select id="limit" name="limit" class="select select-bordered w-full">
+		<option value="0" selected?={ params.Limit ==0 }>*No Limit</option>
+		<option value="25" selected?={ params.Limit == 25 }>25</option>
+		<option value="50" selected?={ params.Limit == 50 }>50</option>
+		<option value="75" selected?={ params.Limit == 75 }>75</option>
+		<option value="100" selected?={ params.Limit == 100 }>100</option>
+		<option value="200" selected?={ params.Limit == 200 }>200</option>
+		<option value="300" selected?={ params.Limit == 300 }>300</option>
+	</select>
 }
 
 templ recentRangeInput(current string) {
@@ -92,7 +107,7 @@ templ recentRangeInput(current string) {
 	<select
 		id="range"
 		name="created_at"
-		class="select select-ghost select-bordered"
+		class="select select-ghost select-bordered w-full"
 	>
 		@rangeOption("-10800", "3 Hours", current == "-10800")
 		@rangeOption("-21600", "6 Hours", current == "-21600")
@@ -101,7 +116,7 @@ templ recentRangeInput(current string) {
 		@rangeOption("-172800", "2 Days", current == "-172800")
 		@rangeOption("-259200", "3 Days", current == "-259200")
 		@rangeOption("-604800", "7 Days", current == "-604800")
-		@rangeOption("-2592000", "7 Days", current == "-2592000")
+		@rangeOption("-2592000", "30 Days", current == "-2592000")
 	</select>
 }
 
@@ -113,10 +128,11 @@ templ nsfwToggle(data Data) {
 	<label for="nsfw" class="label">NSFW</label>
 	<select
 		id="nsfw"
-		name="sfw"
-		class="select select-ghost select-bordered"
+		name="nsfw"
+		class="select select-ghost select-bordered w-full"
 	>
-		<option value="0">Show</option>
-		<option selected?={ data.ImageListParams.SFW } value="1">Hide</option>
+		<option value="-1" selected?={ data.ImageListParams.NSFW < 0 }>*No Filter</option>
+		<option value="0" selected?={ data.ImageListParams.NSFW == 0 }>Hide</option>
+		<option value="1" selected?={ data.ImageListParams.NSFW == 1 }>Show Only</option>
 	</select>
 }
