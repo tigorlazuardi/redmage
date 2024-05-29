@@ -8,7 +8,7 @@ import (
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/views"
-	"github.com/tigorlazuardi/redmage/views/subredditsview/detailsview"
+	"github.com/tigorlazuardi/redmage/views/subreddits/details"
 )
 
 func (routes *Routes) PageSubredditsDetails(rw http.ResponseWriter, r *http.Request) {
@@ -20,7 +20,7 @@ func (routes *Routes) PageSubredditsDetails(rw http.ResponseWriter, r *http.Requ
 	var params api.SubredditGetByNameImageParams
 	params.FillFromQuery(r.URL.Query())
 
-	var data detailsview.Data
+	var data details.Data
 	data.FlashMessageSuccess = r.Header.Get("X-Flash-Message-Success")
 	var err error
 	data.Params = params
@@ -33,7 +33,7 @@ func (routes *Routes) PageSubredditsDetails(rw http.ResponseWriter, r *http.Requ
 		code, message := errs.HTTPMessage(err)
 		rw.WriteHeader(code)
 		data.Error = message
-		if err := detailsview.Detailsview(c, data).Render(ctx, rw); err != nil {
+		if err := details.View(c, data).Render(ctx, rw); err != nil {
 			log.New(ctx).Err(err).Error("failed to render subreddit details page")
 		}
 		return
@@ -47,12 +47,12 @@ func (routes *Routes) PageSubredditsDetails(rw http.ResponseWriter, r *http.Requ
 		code, message := errs.HTTPMessage(err)
 		rw.WriteHeader(code)
 		data.Error = message
-		if err := detailsview.Detailsview(c, data).Render(ctx, rw); err != nil {
+		if err := details.View(c, data).Render(ctx, rw); err != nil {
 			log.New(ctx).Err(err).Error("failed to render subreddit details page")
 		}
 	}
 
-	if err := detailsview.Detailsview(c, data).Render(ctx, rw); err != nil {
+	if err := details.View(c, data).Render(ctx, rw); err != nil {
 		log.New(ctx).Err(err).Error("failed to render subreddit details page")
 	}
 }

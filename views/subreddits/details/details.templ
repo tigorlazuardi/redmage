@@ -1,4 +1,4 @@
-package detailsview
+package details
 
 import "github.com/tigorlazuardi/redmage/views"
 import "github.com/tigorlazuardi/redmage/models"
@@ -18,7 +18,7 @@ type Data struct {
 	FlashMessageSuccess string
 }
 
-templ Detailsview(c *views.Context, data Data) {
+templ View(c *views.Context, data Data) {
 	@components.Doctype() {
 		if data.Subreddit != nil {
 			@components.Head(c, components.HeadTitle(fmt.Sprintf("Subreddit - %s", data.Subreddit.Name)))
@@ -26,7 +26,7 @@ templ Detailsview(c *views.Context, data Data) {
 			@components.Head(c, components.HeadTitle("Subreddit - 404 NOT FOUND"))
 		}
 		@components.Body(c) {
-			@DetailsContent(c, data)
+			@Content(c, data)
 			@components.NotificationContainer() {
 				if data.FlashMessageSuccess != "" {
 					@components.SuccessNotification(data.FlashMessageSuccess)
@@ -36,7 +36,7 @@ templ Detailsview(c *views.Context, data Data) {
 	}
 }
 
-templ DetailsContent(c *views.Context, data Data) {
+templ Content(c *views.Context, data Data) {
 	<main class="prose min-w-full">
 		@components.Container() {
 			if data.Error != "" {
