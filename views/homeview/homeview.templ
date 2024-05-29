@@ -31,13 +31,22 @@ templ HomeContent(c *views.Context, data Data) {
 					<h1 class="mb-4">Recently Added</h1>
 					@filterBar(c, data)
 					<div id="recently-added-images">
-						if data.TotalImages == 0 {
+						if data.TotalImages <= 0 {
 							<h2 class="mt-4">There are no recently added images in the current time range.</h2>
 						} else {
-							<h2 class="mt-4">
+							<h2 class="mt-4 text-center">
 								{ strconv.FormatInt(data.TotalImages, 10) } Images
 							</h2>
+							@showingImageFromTo(data)
 						}
+						<div class="grid justify-center">
+							@components.Pagination(c, components.PaginationData{
+								Limit:   data.ImageListParams.Limit,
+								Total:   data.TotalImages,
+								Offset:  data.ImageListParams.Offset,
+								BaseURL: "/",
+							})
+						</div>
 						for _, recently := range data.RecentlyAddedImages {
 							<div class="divider"></div>
 							<h2 class="mt-4">{ recently.Device.Name }</h2>
@@ -71,6 +80,22 @@ templ HomeContent(c *views.Context, data Data) {
 	</main>
 }
 
+templ showingImageFromTo(data Data) {
+	if data.TotalImages > 1 {
+		<p class="text-center my-4">{ showingFromToImages(data) }</p>
+	}
+}
+
+func showingFromToImages(data Data) string {
+	params := data.ImageListParams
+	start := params.Offset + 1
+	end := params.Limit + params.Offset
+	if end > data.TotalImages {
+		end = data.TotalImages
+	}
+	return fmt.Sprintf("Showing from %d to %d", start, end)
+}
+
 templ filterBar(c *views.Context, data Data) {
 	<div
 		id="filter-bar"
@@ -84,6 +109,7 @@ templ filterBar(c *views.Context, data Data) {
 		class="grid grid-cols-[1fr,4fr] sm:grid-cols-[1fr,4fr,1fr,4fr] items-center gap-4"
 	>
 		@nsfwToggle(data)
+		@deviceFilterInput(data)
 		@limitInput(data.ImageListParams)
 		@recentRangeInput(c.Query.Get("created_at"))
 	</div>
@@ -134,5 +160,19 @@ templ nsfwToggle(data Data) {
 		<option value="-1" selected?={ data.ImageListParams.NSFW < 0 }>*No Filter</option>
 		<option value="0" selected?={ data.ImageListParams.NSFW == 0 }>Hide</option>
 		<option value="1" selected?={ data.ImageListParams.NSFW == 1 }>Show Only</option>
+	</select>
+}
+
+templ deviceFilterInput(data Data) {
+	<label for="device" class="label">Device</label>
+	<select
+		id="device"
+		name="device"
+		class="select select-ghost select-bordered w-full"
+	>
+		<option value="" selected?={ data.ImageListParams.Device == "" }>*All Devices</option>
+		for _, device := range data.Devices {
+			<option value={ device.Slug } selected?={ data.ImageListParams.Device == device.Slug }>{ device.Name }</option>
+		}
 	</select>
 }

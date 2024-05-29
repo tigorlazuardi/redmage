@@ -51,6 +51,8 @@ func (l ListSubredditsParams) Query() (expr []bob.Mod[*dialect.SelectQuery]) {
 	}
 	if l.Limit > 0 {
 		expr = append(expr, sm.Limit(l.Limit))
+	} else if l.Offset > 0 {
+		expr = append(expr, sm.Limit(-1))
 	}
 	if l.Offset > 0 {
 		expr = append(expr, sm.Offset(l.Offset))

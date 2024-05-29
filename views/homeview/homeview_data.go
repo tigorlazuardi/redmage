@@ -17,6 +17,7 @@ type Data struct {
 	Now                 time.Time
 	ListSubredditParams api.ListSubredditsParams
 	ImageListParams     api.ImageListParams
+	Devices             models.DeviceSlice
 }
 
 type RecentlyAddedImages = []RecentlyAddedImage

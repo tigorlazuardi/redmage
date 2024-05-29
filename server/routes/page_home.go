@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/tigorlazuardi/redmage/api"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
 	"github.com/tigorlazuardi/redmage/views"
@@ -20,6 +21,7 @@ func (routes *Routes) PageHome(rw http.ResponseWriter, r *http.Request) {
 
 	data.ListSubredditParams.FillFromQuery(r.URL.Query())
 	data.ListSubredditParams.Limit = 0
+	data.ListSubredditParams.Offset = 0
 	list, err := routes.API.ListSubreddits(ctx, data.ListSubredditParams)
 	if err != nil {
 		log.New(ctx).Err(err).Error("failed to list subreddits")
@@ -36,7 +38,9 @@ func (routes *Routes) PageHome(rw http.ResponseWriter, r *http.Request) {
 	if data.ImageListParams.CreatedAt.IsZero() {
 		data.ImageListParams.CreatedAt = time.Now().Add(-time.Hour * 24) // images in the last 24 hours
 	}
-	data.ImageListParams.Limit = 0
+	if r.URL.Query().Get("limit") == "" {
+		data.ImageListParams.Limit = 100
+	}
 
 	imageList, err := routes.API.ImagesListWithDevicesAndSubreddits(ctx, data.ImageListParams)
 	if err != nil {
@@ -50,6 +54,17 @@ func (routes *Routes) PageHome(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	data.Devices, err = routes.API.GetDevices(ctx, api.DevicesListParams{Status: -1})
+	if err != nil {
+		log.New(ctx).Err(err).Error("failed to list subreddits")
+		code, message := errs.HTTPMessage(err)
+		data := homeview.Data{Error: message}
+		rw.WriteHeader(code)
+		if err := homeview.Home(vc, data).Render(ctx, rw); err != nil {
+			log.New(ctx).Err(err).Error("failed to render home view")
+		}
+		return
+	}
 	data.SubredditsList = list
 	data.RecentlyAddedImages = homeview.NewRecentlyAddedImages(imageList.Images)
 	data.Now = time.Now()

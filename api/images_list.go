@@ -37,8 +37,10 @@ func (ilp *ImageListParams) FillFromQuery(query Queryable) {
 	ilp.OrderBy = query.Get("order_by")
 	ilp.Sort = strings.ToLower(query.Get("sort"))
 	ilp.Offset, _ = strconv.ParseInt(query.Get("offset"), 10, 64)
-	ilp.Limit, _ = strconv.ParseInt(query.Get("limit"), 10, 64)
-	if ilp.Limit < 1 {
+	limit := query.Get("limit")
+	var err error
+	ilp.Limit, err = strconv.ParseInt(limit, 10, 64)
+	if err != nil || ilp.Limit < 0 {
 		ilp.Limit = 25
 	}
 	ilp.Device = query.Get("device")
@@ -88,6 +90,8 @@ func (ilp ImageListParams) Query() (expr []bob.Mod[*dialect.SelectQuery]) {
 	expr = append(expr, ilp.CountQuery()...)
 	if ilp.Limit > 0 {
 		expr = append(expr, sm.Limit(ilp.Limit))
+	} else if ilp.Offset > 0 {
+		expr = append(expr, sm.Limit(-1))
 	}
 
 	if ilp.Offset > 0 {
