@@ -61,7 +61,7 @@ templ devicesList(data Data) {
 				<div class="card-body">
 					<div class="card-title">
 						<h2 class="my-auto">{ device.Name }</h2>
-						<span class="text-sm self-end italic font-normal">{ device.Slug }</span>
+						<span class="text-sm self-end italic font-normal max-xs:hidden">{ device.Slug }</span>
 						<p class="text-xs my-auto text-end">{ fmt.Sprintf("%.0f \u00d7 %.0f", device.ResolutionX, device.ResolutionY) } px</p>
 					</div>
 					<div class="divider">Filter</div>
