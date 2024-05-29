@@ -6,11 +6,12 @@ import (
 )
 
 type Data struct {
-	Error       string
-	Device      *models.Device
-	Images      models.ImageSlice
-	TotalImages int64
-	Params      api.ImageListParams
+	Error               string
+	Device              *models.Device
+	Images              models.ImageSlice
+	TotalImages         int64
+	Params              api.ImageListParams
+	FlashMessageSuccess string
 }
 
 type splitBySubredditImages struct {

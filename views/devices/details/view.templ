@@ -16,6 +16,11 @@ templ View(c *views.Context, data Data) {
 		}
 		@components.Body(c) {
 			@Content(c, data)
+			@components.NotificationContainer() {
+				if data.FlashMessageSuccess != "" {
+					@components.SuccessNotification(data.FlashMessageSuccess)
+				}
+			}
 		}
 	}
 }
@@ -28,19 +33,32 @@ templ Content(c *views.Context, data Data) {
 			} else {
 				<div class="flex justify-between items-center">
 					<h1 class="my-auto">{ data.Device.Name }</h1>
-					<div class="tooltip" data-tip="Edit">
-						<a
-							href={ templ.SafeURL(fmt.Sprintf("/devices/edit/%s", data.Device.Slug)) }
-							class="btn btn-primary no-underline"
-						>
-							@icons.Gear("w-8 h-8 text-primary-content")
-						</a>
-					</div>
+					@actionButton(data)
 				</div>
 				<div class="divider"></div>
 				@filter(c, data)
-				<h2>{ strconv.FormatInt(data.TotalImages, 10) } Images</h2>
-				if data.TotalImages > 0 {
+				<div id="image-content">
+					<h2 class="my-4">{ strconv.FormatInt(data.TotalImages, 10) } Images</h2>
+					if data.TotalImages > 0 {
+						<div class="flex justify-center mt-4">
+							@components.Pagination(c, components.PaginationData{
+								BaseURL: "/devices/details/" + data.Device.Slug,
+								Limit:   data.Params.Limit,
+								Offset:  data.Params.Offset,
+								Total:   data.TotalImages,
+							})
+						</div>
+						<p class="text-center my-4">
+							Showing from 
+							{ strconv.FormatInt(data.Params.Offset + 1, 10) }
+							to 
+							{ strconv.FormatInt(min(data.Params.Limit+data.Params.Offset, data.TotalImages), 10) }
+						</p>
+					}
+					for _, group := range data.splitImages() {
+						<h2 class="my-4">{ group.Subreddit }</h2>
+						@imageList(group.Images)
+					}
 					<div class="flex justify-center mt-4">
 						@components.Pagination(c, components.PaginationData{
 							BaseURL: "/devices/details/" + data.Device.Slug,
@@ -49,34 +67,49 @@ templ Content(c *views.Context, data Data) {
 							Total:   data.TotalImages,
 						})
 					</div>
-					<p class="text-center my-4">
-						Showing from 
-						{ strconv.FormatInt(data.Params.Offset + 1, 10) }
-						to 
-						{ strconv.FormatInt(min(data.Params.Limit+data.Params.Offset, data.TotalImages), 10) }
-					</p>
-				}
-				for _, group := range data.splitImages() {
-					<h2>{ group.Subreddit }</h2>
-					@imageList(group.Images)
-				}
-				<div class="flex justify-center mt-4">
-					@components.Pagination(c, components.PaginationData{
-						BaseURL: "/devices/details/" + data.Device.Slug,
-						Limit:   data.Params.Limit,
-						Offset:  data.Params.Offset,
-						Total:   data.TotalImages,
-					})
 				</div>
 			}
 		}
 	</main>
 }
 
+templ actionButton(data Data) {
+	<div class="max-xs:toast max-xs:z-40">
+		<div class="dropdown dropdown-hover dropdown-top xs:dropdown-bottom dropdown-end">
+			<div
+				tabindex="0"
+				role="button"
+				class="btn btn-primary max-xs:btn-circle max-lg:btn-square xs:btn-outline m-1 max-xs:border-none"
+			>
+				@icons.Kebab("h-8 w-8")
+			</div>
+			<ul
+				tabindex="0"
+				class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 m-0 border-primary border-2"
+				onclick="document.activeElement.blur()"
+			>
+				<li class="m-0 p-0 hover:bg-primary rounded-btn">
+					<a
+						href={ templ.SafeURL(fmt.Sprintf("/devices/edit/%s", data.Device.Slug)) }
+						class="btn btn-ghost btn-sm no-underline m-0"
+					>Edit</a>
+				</li>
+				<div class="xs:hidden divider m-0 p-0"></div>
+				<li class="xs:hidden m-0 p-0 hover:bg-primary rounded-btn">
+					<button
+						class="btn btn-ghost btn-sm m-0"
+						onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+					>Scroll to Top</button>
+				</li>
+			</ul>
+		</div>
+	</div>
+}
+
 templ imageList(images models.ImageSlice) {
-	<div class="overflow-x-auto flex gap-4 p-6 shadow-inner bg-base-300 rounded-2xl w-[85vw] md:w-full scrollbar-track-base-100 scrollbar-thumb-primary scrollbar-thin hover:scrollbar-thumb-base-300">
+	@components.HorizontalImageWell() {
 		for _, data := range images {
 			@components.ImageCard(data, 0)
 		}
-	</div>
+	}
 }

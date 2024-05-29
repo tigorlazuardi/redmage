@@ -2,6 +2,7 @@ package details
 
 import "fmt"
 import "github.com/tigorlazuardi/redmage/views"
+import "github.com/tigorlazuardi/redmage/api"
 
 templ filter(c *views.Context, data Data) {
 	<div
@@ -9,51 +10,53 @@ templ filter(c *views.Context, data Data) {
 		hx-get={ fmt.Sprintf("/devices/details/%s", data.Device.Slug) }
 		hx-include="this"
 		hx-trigger="change, input delay:500ms"
-		hx-target="main"
-		hx-select="main"
+		hx-target="#image-content"
+		hx-select="#image-content"
 		hx-swap="outerHTML"
 		hx-push-url="true"
-		class="grid md:grid-cols-2 gap-4 items-center"
+		class="grid grid-cols-[1fr,4fr] sm:grid-cols-[1fr,4fr,1fr,4fr] gap-4 items-center"
 	>
-		<label class="input input-bordered flex items-center gap-2">
-			<input
-				id="search"
-				type="text"
-				class="grow"
-				placeholder="Search"
-				name="q"
-				value={ data.Params.Q }
-			/>
-			<svg
-				onclick="htmx.trigger('#filter-bar', 'change')"
-				xmlns="http://www.w3.org/2000/svg"
-				viewBox="0 0 16 16"
-				fill="currentColor"
-				class="w-4 h-4 opacity-70"
-			><path fill-rule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clip-rule="evenodd"></path></svg>
-		</label>
-		<div class="grid grid-cols-[1fr,3fr] sm:grid-cols-[1fr,3fr,1fr,3fr] gap-4 items-center">
-			<label for="limit">Limit</label>
-			<select id="limit" name="limit" class="select select-bordered w-full">
-				<option value="25" selected?={ data.Params.Limit == 25 }>25</option>
-				<option value="50" selected?={ data.Params.Limit == 50 }>50</option>
-				<option value="75" selected?={ data.Params.Limit == 75 }>75</option>
-				<option value="100" selected?={ data.Params.Limit == 100 }>100</option>
-			</select>
-			<label for="range">Range</label>
-			<select id="range" name="created_at" class="select select-bordered w-full">
-				@rangeOption(c, "", "*No Filter")
-				@rangeOption(c, "-10800", "3 Hours")
-				@rangeOption(c, "-21600", "6 Hours")
-				@rangeOption(c, "-43200", "12 Hours")
-				@rangeOption(c, "-86400", "1 Day")
-				@rangeOption(c, "-172800", "2 Days")
-				@rangeOption(c, "-259200", "3 Days")
-				@rangeOption(c, "-604800", "7 Days")
-				@rangeOption(c, "-2592000", "30 Days")
-			</select>
-		</div>
+		@searchInput(data.Params)
+		@limitInput(data.Params)
+		@rangeInput(c)
 	</div>
+}
+
+templ searchInput(params api.ImageListParams) {
+	<label for="search" class="label">Search</label>
+	<input
+		id="search"
+		type="text"
+		class="input input-bordered w-full"
+		placeholder="Search"
+		name="q"
+		value={ params.Q }
+	/>
+}
+
+templ limitInput(params api.ImageListParams) {
+	<label class="label" for="limit">Limit</label>
+	<select id="limit" name="limit" class="select select-bordered w-full">
+		<option value="25" selected?={ params.Limit == 25 }>25</option>
+		<option value="50" selected?={ params.Limit == 50 }>50</option>
+		<option value="75" selected?={ params.Limit == 75 }>75</option>
+		<option value="100" selected?={ params.Limit == 100 }>100</option>
+	</select>
+}
+
+templ rangeInput(c *views.Context) {
+	<label class="label" for="range">Range</label>
+	<select id="range" name="created_at" class="select select-bordered w-full">
+		@rangeOption(c, "", "*No Filter")
+		@rangeOption(c, "-10800", "3 Hours")
+		@rangeOption(c, "-21600", "6 Hours")
+		@rangeOption(c, "-43200", "12 Hours")
+		@rangeOption(c, "-86400", "1 Day")
+		@rangeOption(c, "-172800", "2 Days")
+		@rangeOption(c, "-259200", "3 Days")
+		@rangeOption(c, "-604800", "7 Days")
+		@rangeOption(c, "-2592000", "30 Days")
+	</select>
 }
 
 templ rangeOption(c *views.Context, value, display string) {
