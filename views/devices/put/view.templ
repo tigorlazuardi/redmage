@@ -39,10 +39,10 @@ templ Content(c *views.Context, data Data) {
 				method="post"
 				hx-post={ data.PostAction }
 				action={ templ.SafeURL(data.PostAction) }
-				class="grid sm:grid-cols-2 gap-4 sm:gap-y-8"
 				hx-target={ components.NotificationContainerID }
 				hx-target-error={ components.NotificationContainerID }
 				hx-swap="afterbegin"
+				class="grid sm:grid-cols-2 gap-4 sm:gap-y-8"
 			>
 				@NameInput(data.NameInput)
 				if !data.EditMode {
@@ -50,7 +50,7 @@ templ Content(c *views.Context, data Data) {
 				}
 				@ResolutionXInput(data.ResolutionX)
 				@ResolutionYInput(data.ResolutionY)
-				<div class="divider my-auto sm:col-span-2 sm:my-8"><h3 class="m-0 p-0">Filter</h3></div>
+				<div class="divider my-auto sm:my-8 sm:col-span-2"><h3 class="m-0 p-0">Filter</h3></div>
 				@AspectRatioToleranceInput(data.AspectRatioTolerance)
 				@NSFWCheckbox(data.NSFWCheckbox)
 				if !data.EditMode {

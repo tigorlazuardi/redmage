@@ -27,9 +27,8 @@ templ MaxImageResolutionXInput(data ResolutionData) {
 			min="0"
 			@change="$el.setCustomValidity(''); this.error = false"
 			class={ utils.CXX(
-                "input input-bordered", true,
-                "text-error", data.Error != "",
-                "input-error", data.Error != "",
+                "input input-bordered w-full", true,
+                "text-error input-error", data.Error != "",
             ) }
 			:class="{'text-error': error, 'input-error': error}"
 			value={ strconv.Itoa(data.Value) }
@@ -74,9 +73,8 @@ templ MaxImageResolutionYInput(data ResolutionData) {
 			min="0"
 			@change="$el.setCustomValidity(''); this.error = false"
 			class={ utils.CXX(
-                "input input-bordered", true,
-                "text-error", data.Error != "",
-                "input-error", data.Error != "",
+                "input input-bordered w-full", true,
+                "text-error input-error", data.Error != "",
             ) }
 			:class="{'text-error': error, 'input-error': error}"
 			value={ strconv.Itoa(data.Value) }

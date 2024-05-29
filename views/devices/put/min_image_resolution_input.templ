@@ -27,7 +27,7 @@ templ MinImageResolutionXInput(data ResolutionData) {
 			min="0"
 			@change="$el.setCustomValidity(''); this.error = false"
 			class={ utils.CXX(
-                "input input-bordered", true,
+                "input input-bordered w-full", true,
                 "text-error", data.Error != "",
                 "input-error", data.Error != "",
             ) }
@@ -75,7 +75,7 @@ templ MinImageResolutionYInput(data ResolutionData) {
 			min="0"
 			@change="$el.setCustomValidity(''); this.error = false"
 			class={ utils.CXX(
-                "input input-bordered", true,
+                "input input-bordered w-full", true,
                 "text-error", data.Error != "",
                 "input-error", data.Error != "",
             ) }

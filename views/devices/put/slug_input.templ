@@ -35,11 +35,9 @@ templ SlugInput(data SlugInputData) {
 			type="text"
 			@change="$el.setCustomValidity('')"
 			class={ utils.CXX(
-                "input input-bordered", true,
-                "text-error", data.Error != "",
-                "text-success", data.Valid != "",
-                "input-error", data.Error != "",
-                "input-success", data.Valid != "",
+                "input input-bordered w-full", true,
+                "text-error input-error", data.Error != "",
+                "text-success input-success", data.Valid != "",
             ) }
 			hx-get="/htmx/devices/add/validate/slug"
 			hx-trigger="change, input delay:2s"

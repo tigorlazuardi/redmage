@@ -10,7 +10,7 @@ type NameInputData struct {
 }
 
 templ NameInput(data NameInputData) {
-	<label id="name-input-form" class={ utils.CXX("form-control", true, "col-span-2", data.EditMode) }>
+	<label id="name-input-form" class={ utils.CXX("form-control", true, "sm:col-span-2", data.EditMode) }>
 		<div class="label">
 			<span
 				class={ utils.CXX("label-text", true, "text-error", data.Error != "") }
@@ -30,7 +30,7 @@ templ NameInput(data NameInputData) {
 			}
 			name="name"
 			type="text"
-			class={ utils.CXX("input input-bordered", true, "input-error", data.Error != "") }
+			class={ utils.CXX("input input-bordered w-full", true, "input-error", data.Error != "", "sm:col-span-2", data.EditMode) }
 			value={ data.Value }
 		/>
 		<div class="label">

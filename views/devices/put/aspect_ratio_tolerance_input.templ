@@ -21,7 +21,7 @@ templ AspectRatioToleranceInput(data AspectRatioToleranceData) {
 			type="number"
 			min="0"
 			@change="$el.setCustomValidity(''); this.error = false"
-			class="input input-bordered"
+			class="input input-bordered w-full"
 			:class="{'text-error': error, 'input-error': error}"
 			value={ fmt.Sprintf("%.2f", data.Value) }
 			placeholder="0.20"

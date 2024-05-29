@@ -33,7 +33,7 @@ templ ResolutionXInput(data ResolutionData) {
 			min="1"
 			@change="$el.setCustomValidity(''); this.error = false"
 			class={ utils.CXX(
-                "input input-bordered", true,
+                "input input-bordered w-full", true,
                 "text-error", data.Error != "",
                 "input-error", data.Error != "",
             ) }
@@ -82,7 +82,7 @@ templ ResolutionYInput(data ResolutionData) {
 			min="1"
 			@change="$el.setCustomValidity(''); this.error = false"
 			class={ utils.CXX(
-                "input input-bordered", true,
+                "input input-bordered w-full", true,
                 "text-error", data.Error != "",
                 "input-error", data.Error != "",
             ) }
