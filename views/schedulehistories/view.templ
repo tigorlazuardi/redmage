@@ -1,0 +1,151 @@
+package schedulehistories
+
+import "github.com/tigorlazuardi/redmage/views"
+import "github.com/tigorlazuardi/redmage/views/components"
+import "github.com/tigorlazuardi/redmage/models"
+import "github.com/tigorlazuardi/redmage/api"
+import "fmt"
+import "time"
+import "github.com/tigorlazuardi/redmage/views/icons"
+
+type Data struct {
+	ScheduleHistories models.ScheduleHistorySlice
+	Params            api.ScheduleHistoryListByDateParams
+	Error             string
+}
+
+func (data Data) isCurrentDay() bool {
+	now := time.Now()
+
+	return now.Format(time.DateOnly) == data.Params.Date.Format(time.DateOnly)
+}
+
+templ View(c *views.Context, data Data) {
+	@components.Doctype() {
+		@components.Head(c,
+			components.HeadTitle("Schedule History"),
+		)
+		@components.Body(c) {
+			@components.Container() {
+				@Content(c, data)
+			}
+			@components.NotificationContainer() {
+				if data.Error != "" {
+					@components.ErrorNotication(data.Error)
+				}
+			}
+		}
+	}
+}
+
+templ Content(c *views.Context, data Data) {
+	<main class="prose min-w-full">
+		<h1>Schedule History ({ time.Local.String() })</h1>
+		<div class="divider my-0"></div>
+		<div
+			class="flex flex-wrap justify-between my-4 items-center"
+			hx-boost="true"
+			hx-select="#root-content"
+			hx-swap="outerHTML"
+			hx-target="#root-content"
+		>
+			if data.isCurrentDay() {
+				<a
+					href="/history"
+					class="btn btn-primary btn-outline btn-square text-base-100"
+				>
+					@icons.Refresh("w-6 h-6")
+				</a>
+			} else {
+				<a
+					href={ templ.SafeURL(fmt.Sprintf("/history?date=%s", data.Params.Date.Add(time.Hour*24).Format(time.DateOnly))) }
+					class="btn btn-primary btn-outline btn-square text-base-100"
+				>
+					@icons.ChevronBoldLeft("w-6 h-6")
+				</a>
+			}
+			<span class="max-xs:hidden text-primary font-bold sm:text-2xl">{ data.Params.Date.Format("Monday, 02 January 2006") }</span>
+			<span class="xs:hidden text-primary font-bold">{ data.Params.Date.Format("Mon, 02 Jan") }</span>
+			<div class="tooltip" data-tip="Next">
+				<a
+					href={ templ.SafeURL(fmt.Sprintf("/history?date=%s", data.Params.Date.Add(time.Hour*-24).Format(time.DateOnly))) }
+					class="btn btn-primary btn-outline btn-square text-base-100 no-underline"
+				>
+					@icons.ChevronBoldRight("w-6 h-6")
+				</a>
+			</div>
+		</div>
+		if len(data.ScheduleHistories) == 0 {
+			<h2>There are no history schedules found for current date.</h2>
+		}
+		if len(data.ScheduleHistories) > 0 {
+			<div class="grid sm:grid-cols-[1fr,9fr] gap-x-4 gap-y-2 sm:gap-y-4">
+				<span class="font-bold max-sm:hidden text-center">Time</span>
+				<span class="font-bold max-sm:hidden">Event</span>
+				for i, schedule := range data.ScheduleHistories {
+					if i > 0 {
+						<div class="divider sm:hidden"></div>
+					}
+					<div
+						x-data={ fmt.Sprintf(`{ time: %d, get tooltip() { return dayjs.unix(this.time).tz(dayjs.tz.guess()).format('ddd, D MMM YYYY HH:mm:ss Z') } }`, schedule.CreatedAt) }
+						:data-tip="tooltip"
+						class="tooltip"
+					>
+						<p class="font-bold max-sm:text-left my-0">
+							{ time.Unix(schedule.CreatedAt, 0).Format("15:04:05") }
+						</p>
+					</div>
+					if api.ScheduleStatus(schedule.Status) == api.ScheduleStatusDisabled {
+						<span>
+							Subreddit 
+							@subredditLink(schedule.Subreddit)
+							scheduler has been set to { api.ScheduleStatusDisabled.String() } status.
+						</span>
+					} else if api.ScheduleStatus(schedule.Status) == api.ScheduleStatusEnabled {
+						<span>
+							Subreddit 
+							@subredditLink(schedule.Subreddit)
+							{ " " }
+							has been <b>{ api.ScheduleStatusEnabled.String() }</b> { "for" } automatic scheduling.
+						</span>
+					} else if api.ScheduleStatus(schedule.Status) == api.ScheduleStatusStandby {
+						<span>
+							Subreddit 
+							@subredditLink(schedule.Subreddit)
+							{ " " }
+							has finished 
+							<b class="text-secondary">{ api.ScheduleStatusDownloading.String() }</b>
+							and turned to <b>{ api.ScheduleStatusStandby.String() }</b> status.
+						</span>
+					} else if api.ScheduleStatus(schedule.Status) == api.ScheduleStatusEnqueued {
+						<span>
+							Subreddit 
+							@subredditLink(schedule.Subreddit)
+							{ " " }
+							is <b class="text-accent">{ api.ScheduleStatusEnqueued.String() } </b> { "for" } downloading.
+						</span>
+					} else if api.ScheduleStatus(schedule.Status) == api.ScheduleStatusDownloading {
+						<span>
+							Subreddit 
+							@subredditLink(schedule.Subreddit)
+							{ " " }
+							has started <b class="text-secondary">{ api.ScheduleStatusDownloading.String() }</b>.
+						</span>
+					} else if api.ScheduleStatus(schedule.Status) == api.ScheduleStatusError {
+						<span>
+							Subreddit 
+							@subredditLink(schedule.Subreddit)
+							{ " " }
+							finishes <b class="text-secondary">{ api.ScheduleStatusDownloading.String() }</b>
+							with <b class="text-error">{ api.ScheduleStatusError.String() }</b> of <span class="text-error">"{ schedule.ErrorMessage }"</span>.
+						</span>
+					}
+				}
+			</div>
+		}
+	</main>
+}
+
+templ subredditLink(subreddit string) {
+	<a href={ templ.URL(fmt.Sprintf("/subreddits/details/%s", subreddit)) } class="text-primary">{ subreddit }</a>
+}
