@@ -29,8 +29,8 @@ func (params *ScheduleHistoryListByDateParams) FillFromQuery(query Queryable) {
 }
 
 func (params *ScheduleHistoryListByDateParams) CountQuery() (expr []bob.Mod[*dialect.SelectQuery]) {
-	unixTopTime := time.Date(params.Date.Year(), params.Date.Month(), params.Date.Day(), 23, 59, 59, 0, params.Date.Location()).Unix()
-	unixLowTime := time.Date(params.Date.Year(), params.Date.Month(), params.Date.Day(), 0, 0, 0, 0, params.Date.Location()).Unix()
+	unixTopTime := time.Date(params.Date.Year(), params.Date.Month(), params.Date.Day(), 23, 59, 59, 0, time.UTC).Unix()
+	unixLowTime := time.Date(params.Date.Year(), params.Date.Month(), params.Date.Day(), 0, 0, 0, 0, time.UTC).Unix()
 	expr = append(expr,
 		models.SelectWhere.ScheduleHistories.CreatedAt.GTE(unixLowTime),
 		models.SelectWhere.ScheduleHistories.CreatedAt.LTE(unixTopTime),
