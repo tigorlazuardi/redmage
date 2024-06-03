@@ -7,7 +7,6 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/stephenafamo/bob"
 	"github.com/tigorlazuardi/redmage/models"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 	"github.com/tigorlazuardi/redmage/pkg/log"
@@ -96,26 +95,22 @@ func (api *API) PubsubStartDownloadSubreddit(ctx context.Context, params PubsubS
 		return errs.Wrapw(err, "failed to verify subreddit existence", "params", params)
 	}
 
-	err = api.withTransaction(ctx, func(exec bob.Executor) error {
-		_, err := api.scheduleSet(ctx, exec, ScheduleSetParams{
-			Subreddit: subreddit.Name,
-			Status:    ScheduleStatusEnqueued,
-		})
-		if err != nil {
-			return err
-		}
-
-		payload, err := json.Marshal(subreddit)
-		if err != nil {
-			return errs.Wrapw(err, "failed to marshal subreddit")
-		}
-
-		err = api.publisher.Publish(downloadTopic, message.NewMessage(watermill.NewUUID(), payload))
-		if err != nil {
-			return errs.Wrapw(err, "failed to enqueue reddit download", "params", params)
-		}
-		return nil
+	_, errSchedule := api.scheduleSet(ctx, api.db, ScheduleSetParams{
+		Subreddit: subreddit.Name,
+		Status:    ScheduleStatusEnqueued,
 	})
+	if errSchedule != nil {
+		log.New(ctx).Err(errSchedule).Error("failed to set schedule status", "subreddit", subreddit.Name, "status", ScheduleStatusEnqueued.String())
+	}
 
+	payload, err := json.Marshal(subreddit)
+	if err != nil {
+		return errs.Wrapw(err, "failed to marshal subreddit")
+	}
+
+	err = api.publisher.Publish(downloadTopic, message.NewMessage(watermill.NewUUID(), payload))
+	if err != nil {
+		return errs.Wrapw(err, "failed to enqueue reddit download", "params", params)
+	}
 	return nil
 }
