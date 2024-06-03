@@ -1,0 +1,23 @@
+package progress
+
+type ImageDownloadStartData struct {
+	ID        string
+	Subreddit string
+	PostURL   string
+	PostName  string
+	PostTitle string
+}
+
+templ ImageDownloadStart(data ImageDownloadStartData) {
+}
+
+type ImageDownloadEndData struct {
+	ID        string
+	Subreddit string
+	PostURL   string
+	PostName  string
+	PostTitle string
+}
+
+templ ImageDownloadEnd(data ImageDownloadEndData) {
+}
