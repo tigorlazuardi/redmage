@@ -17,16 +17,24 @@ type ScheduleHistoryListByDateParams struct {
 func (params *ScheduleHistoryListByDateParams) FillFromQuery(query Queryable) {
 	var err error
 	params.Date, err = time.Parse("2006-01-02", query.Get("date"))
+	now := time.Now()
 	if err != nil {
-		params.Date = time.Now()
+		params.Date = now
+	}
+	queryDate := time.Date(params.Date.Year(), params.Date.Month(), params.Date.Day(), 0, 0, 0, 0, now.Location())
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	if queryDate.After(today) {
+		params.Date = today
 	}
 }
 
 func (params *ScheduleHistoryListByDateParams) CountQuery() (expr []bob.Mod[*dialect.SelectQuery]) {
 	unixTopTime := time.Date(params.Date.Year(), params.Date.Month(), params.Date.Day(), 23, 59, 59, 0, params.Date.Location()).Unix()
 	unixLowTime := time.Date(params.Date.Year(), params.Date.Month(), params.Date.Day(), 0, 0, 0, 0, params.Date.Location()).Unix()
-	expr = append(expr, models.SelectWhere.ScheduleHistories.CreatedAt.GTE(unixLowTime))
-	expr = append(expr, models.SelectWhere.ScheduleHistories.CreatedAt.LTE(unixTopTime))
+	expr = append(expr,
+		models.SelectWhere.ScheduleHistories.CreatedAt.GTE(unixLowTime),
+		models.SelectWhere.ScheduleHistories.CreatedAt.LTE(unixTopTime),
+	)
 	return
 }
 

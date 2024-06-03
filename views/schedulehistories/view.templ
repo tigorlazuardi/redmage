@@ -42,39 +42,7 @@ templ Content(c *views.Context, data Data) {
 	<main class="prose min-w-full">
 		<h1>Schedule History ({ time.Local.String() })</h1>
 		<div class="divider my-0"></div>
-		<div
-			class="flex flex-wrap justify-between my-4 items-center"
-			hx-boost="true"
-			hx-select="#root-content"
-			hx-swap="outerHTML"
-			hx-target="#root-content"
-		>
-			if data.isCurrentDay() {
-				<a
-					href="/history"
-					class="btn btn-primary btn-outline btn-square text-base-100"
-				>
-					@icons.Refresh("w-6 h-6")
-				</a>
-			} else {
-				<a
-					href={ templ.SafeURL(fmt.Sprintf("/history?date=%s", data.Params.Date.Add(time.Hour*24).Format(time.DateOnly))) }
-					class="btn btn-primary btn-outline btn-square text-base-100"
-				>
-					@icons.ChevronBoldLeft("w-6 h-6")
-				</a>
-			}
-			<span class="max-xs:hidden text-primary font-bold sm:text-2xl">{ data.Params.Date.Format("Monday, 02 January 2006") }</span>
-			<span class="xs:hidden text-primary font-bold">{ data.Params.Date.Format("Mon, 02 Jan") }</span>
-			<div class="tooltip" data-tip="Next">
-				<a
-					href={ templ.SafeURL(fmt.Sprintf("/history?date=%s", data.Params.Date.Add(time.Hour*-24).Format(time.DateOnly))) }
-					class="btn btn-primary btn-outline btn-square text-base-100 no-underline"
-				>
-					@icons.ChevronBoldRight("w-6 h-6")
-				</a>
-			</div>
-		</div>
+		@dateBar(data, true)
 		if len(data.ScheduleHistories) == 0 {
 			<h2>There are no history schedules found for current date.</h2>
 		}
@@ -143,7 +111,72 @@ templ Content(c *views.Context, data Data) {
 				}
 			</div>
 		}
+		if len(data.ScheduleHistories) > 20 {
+			@dateBar(data, false)
+		}
+		@actionButton(data)
 	</main>
+}
+
+templ actionButton(data Data) {
+	<div class="xs:hidden">
+		@components.ActionButton(
+			actionButtonNext(data),
+			actionButtonPrev(data),
+		)
+	</div>
+}
+
+templ dateBar(data Data, showDate bool) {
+	<div
+		class="flex flex-wrap justify-between my-4 items-center"
+		hx-boost="true"
+		hx-select="#root-content"
+		hx-swap="outerHTML"
+		hx-target="#root-content"
+	>
+		if data.isCurrentDay() {
+			<a
+				href="/history"
+				class="btn btn-primary btn-outline btn-square text-base-100"
+			>
+				@icons.Refresh("w-6 h-6")
+			</a>
+		} else {
+			<a
+				href={ templ.SafeURL(fmt.Sprintf("/history?date=%s", data.Params.Date.Add(time.Hour*24).Format(time.DateOnly))) }
+				class="btn btn-primary btn-outline btn-square text-base-100"
+			>
+				@icons.ChevronBoldLeft("w-6 h-6")
+			</a>
+		}
+		if showDate {
+			<span class="max-xs:hidden text-primary font-bold sm:text-2xl">{ data.Params.Date.Format("Monday, 02 January 2006") }</span>
+			<span class="xs:hidden text-primary font-bold">{ data.Params.Date.Format("Mon, 02 Jan") }</span>
+		}
+		<div class="tooltip" data-tip="Next">
+			<a
+				href={ templ.SafeURL(fmt.Sprintf("/history?date=%s", data.Params.Date.Add(time.Hour*-24).Format(time.DateOnly))) }
+				class="btn btn-primary btn-outline btn-square text-base-100 no-underline"
+			>
+				@icons.ChevronBoldRight("w-6 h-6")
+			</a>
+		</div>
+	</div>
+}
+
+templ actionButtonNext(data Data) {
+	<a
+		href={ templ.SafeURL(fmt.Sprintf("/history?date=%s", data.Params.Date.Add(time.Hour*-24).Format(time.DateOnly))) }
+		class="btn btn-ghost btn-sm no-underline m-0"
+	>Next</a>
+}
+
+templ actionButtonPrev(data Data) {
+	<a
+		href={ templ.SafeURL(fmt.Sprintf("/history?date=%s", data.Params.Date.Add(time.Hour*24).Format(time.DateOnly))) }
+		class="btn btn-ghost btn-sm no-underline m-0"
+	>Previous</a>
 }
 
 templ subredditLink(subreddit string) {
