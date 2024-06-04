@@ -6,20 +6,20 @@ templ ActionButton(components ...templ.Component) {
 	<div
 		class="max-xs:toast max-xs:z-40"
 		x-data="{ show: false }"
-		@click="show = !show; if (!show) document.activeElement.blur()"
-		@click.away="show = false"
 	>
 		<div class="dropdown dropdown-hover dropdown-top xs:dropdown-bottom dropdown-end">
 			<div
 				tabindex="0"
 				role="button"
 				class="btn btn-primary max-xs:btn-circle max-lg:btn-square xs:btn-outline m-1 max-xs:border-none"
+				x-ref="button"
 			>
 				@icons.Kebab("h-8 w-8")
 			</div>
 			<ul
 				tabindex="0"
 				class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 m-0 border-primary border-2"
+				@click="document.activeElement.blur()"
 			>
 				for i, component := range components {
 					if i > 0 {

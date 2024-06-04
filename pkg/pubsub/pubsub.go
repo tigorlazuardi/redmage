@@ -1,11 +1,11 @@
 package pubsub
 
 import (
+	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-bolt/pkg/bolt"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/tigorlazuardi/redmage/config"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
-	"github.com/tigorlazuardi/redmage/pkg/log"
 	"go.etcd.io/bbolt"
 )
 
@@ -23,7 +23,7 @@ func NewPublisher(db *bbolt.DB) (message.Publisher, error) {
 	return bolt.NewPublisher(db, bolt.PublisherConfig{
 		Common: bolt.CommonConfig{
 			Bucket: []bolt.BucketName{bolt.BucketName("watermill")},
-			Logger: &log.WatermillLogger{},
+			Logger: watermill.NopLogger{},
 		},
 	})
 }
@@ -33,7 +33,7 @@ func NewSubscriber(db *bbolt.DB) (message.Subscriber, error) {
 		Common: bolt.CommonConfig{
 			Bucket:    []bolt.BucketName{bolt.BucketName("watermill")},
 			Marshaler: nil,
-			Logger:    &log.WatermillLogger{},
+			Logger:    watermill.NopLogger{},
 		},
 	})
 }

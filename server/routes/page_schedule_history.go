@@ -18,7 +18,7 @@ func (routes *Routes) PageScheduleHistory(rw http.ResponseWriter, req *http.Requ
 	var data schedulehistories.Data
 
 	data.Params.FillFromQuery(req.URL.Query())
-	result, err := routes.API.ScheduleHistoryListByDate(ctx, data.Params)
+	result, err := routes.API.ScheduleHistoryList(ctx, data.Params)
 	if err != nil {
 		log.New(ctx).Err(err).Error("Failed to list schedule histories")
 		code, message := errs.HTTPMessage(err)
@@ -30,7 +30,15 @@ func (routes *Routes) PageScheduleHistory(rw http.ResponseWriter, req *http.Requ
 		return
 	}
 
-	data.ScheduleHistories = result.Schedules
+	data.ScheduleHistories = result
+
+	if latest, _ := routes.API.ScheduleHistoryLatest(ctx); latest != nil {
+		if first := data.ScheduleHistories.GetFirst(); first != nil {
+			if first.ID == latest.ID {
+				data.IsCurrent = true
+			}
+		}
+	}
 
 	if err := schedulehistories.View(c, data).Render(ctx, rw); err != nil {
 		log.New(ctx).Err(err).Error("Failed to render schedule histories view")
