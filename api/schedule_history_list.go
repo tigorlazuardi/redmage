@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"slices"
 	"strconv"
 	"time"
 
@@ -16,26 +17,20 @@ import (
 type ScheduleHistoryListParams struct {
 	Subreddit string
 	Time      time.Time
-	Direction string
+	Reversed  bool
 
-	Limit  int64
-	Offset int64
+	Limit int64
 }
 
 func (params *ScheduleHistoryListParams) FillFromQuery(query Queryable) {
 	params.Subreddit = query.Get("subreddit")
-	params.Direction = query.Get("direction")
+	params.Reversed = query.Get("direction") == "before"
 	params.Limit, _ = strconv.ParseInt(query.Get("limit"), 10, 64)
 	if params.Limit < 1 {
 		params.Limit = 100
 	}
 	if params.Limit > 1000 {
 		params.Limit = 1000
-	}
-
-	params.Offset, _ = strconv.ParseInt(query.Get("offset"), 10, 64)
-	if params.Offset < 0 {
-		params.Offset = 0
 	}
 
 	now := time.Now()
@@ -56,7 +51,7 @@ func (params ScheduleHistoryListParams) CountQuery() (expr []bob.Mod[*dialect.Se
 		expr = append(expr, models.SelectWhere.ScheduleHistories.Subreddit.EQ(params.Subreddit))
 	}
 	if !params.Time.IsZero() {
-		if params.Direction == "before" {
+		if params.Reversed {
 			expr = append(expr,
 				models.SelectWhere.ScheduleHistories.CreatedAt.GTE(params.Time.Unix()),
 			)
@@ -73,10 +68,11 @@ func (params ScheduleHistoryListParams) Query() (expr []bob.Mod[*dialect.SelectQ
 	if params.Limit > 0 {
 		expr = append(expr, sm.Limit(params.Limit))
 	}
-	if params.Offset > 0 {
-		expr = append(expr, sm.Offset(params.Offset))
+	if params.Reversed {
+		expr = append(expr, sm.OrderBy(models.ScheduleHistoryColumns.CreatedAt).Asc())
+	} else {
+		expr = append(expr, sm.OrderBy(models.ScheduleHistoryColumns.CreatedAt).Desc())
 	}
-	expr = append(expr, sm.OrderBy(models.ScheduleHistoryColumns.CreatedAt).Desc())
 
 	return expr
 }
@@ -163,6 +159,10 @@ func (api *API) ScheduleHistoryList(ctx context.Context, params ScheduleHistoryL
 	result.Total, err = models.ScheduleHistories.Query(ctx, api.db, params.CountQuery()...).Count()
 	if err != nil {
 		return result, errs.Wrapw(err, "failed to count schedule histories", "query", params)
+	}
+
+	if params.Reversed {
+		slices.Reverse(result.Schedules)
 	}
 
 	return result, nil

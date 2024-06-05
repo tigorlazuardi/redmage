@@ -130,7 +130,7 @@ func actionButtonItems(data Data) []templ.Component {
 	if !data.IsCurrent {
 		out = append(out, actionButtonPrev(data))
 	}
-	if len(data.ScheduleHistories.Schedules) >= int(data.Params.Limit) {
+	if len(data.ScheduleHistories.Schedules) >= int(data.Params.Limit) || data.Params.Reversed {
 		out = append(out, actionButtonNext(data))
 	}
 	if data.IsCurrent {
@@ -166,7 +166,7 @@ templ dateBar(data Data) {
 				</a>
 			</div>
 		}
-		if len(data.ScheduleHistories.Schedules) >= int(data.Params.Limit) {
+		if len(data.ScheduleHistories.Schedules) >= int(data.Params.Limit) || data.Params.Reversed {
 			<div class="tooltip" data-tip="Next">
 				<a
 					href={ templ.SafeURL(fmt.Sprintf("/history?time=%d", data.ScheduleHistories.GetLastTime().Unix())) }
