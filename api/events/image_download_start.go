@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+
+	"github.com/tigorlazuardi/redmage/pkg/errs"
+	"github.com/tigorlazuardi/redmage/views/components/progress"
 )
 
 type ImageDownloadEvent string
@@ -31,12 +34,19 @@ type ImageDownload struct {
 
 // Render the template.
 func (im ImageDownload) Render(ctx context.Context, w io.Writer) error {
-	panic("not implemented") // TODO: Implement
+	switch im.EventKind {
+	case ImageDownloadStart:
+		return progress.ImageDownloadStartNotification(progress.ImageDownloadStartNotificationData{}).Render(ctx, w)
+	case ImageDownloadEnd:
+		return progress.ImageDownloadEndNotification(progress.ImageDownloadEndNotificationData{}).Render(ctx, w)
+	default:
+		return errs.Fail("events.ImageDownload: unknown event kind", "event", im)
+	}
 }
 
 // Event returns the event name
 func (im ImageDownload) Event() string {
-	return "image.download"
+	return "image.download.notification"
 }
 
 // SerializeTo writes the event data to the writer.

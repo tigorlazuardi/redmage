@@ -1,23 +1,69 @@
 package progress
 
-type ImageDownloadStartData struct {
-	ID        string
-	Subreddit string
-	PostURL   string
-	PostName  string
-	PostTitle string
+import "time"
+import "fmt"
+
+type ImageDownloadStartNotificationData struct {
+	ID                 string
+	Subreddit          string
+	PostURL            string
+	PostName           string
+	PostTitle          string
+	AutoRemoveDuration time.Duration
 }
 
-templ ImageDownloadStart(data ImageDownloadStartData) {
+templ ImageDownloadStartNotification(data ImageDownloadStartNotificationData) {
+	<div
+		id={ data.ID }
+		if data.AutoRemoveDuration > 0 {
+			x-data={ fmt.Sprintf("{ init() { setTimeout(() => $el.remove(), %d) }}", data.AutoRemoveDuration.Milliseconds()) }
+		}
+		onclick="this.remove()"
+		class="alert alert-info hover:bg-success-content transition-all"
+	>
+		<span>
+			<a
+				target="_blank"
+				href={ templ.SafeURL(fmt.Sprintf("https://www.reddit.com/r/%s", data.Subreddit)) }
+			>{ data.Subreddit }</a>:
+			Start Downloading
+			<a href={ templ.SafeURL(data.PostURL) }>{ truncateTitle(data.PostTitle) }</a>
+		</span>
+	</div>
 }
 
-type ImageDownloadEndData struct {
-	ID        string
-	Subreddit string
-	PostURL   string
-	PostName  string
-	PostTitle string
+func truncateTitle(s string) string {
+	if len(s) > 20 {
+		return s[:20] + "..."
+	}
+	return s
 }
 
-templ ImageDownloadEnd(data ImageDownloadEndData) {
+type ImageDownloadEndNotificationData struct {
+	ID                 string
+	Subreddit          string
+	PostURL            string
+	PostName           string
+	PostTitle          string
+	AutoRemoveDuration time.Duration
+}
+
+templ ImageDownloadEndNotification(data ImageDownloadEndNotificationData) {
+	<div
+		id={ data.ID }
+		if data.AutoRemoveDuration > 0 {
+			x-data={ fmt.Sprintf("{ init() { setTimeout(() => $el.remove(), %d) }}", data.AutoRemoveDuration.Milliseconds()) }
+		}
+		onclick="this.remove()"
+		class="alert alert-info hover:bg-success-content transition-all"
+	>
+		<span>
+			<a
+				target="_blank"
+				href={ templ.SafeURL(fmt.Sprintf("https://www.reddit.com/r/%s", data.Subreddit)) }
+			>{ data.Subreddit }</a>:
+			Finished Downloading
+			<a href={ templ.SafeURL(data.PostURL) }>{ truncateTitle(data.PostTitle) }</a>
+		</span>
+	</div>
 }
