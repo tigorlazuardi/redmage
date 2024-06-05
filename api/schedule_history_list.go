@@ -50,21 +50,21 @@ func (params ScheduleHistoryListParams) CountQuery() (expr []bob.Mod[*dialect.Se
 	if params.Subreddit != "" {
 		expr = append(expr, models.SelectWhere.ScheduleHistories.Subreddit.EQ(params.Subreddit))
 	}
-	if !params.Time.IsZero() {
-		if params.Reversed {
-			expr = append(expr,
-				models.SelectWhere.ScheduleHistories.CreatedAt.GTE(params.Time.Unix()),
-			)
-		} else {
-			expr = append(expr, models.SelectWhere.ScheduleHistories.CreatedAt.LT(params.Time.Unix()))
-		}
-	}
 
 	return expr
 }
 
 func (params ScheduleHistoryListParams) Query() (expr []bob.Mod[*dialect.SelectQuery]) {
 	expr = append(expr, params.CountQuery()...)
+	if !params.Time.IsZero() {
+		if params.Reversed {
+			expr = append(expr,
+				models.SelectWhere.ScheduleHistories.CreatedAt.GT(params.Time.Unix()),
+			)
+		} else {
+			expr = append(expr, models.SelectWhere.ScheduleHistories.CreatedAt.LT(params.Time.Unix()))
+		}
+	}
 	if params.Limit > 0 {
 		expr = append(expr, sm.Limit(params.Limit))
 	}
