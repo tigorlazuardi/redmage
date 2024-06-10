@@ -37,6 +37,7 @@ templ ImageCard(data *models.Image, opts ImageCardOption) {
             },
         }`, data.CreatedAt) }
 		class="not-prose card card-bordered bg-base-100 hover:bg-base-200 shadow-xl min-w-[16rem] max-w-[16rem] rounded-xl top-0 hover:-top-1 hover:drop-shadow-2xl transition-all"
+		id={ fmt.Sprintf("image-card-%s-%s", data.Subreddit, data.PostName) }
 	>
 		<figure>
 			<a

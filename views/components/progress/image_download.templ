@@ -19,7 +19,7 @@ templ ImageDownloadStartNotification(data ImageDownloadStartNotificationData) {
 			x-data={ fmt.Sprintf("{ init() { setTimeout(() => $el.remove(), %d) }}", data.AutoRemoveDuration.Milliseconds()) }
 		}
 		onclick="this.remove()"
-		class="alert alert-info hover:bg-success-content transition-all"
+		class="alert alert-info hover:bg-info-content transition-all"
 	>
 		<span>
 			<a
@@ -55,7 +55,7 @@ templ ImageDownloadEndNotification(data ImageDownloadEndNotificationData) {
 			x-data={ fmt.Sprintf("{ init() { setTimeout(() => $el.remove(), %d) }}", data.AutoRemoveDuration.Milliseconds()) }
 		}
 		onclick="this.remove()"
-		class="alert alert-info hover:bg-success-content transition-all"
+		class="alert alert-success hover:bg-success-content transition-all"
 	>
 		<span>
 			<a
@@ -63,6 +63,71 @@ templ ImageDownloadEndNotification(data ImageDownloadEndNotificationData) {
 				href={ templ.SafeURL(fmt.Sprintf("https://www.reddit.com/r/%s", data.Subreddit)) }
 			>{ data.Subreddit }</a>:
 			Finished Downloading
+			<a href={ templ.SafeURL(data.PostURL) }>{ truncateTitle(data.PostTitle) }</a>
+		</span>
+	</div>
+}
+
+type ImageDownloadErrorNotificationData struct {
+	ID                 string
+	Subreddit          string
+	PostURL            string
+	PostName           string
+	PostTitle          string
+	Error              error
+	AutoRemoveDuration time.Duration
+}
+
+templ ImageDownloadErrorNotification(data ImageDownloadErrorNotificationData) {
+	<div
+		id={ data.ID }
+		if data.AutoRemoveDuration > 0 {
+			x-data={ fmt.Sprintf("{ init() { setTimeout(() => $el.remove(), %d) }}", data.AutoRemoveDuration.Milliseconds()) }
+		}
+		onclick="this.remove()"
+		class="alert alert-error hover:bg-error-content transition-all"
+	>
+		<span>
+			<a
+				target="_blank"
+				href={ templ.SafeURL(fmt.Sprintf("https://www.reddit.com/r/%s", data.Subreddit)) }
+			>{ data.Subreddit }</a>:
+			{ data.Error.Error() }
+			<a href={ templ.SafeURL(data.PostURL) }>{ truncateTitle(data.PostTitle) }</a>
+		</span>
+	</div>
+}
+
+type ImageDownloadProgressNotificationData struct {
+	ID                 string
+	Subreddit          string
+	PostURL            string
+	PostName           string
+	PostTitle          string
+	ContentLength      int64
+	Downloaded         int64
+	AutoRemoveDuration time.Duration
+}
+
+func (i ImageDownloadProgressNotificationData) GetProgress() float64 {
+	return float64(i.Downloaded) / float64(i.ContentLength)
+}
+
+templ ImageDownloadProgressNotification(data ImageDownloadProgressNotificationData) {
+	<div
+		id={ data.ID }
+		if data.AutoRemoveDuration > 0 {
+			x-data={ fmt.Sprintf("{ init() { setTimeout(() => $el.remove(), %d) }}", data.AutoRemoveDuration.Milliseconds()) }
+		}
+		onclick="this.remove()"
+		class="alert alert-info hover:bg-info-content transition-all"
+	>
+		<span>
+			<a
+				target="_blank"
+				href={ templ.SafeURL(fmt.Sprintf("https://www.reddit.com/r/%s", data.Subreddit)) }
+			>{ data.Subreddit }</a>:
+			Progress: { fmt.Sprintf("%.2f%%", data.GetProgress()*100) }
 			<a href={ templ.SafeURL(data.PostURL) }>{ truncateTitle(data.PostTitle) }</a>
 		</span>
 	</div>

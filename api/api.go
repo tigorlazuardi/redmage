@@ -8,6 +8,7 @@ import (
 	"github.com/stephenafamo/bob"
 	"github.com/teivah/broadcast"
 	"github.com/tigorlazuardi/redmage/api/bmessage"
+	"github.com/tigorlazuardi/redmage/api/events"
 	"github.com/tigorlazuardi/redmage/api/reddit"
 	"github.com/tigorlazuardi/redmage/api/scheduler"
 	"github.com/tigorlazuardi/redmage/config"
@@ -24,6 +25,7 @@ type API struct {
 	scheduler *scheduler.Scheduler
 
 	downloadBroadcast *broadcast.Relay[bmessage.ImageDownloadMessage]
+	eventBroadcast    *broadcast.Relay[events.Event]
 
 	config *config.Config
 
@@ -57,6 +59,7 @@ func New(deps Dependencies) *API {
 		db:                bob.New(deps.DB),
 		sqldb:             deps.DB,
 		downloadBroadcast: broadcast.NewRelay[bmessage.ImageDownloadMessage](),
+		eventBroadcast:    broadcast.NewRelay[events.Event](),
 		config:            deps.Config,
 		imageSemaphore:    make(chan struct{}, deps.Config.Int("download.concurrency.images")),
 		reddit:            deps.Reddit,
@@ -90,4 +93,8 @@ func (api *API) scheduleRun(subreddit string) {
 	if err != nil {
 		log.New(ctx).Err(err).Error("api: failed to start download subreddit", "subreddit", subreddit)
 	}
+}
+
+func (api *API) GetEventBroadcaster() *broadcast.Relay[events.Event] {
+	return api.eventBroadcast
 }

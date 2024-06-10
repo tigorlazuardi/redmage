@@ -3,13 +3,15 @@ package events
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"strings"
 
 	"github.com/tigorlazuardi/redmage/pkg/log"
 )
 
-func (handler *Handler) SimpleDownloadEvent(rw http.ResponseWriter, r *http.Request) {
-	ctx, span := tracer.Start(r.Context(), "*Routes.EventsAPI")
+func (handler *Handler) HTMXEvents(rw http.ResponseWriter, r *http.Request) {
+	ctx, span := tracer.Start(r.Context(), "*Routes.HTMXEvents")
 	defer span.End()
 
 	flush, ok := rw.(http.Flusher)
@@ -18,9 +20,9 @@ func (handler *Handler) SimpleDownloadEvent(rw http.ResponseWriter, r *http.Requ
 		_ = json.NewEncoder(rw).Encode(map[string]string{"error": "response writer does not support streaming"})
 		return
 	}
+	filters := strings.Split(r.URL.Query().Get("filter"), ",")
 
-	log.New(ctx).Info("new simple event stream connection", "user_agent", r.UserAgent())
-
+	log.New(ctx).Info("new htmx event stream connection", "user_agent", r.UserAgent())
 	rw.Header().Set("Content-Type", "text/event-stream")
 	rw.Header().Set("Cache-Control", "no-cache")
 	rw.Header().Set("Connection", "keep-alive")
@@ -30,6 +32,7 @@ func (handler *Handler) SimpleDownloadEvent(rw http.ResponseWriter, r *http.Requ
 	ev, close := handler.Subscribe()
 	defer close()
 
+loop:
 	for {
 		select {
 		case <-r.Context().Done():
@@ -37,7 +40,19 @@ func (handler *Handler) SimpleDownloadEvent(rw http.ResponseWriter, r *http.Requ
 			return
 		case event := <-ev:
 			msg := event.Event()
-			if _, err := fmt.Fprintf(rw, "event: %s\ndata: %s\n\n", msg, msg); err != nil {
+			for _, filter := range filters {
+				if filter != msg {
+					continue loop
+				}
+			}
+			if _, err := fmt.Fprintf(rw, "event: %s\ndata: ", msg); err != nil {
+				return
+			}
+			if err := event.Render(ctx, rw); err != nil {
+				log.New(ctx).Err(err).Error("failed to render event", "user_agent", r.UserAgent())
+				return
+			}
+			if _, err := io.WriteString(rw, "\n\n"); err != nil {
 				return
 			}
 			flush.Flush()

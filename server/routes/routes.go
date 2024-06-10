@@ -10,6 +10,7 @@ import (
 	"github.com/riandyrn/otelchi"
 	"github.com/tigorlazuardi/redmage/api"
 	"github.com/tigorlazuardi/redmage/config"
+	"github.com/tigorlazuardi/redmage/server/routes/events"
 	"github.com/tigorlazuardi/redmage/server/routes/middleware"
 )
 
@@ -30,6 +31,8 @@ func (routes *Routes) Register(router chi.Router) {
 
 	router.Route("/htmx", routes.registerHTMXRoutes)
 	router.Route("/api/v1", routes.registerV1APIRoutes)
+	eventHandler := events.NewHandler(routes.Config, routes.API.GetEventBroadcaster())
+	router.Route("/events", eventHandler.Route)
 
 	router.Group(routes.registerWWWRoutes)
 }
