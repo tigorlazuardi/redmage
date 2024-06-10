@@ -26,7 +26,10 @@ func (handler *Handler) SimpleEvents(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filters := strings.Split(r.URL.Query().Get("filter"), ",")
+	var filters []string
+	if q := r.URL.Query().Get("filter"); q != "" {
+		filters = strings.Split(q, ",")
+	}
 
 	log.New(ctx).Info("new simple event stream connection", "user_agent", r.UserAgent())
 

@@ -20,7 +20,10 @@ func (handler *Handler) HTMXEvents(rw http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(rw).Encode(map[string]string{"error": "response writer does not support streaming"})
 		return
 	}
-	filters := strings.Split(r.URL.Query().Get("filter"), ",")
+	var filters []string
+	if q := r.URL.Query().Get("filter"); q != "" {
+		filters = strings.Split(q, ",")
+	}
 
 	log.New(ctx).Info("new htmx event stream connection", "user_agent", r.UserAgent())
 	rw.Header().Set("Content-Type", "text/event-stream")
@@ -36,7 +39,7 @@ loop:
 	for {
 		select {
 		case <-r.Context().Done():
-			log.New(ctx).Info("simple event stream connection closed", "user_agent", r.UserAgent())
+			log.New(ctx).Info("HTMX event stream connection closed", "user_agent", r.UserAgent())
 			return
 		case event := <-ev:
 			msg := event.Event()
