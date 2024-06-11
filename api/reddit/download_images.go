@@ -82,7 +82,7 @@ func (reddit *Reddit) downloadImage(ctx context.Context, post Post, kind bmessag
 		return nil, errs.Fail("unexpected status code when trying to download images",
 			"url", url,
 			"status_code", resp.StatusCode,
-		)
+		).Code(resp.StatusCode)
 	}
 	idleSpeedStr := reddit.Config.String("download.timeout.idlespeed")
 	metricSpeed, _ := units.ParseMetricBytes(idleSpeedStr)
