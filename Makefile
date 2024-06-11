@@ -12,6 +12,8 @@ export REDMAGE_WEB_DEPENDENCIES_DAYJS_VERSION=$(shell echo "$${REDMAGE_WEB_DEPEN
 export REDMAGE_WEB_DEPENDENCIES_ALPINEJS_VERSION=$(shell echo "$${REDMAGE_WEB_DEPENDENCIES_ALPINEJS_VERSION:-3.13.10}")
 export REDMAGE_RUNTIME_VERSION=$(shell echo "$${REDMAGE_RUNTIME_VERSION:-unknown}")
 
+export GCO_ENABLED=0
+
 start: dev-dependencies web-dependencies migrate-up
 	REDMAGE_RUNTIME_VERSION=$(shell git describe --tags --abbrev=0) air
 
@@ -84,7 +86,10 @@ web-build-docker:
 	npx tailwindcss --minify -i views/style.css -o public/style.css
 
 build: web-dependencies build-dependencies prepare
-	go build -o redmage
+	go build -ldflags="-s -w" -o redmage
+
+build-prod: build
+	upx -9 redmage
 
 build-docker:
 	goose up

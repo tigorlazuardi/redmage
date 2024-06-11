@@ -38,3 +38,5 @@ public/*.min.js
 models/
 
 /out
+
+/redmage

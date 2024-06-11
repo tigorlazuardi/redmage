@@ -20,6 +20,7 @@
           nodePackages_latest.nodejs
           goose
           air
+          upx
         ];
       };
     };
