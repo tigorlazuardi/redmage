@@ -44,6 +44,10 @@ type ImageDownload struct {
 	Device                string             `json:"device,omitempty"`
 }
 
+func (id ImageDownload) Clone() ImageDownload {
+	return id
+}
+
 // Render the template.
 func (im ImageDownload) Render(ctx context.Context, w io.Writer) error {
 	switch im.EventKind {

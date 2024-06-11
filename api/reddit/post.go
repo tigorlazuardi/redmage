@@ -225,6 +225,13 @@ func (post *Post) IsNSFW() bool {
 	return post.Data.Over18
 }
 
+func (post *Post) IsNSFWInt() int {
+	if post.IsNSFW() {
+		return 1
+	}
+	return 0
+}
+
 func (post *Post) IsImagePost() bool {
 	return post.Data.PostHint == "image"
 }
@@ -373,6 +380,18 @@ func (post *Post) GetPermalink() string {
 
 func (post *Post) GetPostURL() string {
 	return fmt.Sprintf("https://reddit.com%s", post.Data.Permalink)
+}
+
+func (post *Post) GetPostName() string {
+	return post.Data.Name
+}
+
+func (post *Post) GetPostTitle() string {
+	return post.Data.Title
+}
+
+func (post *Post) GetPostCreated() int64 {
+	return int64(post.Data.Created)
 }
 
 func (post *Post) GetID() string {

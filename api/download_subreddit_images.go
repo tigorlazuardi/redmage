@@ -139,7 +139,7 @@ func (api *API) downloadSubredditImage(ctx context.Context, post reddit.Post, su
 	ctx, span := tracer.Start(ctx, "*API.downloadSubredditImage")
 	defer span.End()
 
-	imageHandler, err := api.reddit.DownloadImage(ctx, post, api.downloadBroadcast)
+	imageHandler, err := api.reddit.DownloadImage(ctx, post, api.eventBroadcast)
 	if err != nil {
 		return errs.Wrapw(err, "failed to download image")
 	}

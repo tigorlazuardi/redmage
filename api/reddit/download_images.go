@@ -7,7 +7,9 @@ import (
 	"net/http"
 
 	"github.com/alecthomas/units"
+	"github.com/teivah/broadcast"
 	"github.com/tigorlazuardi/redmage/api/bmessage"
+	"github.com/tigorlazuardi/redmage/api/events"
 	"github.com/tigorlazuardi/redmage/pkg/errs"
 )
 
@@ -35,7 +37,7 @@ func (po *PostImage) Close() error {
 // DownloadImage downloades the image.
 //
 // If downloading image or thumbnail fails
-func (reddit *Reddit) DownloadImage(ctx context.Context, post Post, broadcaster DownloadStatusBroadcaster) (image PostImage, err error) {
+func (reddit *Reddit) DownloadImage(ctx context.Context, post Post, broadcaster *broadcast.Relay[events.Event]) (image PostImage, err error) {
 	ctx, span := tracer.Start(ctx, "*Reddit.DownloadImage")
 	defer span.End()
 	imageUrl := post.GetImageURL()
@@ -45,7 +47,7 @@ func (reddit *Reddit) DownloadImage(ctx context.Context, post Post, broadcaster 
 	return image, err
 }
 
-func (reddit *Reddit) DownloadThumbnail(ctx context.Context, post Post, broadcaster DownloadStatusBroadcaster) (image PostImage, err error) {
+func (reddit *Reddit) DownloadThumbnail(ctx context.Context, post Post, broadcaster *broadcast.Relay[events.Event]) (image PostImage, err error) {
 	ctx, span := tracer.Start(ctx, "*Reddit.DownloadThumbnail")
 	defer span.End()
 	imageUrl := post.GetThumbnailURL()
@@ -55,7 +57,7 @@ func (reddit *Reddit) DownloadThumbnail(ctx context.Context, post Post, broadcas
 	return image, err
 }
 
-func (reddit *Reddit) downloadImage(ctx context.Context, post Post, kind bmessage.ImageKind, broadcaster DownloadStatusBroadcaster) (io.ReadCloser, error) {
+func (reddit *Reddit) downloadImage(ctx context.Context, post Post, kind bmessage.ImageKind, broadcaster *broadcast.Relay[events.Event]) (io.ReadCloser, error) {
 	var (
 		url    string
 		height int64
@@ -87,45 +89,46 @@ func (reddit *Reddit) downloadImage(ctx context.Context, post Post, kind bmessag
 	if metricSpeed == 0 {
 		metricSpeed = 10 * units.KB
 	}
-	metadata := bmessage.ImageMetadata{
-		URL:    url,
-		Height: height,
-		Width:  width,
-		Kind:   kind,
+	eventData := events.ImageDownload{
+		ImageURL:         post.GetImageURL(),
+		ImageHeight:      int32(height),
+		ImageWidth:       int32(width),
+		Subreddit:        post.GetSubreddit(),
+		PostURL:          post.GetPostURL(),
+		PostName:         post.GetPostName(),
+		PostTitle:        post.GetPostTitle(),
+		PostCreated:      post.GetPostCreated(),
+		PostAuthor:       post.GetAuthor(),
+		PostAuthorURL:    post.GetAuthorURL(),
+		ImageOriginalURL: post.GetImageURL(),
+		NSFW:             int32(post.IsNSFWInt()),
 	}
 	idr := &ImageDownloadReader{
 		OnProgress: func(downloaded int64, contentLength int64, err error) {
-			var event bmessage.DownloadEvent
+			var kind events.ImageDownloadEvent
 			if errors.Is(err, io.EOF) {
 				err = nil
 			}
 			if err != nil {
-				event = bmessage.DownloadError
+				kind = events.ImageDownloadError
 			} else {
-				event = bmessage.DownloadProgress
+				kind = events.ImageDownloadProgress
 			}
-			broadcaster.Broadcast(bmessage.ImageDownloadMessage{
-				Event:         event,
-				Metadata:      metadata,
-				ContentLength: units.MetricBytes(resp.ContentLength),
-				Downloaded:    units.MetricBytes(downloaded),
-				Subreddit:     post.GetSubreddit(),
-				PostURL:       post.GetPermalink(),
-				PostID:        post.GetID(),
-				Error:         err,
-			})
+			ev := eventData.Clone()
+			ev.EventKind = kind
+			ev.Downloaded = downloaded
+			ev.ImageSize = contentLength
+			ev.ContentLength = contentLength
+			events.PublishImageDownloadEvent(broadcaster, ev)
 		},
 		OnClose: func(downloaded, contentLength int64, closeErr error) {
-			broadcaster.Broadcast(bmessage.ImageDownloadMessage{
-				Event:         bmessage.DownloadEnd,
-				Metadata:      metadata,
-				ContentLength: units.MetricBytes(resp.ContentLength),
-				Downloaded:    units.MetricBytes(downloaded),
-				Subreddit:     post.GetSubreddit(),
-				PostURL:       post.GetPostURL(),
-				PostID:        post.GetID(),
-				Error:         closeErr,
-			})
+			ev := eventData.Clone()
+			ev.EventKind = events.ImageDownloadEnd
+			ev.Downloaded = downloaded
+			ev.ImageSize = contentLength
+			ev.ContentLength = contentLength
+			ev.Error = closeErr
+			events.PublishImageDownloadEvent(broadcaster, ev)
 		},
 		IdleTimeout:        reddit.Config.Duration("download.timeout.idle"),
 		IdleSpeedThreshold: metricSpeed,
@@ -135,18 +138,11 @@ func (reddit *Reddit) downloadImage(ctx context.Context, post Post, kind bmessag
 	reader, writer := io.Pipe()
 	go func() {
 		defer resp.Body.Close()
-		broadcaster.Broadcast(bmessage.ImageDownloadMessage{
-			Event: bmessage.DownloadStart,
-			Metadata: bmessage.ImageMetadata{
-				URL:    url,
-				Height: height,
-				Width:  width,
-				Kind:   kind,
-			},
-			Subreddit: post.GetSubreddit(),
-			PostURL:   post.GetPostURL(),
-			PostID:    post.GetID(),
-		})
+		ev := eventData.Clone()
+		ev.EventKind = events.ImageDownloadStart
+		ev.ImageSize = resp.ContentLength
+		ev.ContentLength = resp.ContentLength
+		events.PublishImageDownloadEvent(broadcaster, ev)
 		_, err := io.Copy(writer, resp.Body)
 		_ = writer.CloseWithError(err)
 	}()
