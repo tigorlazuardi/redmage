@@ -18,13 +18,13 @@ var DefaultConfig = map[string]any{
 	"log.level":       "info",
 	"log.output":      "stderr",
 	"log.file.enable": true,
-	"log.file.path":   "redmage.log",
+	"log.file.path":   path.Join(xdg.CacheHome, "redmage", "redmage.log"),
 
 	"db.driver":      "sqlite3",
-	"db.string":      "data.db",
+	"db.string":      path.Join(xdg.Home, ".local", "share", "redmage", "data.db"),
 	"db.automigrate": true,
 
-	"pubsub.db.name":      "pubsub.db",
+	"pubsub.db.name":      path.Join(xdg.Home, ".local", "share", "redmage", "pubsub.db"),
 	"pubsub.db.timeout":   "5s",
 	"pubsub.ack.deadline": "30m",
 
