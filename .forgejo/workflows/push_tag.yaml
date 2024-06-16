@@ -19,11 +19,3 @@ jobs:
       - uses: actions/checkout@v4
       - name: Docker Build and Push to Forgejo Registry
         run: docker buildx build --push --build-arg REDMAGE_RUNTIME_VERSION=${{ github.ref_name }} -t git.tigor.web.id/${{secrets.DOCKER_USERNAME}}/redmage:${{ github.ref_name }} -t git.tigor.web.id/tigor/redmage:latest .
-      - name: Login to Github Docker Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ secrets.GHCR_USERNAME }}
-          password: ${{ secrets.GHCR_PASSWORD }}
-      - name: Docker Build and Push to Github Registry
-        run: docker buildx build --push --build-arg REDMAGE_RUNTIME_VERSION=${{ github.ref_name }} -t ghrc.io/${{secrets.GHCR_USERNAME}}/redmage:${{ github.ref_name }} -t ghcr.io/tigor/redmage:latest .
