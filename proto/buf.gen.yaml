@@ -1,0 +1,9 @@
+version: v1
+name: buf.build/tigor/redmage
+plugins:
+  - plugin: go
+    out: ../gen/grpc
+    opt: paths=source_relative
+  - plugin: go-grpc
+    out: ../gen/grpc
+    opt: paths=source_relative
