@@ -1,9 +1,8 @@
-version: v1
-name: buf.build/tigor/redmage
+version: v2
 plugins:
-  - plugin: go
+  - local: protoc-gen-go
     out: ../gen/grpc
     opt: paths=source_relative
-  - plugin: go-grpc
+  - local: protoc-gen-connect-go
     out: ../gen/grpc
     opt: paths=source_relative

@@ -14,6 +14,11 @@ export REDMAGE_RUNTIME_VERSION=$(shell echo "$${REDMAGE_RUNTIME_VERSION:-unknown
 
 export GCO_ENABLED=0
 
+generate:
+	rm -rf ./gen/grpc
+	cd proto
+	buf generate
+
 start: dev-dependencies web-dependencies migrate-up
 	REDMAGE_RUNTIME_VERSION=$(shell git describe --tags --abbrev=0) air
 
