@@ -11,6 +11,8 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/tigorlazuardi/redmage/cli"
 	"github.com/tigorlazuardi/redmage/db"
+
+	_ "github.com/tigorlazuardi/redmage/tools"
 )
 
 //go:embed db/migrations/*.sql

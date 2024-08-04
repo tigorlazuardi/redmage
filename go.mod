@@ -3,12 +3,15 @@ module github.com/tigorlazuardi/redmage
 go 1.22.1
 
 require (
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.34.2-20240717164558-a6c49f84cc0f.2
+	connectrpc.com/connect v1.16.2
 	github.com/ThreeDotsLabs/watermill v1.3.5
 	github.com/ThreeDotsLabs/watermill-bolt v1.1.0
 	github.com/a-h/templ v0.2.663
 	github.com/aarondl/opt v0.0.0-20240108180805-338d04d857dc
 	github.com/adrg/xdg v0.4.0
 	github.com/alecthomas/units v0.0.0-20231202071711-9a357b53e9c9
+	github.com/bufbuild/protovalidate-go v0.6.3
 	github.com/fatih/color v1.16.0
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/gosimple/slug v1.14.0
@@ -35,12 +38,15 @@ require (
 	github.com/tidwall/pretty v1.2.1
 	go.etcd.io/bbolt v1.3.9
 	golang.org/x/net v0.24.0
+	google.golang.org/protobuf v1.34.2
 )
 
 require (
 	github.com/aarondl/json v0.0.0-20221020222930-8b0db17ef1bf // indirect
+	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
 	github.com/boreq/errors v0.1.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
+	github.com/google/cel-go v0.20.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1 // indirect
@@ -50,6 +56,7 @@ require (
 	github.com/qdm12/reprint v0.0.0-20200326205758-722754a53494 // indirect
 	github.com/samber/lo v1.39.0 // indirect
 	github.com/stephenafamo/scan v0.5.0 // indirect
+	github.com/stoewer/go-strcase v1.3.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.26.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.2.0 // indirect
 	golang.org/x/image v0.15.0 // indirect
@@ -57,7 +64,6 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20240415180920-8c6c420018be // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240415180920-8c6c420018be // indirect
 	google.golang.org/grpc v1.63.2 // indirect
-	google.golang.org/protobuf v1.33.0 // indirect
 )
 
 require (

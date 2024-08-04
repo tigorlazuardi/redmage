@@ -15,9 +15,11 @@ export REDMAGE_RUNTIME_VERSION=$(shell echo "$${REDMAGE_RUNTIME_VERSION:-unknown
 export GCO_ENABLED=0
 
 generate:
-	rm -rf ./gen/grpc
+	rm -rf ./gen
 	cd proto
 	buf generate
+	cd ..
+	goverter gen -g 'output:file ../gen/converter/generated.go' -g 'output:package github.com/tigorlazuardi/redmage/gen/converter' ./converts
 
 start: dev-dependencies web-dependencies migrate-up
 	REDMAGE_RUNTIME_VERSION=$(shell git describe --tags --abbrev=0) air

@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package device.v1;
+
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/tigorlazuardi/redmage/gen/proto/device/v1";
+
+service DeviceService {
+  // CreateDevice creates a new device.
+  rpc CreateDevice(CreateDeviceRequest) returns (CreateDeviceResponse) {}
+}
+
+message CreateDeviceRequest {
+  // The `slug` is a unique identifier for the device, used to identify the device within the system.
+  // Each `slug` must be unique across all devices.
+  string slug = 1 [(buf.validate.field).string.min_len = 1];
+
+  // `enable` is a flag to set if a device is enabled upon creation. Default false.
+  bool enable = 2;
+
+  // The name of the device. This is used for display purposes.
+  string name = 3;
+
+  // The display x resolution of the device.
+  double resolution_x = 4;
+
+  // The display y resolution of the device.
+  double resolution_y = 5;
+
+  // aspect_ratio_tolerance is a tolerance for aspect ratio images to be accepted.
+  //
+  // The bigger the aspect_ratio_tolerance, the more images will be fetched, but it also means more likely
+  // for images that will look stretched if you set the device wallpaper view as stretched or
+  // will overfill if you set the device wallpaper view as fill.
+  //
+  // if a device has resolution_x = 1920, resolution_y = 1080, it has an aspect ratio of 1.777~ (1920 divided by 1080).
+  //
+  // an aspect_ratio_tolerance of 0.2 means that the device will accept images with aspect ratio between 1.577~ and 1.977~.
+  //
+  // THIS IS NOT A FILTER FOR IMAGE SIZE. This filter will take images that are far bigger or smaller than the device resolution
+  // as long as the aspect ratio is within the tolerance. Like example above, if an image has resolution of 3840x2160, it will be
+  // accepted by the device even though it is 2 times bigger than the device resolution.
+  //
+  // If you want to filter image size, use min_x, min_y, max_x, max_y fields.
+  //
+  double aspect_ratio_tolerance = 6;
+
+  // The minimum x resolution required for an image to be accepted by the device.
+  //
+  // A value of 0 indicates no minimum x resolution.
+  //
+  // The default value is 0.
+  int32 min_x = 7;
+
+  // The minimum y resolution required for an image to be accepted by the device.
+  //
+  // A value of 0 indicates no minimum y resolution.
+  //
+  // The default value is 0.
+  int32 min_y = 8;
+
+  // The maximum x resolution allowed for an image to be accepted by the device.
+  //
+  // A value of 0 indicates no maximum x resolution.
+  //
+  // The default value is 0.
+  int32 max_x = 9;
+
+  // The maximum y resolution allowed for an image to be accepted by the device.
+  //
+  // A value of 0 indicates no maximum y resolution.
+  //
+  // The default value is 0.
+  int32 max_y = 10;
+
+  // The `nsfw` parameter allows the device to accept NSFW (Not Safe For Work) images when set to true.
+  bool nsfw = 11;
+
+  // `windows_wallpaper_mode` when set to true, downloaded images will be put on single folder location
+  // instead of inside folders separated by subreddit names.
+  bool windows_wallpaper_mode = 12;
+}
+
+message CreateDeviceResponse {
+  // `slug` is the slug of the created device.
+  string slug = 1;
+}
