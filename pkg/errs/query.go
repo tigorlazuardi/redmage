@@ -3,6 +3,8 @@ package errs
 import (
 	"errors"
 	"net/http"
+
+	"connectrpc.com/connect"
 )
 
 func FindCodeOrDefault(err error, def int) int {
@@ -23,6 +25,29 @@ func FindCodeOrDefault(err error, def int) int {
 	}
 
 	return def
+}
+
+func ExtractConnectCode(err error) connect.Code {
+	code := FindCodeOrDefault(err, 500)
+	if code >= 500 {
+		return connect.CodeInternal
+	}
+	switch code {
+	case http.StatusNotFound:
+		return connect.CodeNotFound
+	case http.StatusConflict:
+		return connect.CodeAlreadyExists
+	case http.StatusBadRequest:
+		return connect.CodeInvalidArgument
+	case http.StatusForbidden:
+		return connect.CodePermissionDenied
+	case http.StatusFailedDependency:
+		return connect.CodeUnavailable
+	case http.StatusTooManyRequests:
+		return connect.CodeResourceExhausted
+	default:
+		return connect.CodeUnknown
+	}
 }
 
 func FindMessage(err error) string {
